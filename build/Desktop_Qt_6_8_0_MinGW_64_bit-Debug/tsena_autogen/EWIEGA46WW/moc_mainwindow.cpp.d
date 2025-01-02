@@ -1,5 +1,6 @@
 C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/EWIEGA46WW/moc_mainwindow.cpp: C:/Users/rtoha/Documents/tsena/mainwindow.h \
   C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/moc_predefs.h \
+  C:/Qt/6.8.0/mingw_64/include/QtCore/QDebug \
   C:/Qt/6.8.0/mingw_64/include/QtCore/q20functional.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/q20iterator.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/q20memory.h \

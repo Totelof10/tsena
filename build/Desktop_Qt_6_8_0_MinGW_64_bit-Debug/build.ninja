@@ -81,6 +81,22 @@ build CMakeFiles/tsena.dir/databasemanager.cpp.obj: CXX_COMPILER__tsena_unscanne
   OBJECT_DIR = CMakeFiles\tsena.dir
   OBJECT_FILE_DIR = CMakeFiles\tsena.dir
 
+build CMakeFiles/tsena.dir/custommessagebox.cpp.obj: CXX_COMPILER__tsena_unscanned_Debug C$:/Users/rtoha/Documents/tsena/custommessagebox.cpp || cmake_object_order_depends_target_tsena
+  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NEEDS_QMAIN -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
+  DEP_FILE = CMakeFiles\tsena.dir\custommessagebox.cpp.obj.d
+  FLAGS = -DQT_QML_DEBUG -g -std=gnu++17 -fdiagnostics-color=always
+  INCLUDES = -IC:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include -isystem C:/Qt/6.8.0/mingw_64/include/QtCore -isystem C:/Qt/6.8.0/mingw_64/include -isystem C:/Qt/6.8.0/mingw_64/mkspecs/win32-g++ -isystem C:/Qt/6.8.0/mingw_64/include/QtWidgets -isystem C:/Qt/6.8.0/mingw_64/include/QtGui -isystem C:/Qt/6.8.0/mingw_64/include/QtSql
+  OBJECT_DIR = CMakeFiles\tsena.dir
+  OBJECT_FILE_DIR = CMakeFiles\tsena.dir
+
+build CMakeFiles/tsena.dir/app.cpp.obj: CXX_COMPILER__tsena_unscanned_Debug C$:/Users/rtoha/Documents/tsena/app.cpp || cmake_object_order_depends_target_tsena
+  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NEEDS_QMAIN -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64
+  DEP_FILE = CMakeFiles\tsena.dir\app.cpp.obj.d
+  FLAGS = -DQT_QML_DEBUG -g -std=gnu++17 -fdiagnostics-color=always
+  INCLUDES = -IC:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include -isystem C:/Qt/6.8.0/mingw_64/include/QtCore -isystem C:/Qt/6.8.0/mingw_64/include -isystem C:/Qt/6.8.0/mingw_64/mkspecs/win32-g++ -isystem C:/Qt/6.8.0/mingw_64/include/QtWidgets -isystem C:/Qt/6.8.0/mingw_64/include/QtGui -isystem C:/Qt/6.8.0/mingw_64/include/QtSql
+  OBJECT_DIR = CMakeFiles\tsena.dir
+  OBJECT_FILE_DIR = CMakeFiles\tsena.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target tsena
@@ -89,7 +105,7 @@ build CMakeFiles/tsena.dir/databasemanager.cpp.obj: CXX_COMPILER__tsena_unscanne
 #############################################
 # Link the executable tsena.exe
 
-build tsena.exe: CXX_EXECUTABLE_LINKER__tsena_Debug CMakeFiles/tsena.dir/tsena_autogen/mocs_compilation.cpp.obj CMakeFiles/tsena.dir/main.cpp.obj CMakeFiles/tsena.dir/mainwindow.cpp.obj CMakeFiles/tsena.dir/databasemanager.cpp.obj | C$:/Qt/6.8.0/mingw_64/lib/libQt6Widgets.a C$:/Qt/6.8.0/mingw_64/lib/libQt6Sql.a C$:/Qt/6.8.0/mingw_64/lib/libQt6Gui.a C$:/Qt/6.8.0/mingw_64/lib/libQt6Core.a C$:/Qt/6.8.0/mingw_64/lib/libQt6EntryPoint.a || tsena_autogen tsena_autogen_timestamp_deps
+build tsena.exe: CXX_EXECUTABLE_LINKER__tsena_Debug CMakeFiles/tsena.dir/tsena_autogen/mocs_compilation.cpp.obj CMakeFiles/tsena.dir/main.cpp.obj CMakeFiles/tsena.dir/mainwindow.cpp.obj CMakeFiles/tsena.dir/databasemanager.cpp.obj CMakeFiles/tsena.dir/custommessagebox.cpp.obj CMakeFiles/tsena.dir/app.cpp.obj | C$:/Qt/6.8.0/mingw_64/lib/libQt6Widgets.a C$:/Qt/6.8.0/mingw_64/lib/libQt6Sql.a C$:/Qt/6.8.0/mingw_64/lib/libQt6Gui.a C$:/Qt/6.8.0/mingw_64/lib/libQt6Core.a C$:/Qt/6.8.0/mingw_64/lib/libQt6EntryPoint.a || tsena_autogen tsena_autogen_timestamp_deps
   FLAGS = -DQT_QML_DEBUG -g
   LINK_FLAGS = -mwindows
   LINK_LIBRARIES = C:/Qt/6.8.0/mingw_64/lib/libQt6Widgets.a  C:/Qt/6.8.0/mingw_64/lib/libQt6Sql.a  C:/Qt/6.8.0/mingw_64/lib/libQt6Gui.a  -ld3d11  -ldxgi  -ldxguid  -ld3d12  C:/Qt/6.8.0/mingw_64/lib/libQt6Core.a  -lmpr  -luserenv  -lmingw32  C:/Qt/6.8.0/mingw_64/lib/libQt6EntryPoint.a  -lshell32  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
@@ -176,7 +192,7 @@ build tsena_autogen_timestamp_deps: phony
 #############################################
 # Utility command for tsena_autogen
 
-build tsena_autogen: phony CMakeFiles/tsena_autogen tsena_autogen/include/ui_mainwindow.h tsena_autogen/timestamp tsena_autogen/mocs_compilation.cpp tsena_autogen_timestamp_deps
+build tsena_autogen: phony CMakeFiles/tsena_autogen tsena_autogen/include/ui_mainwindow.h tsena_autogen/include/ui_app.h tsena_autogen/timestamp tsena_autogen/mocs_compilation.cpp tsena_autogen_timestamp_deps
 
 
 #############################################
@@ -193,7 +209,7 @@ build tsena_autogen/timestamp tsena_autogen/mocs_compilation.cpp | ${cmake_ninja
 #############################################
 # Phony custom command for CMakeFiles\tsena_autogen
 
-build CMakeFiles/tsena_autogen tsena_autogen/include/ui_mainwindow.h | ${cmake_ninja_workdir}CMakeFiles/tsena_autogen ${cmake_ninja_workdir}tsena_autogen/include/ui_mainwindow.h: phony tsena_autogen/timestamp || tsena_autogen_timestamp_deps
+build CMakeFiles/tsena_autogen tsena_autogen/include/ui_mainwindow.h tsena_autogen/include/ui_app.h | ${cmake_ninja_workdir}CMakeFiles/tsena_autogen ${cmake_ninja_workdir}tsena_autogen/include/ui_mainwindow.h ${cmake_ninja_workdir}tsena_autogen/include/ui_app.h: phony tsena_autogen/timestamp || tsena_autogen_timestamp_deps
 
 # =============================================================================
 # Target aliases.

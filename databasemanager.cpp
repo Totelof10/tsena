@@ -3,7 +3,7 @@
 QSqlDatabase& DatabaseManager::getDatabase() {
     static QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "unique_connection_name");
     if (!db.isOpen()) {
-        db.setDatabaseName("C:/db_test/login.db");
+        db.setDatabaseName("C:/db_test/toavina_yaourt.db");
         if (!db.open()) {
             qDebug() << "Erreur : Impossible d'ouvrir la base de données";
         }

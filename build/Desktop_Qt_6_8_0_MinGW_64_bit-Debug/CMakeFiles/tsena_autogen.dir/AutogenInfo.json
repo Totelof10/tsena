@@ -301,6 +301,18 @@
 	"HEADERS" : 
 	[
 		[
+			"C:/Users/rtoha/Documents/tsena/app.h",
+			"MU",
+			"EWIEGA46WW/moc_app.cpp",
+			null
+		],
+		[
+			"C:/Users/rtoha/Documents/tsena/custommessagebox.h",
+			"MU",
+			"EWIEGA46WW/moc_custommessagebox.cpp",
+			null
+		],
+		[
 			"C:/Users/rtoha/Documents/tsena/databasemanager.h",
 			"MU",
 			"EWIEGA46WW/moc_databasemanager.cpp",
@@ -386,6 +398,8 @@
 	"SETTINGS_FILE" : "C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/CMakeFiles/tsena_autogen.dir/AutogenUsed.txt",
 	"SOURCES" : 
 	[
+		[ "C:/Users/rtoha/Documents/tsena/app.cpp", "MU", null ],
+		[ "C:/Users/rtoha/Documents/tsena/custommessagebox.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/databasemanager.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/main.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/mainwindow.cpp", "MU", null ]
