@@ -578,6 +578,7 @@ tsena_autogen/timestamp: \
 	C:/Users/rtoha/Documents/tsena/main.cpp \
 	C:/Users/rtoha/Documents/tsena/mainwindow.cpp \
 	C:/Users/rtoha/Documents/tsena/mainwindow.h \
+	C:/Users/rtoha/Documents/tsena/ressource.qrc \
 	C:/Users/rtoha/Documents/tsena/app.ui \
 	C:/Users/rtoha/Documents/tsena/mainwindow.ui \
 	C:/Qt/Tools/CMake_64/bin/cmake.exe

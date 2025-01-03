@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->btnAnnuler, &QPushButton::clicked, this, &MainWindow::inscription);
     connect(ui->btnAcceder, &QPushButton::clicked, this, &MainWindow::acceder);
     connect(ui->btnInscrire, &QPushButton::clicked, this, &MainWindow::inscrireUtilisateur);
+    connect(ui->btnFermer, &QPushButton::clicked, this, &MainWindow::fermerFenetre);
 
     // Ouvrir la base de données une seule fois au démarrage
     if (!DatabaseManager::getDatabase().open()) {
@@ -119,6 +120,7 @@ void MainWindow::acceder() {
         if (inputHash == storedHash) {
             msgBox.showInformation("", "Tongasoa " + nom); // Message d'accueil plus générique
             App *app = new App(id, statut, this); // Passer l'ID et le statut au constructeur de App et le MainWindow comme parent
+            connect(app, &App::deconnexion, this, &MainWindow::afficher);
             app->show();
             this->hide(); // Cacher la fenêtre de connexion au lieu de la fermer
         } else {
@@ -129,6 +131,14 @@ void MainWindow::acceder() {
     }
 
     nettoyerChamps();
+}
+
+void MainWindow::fermerFenetre(){
+    this->close();
+}
+void MainWindow::afficher()
+{
+    this->show();
 }
 
 MainWindow::~MainWindow()

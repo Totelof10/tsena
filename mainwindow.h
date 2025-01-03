@@ -24,6 +24,8 @@ private slots:
     void acceder();
     void nettoyerChamps();
     void inscrireUtilisateur();
+    void fermerFenetre();
+    void afficher();
 
 private:
     Ui::MainWindow *ui;

@@ -75,13 +75,13 @@
 			{
 				"command" : 4,
 				"file" : 1,
-				"line" : 66,
+				"line" : 69,
 				"parent" : 0
 			},
 			{
 				"command" : 5,
 				"file" : 1,
-				"line" : 49,
+				"line" : 52,
 				"parent" : 0
 			},
 			{
@@ -376,7 +376,8 @@
 				2,
 				6,
 				8,
-				10
+				10,
+				16
 			]
 		}
 	],
@@ -507,7 +508,8 @@
 				2,
 				6,
 				8,
-				10
+				10,
+				16
 			]
 		},
 		{
@@ -518,8 +520,8 @@
 				5,
 				7,
 				9,
-				12,
-				13
+				13,
+				14
 			]
 		},
 		{
@@ -528,14 +530,16 @@
 			[
 				4,
 				11,
-				14
+				12,
+				15
 			]
 		},
 		{
 			"name" : "CMake Rules",
 			"sourceIndexes" : 
 			[
-				15
+				17,
+				18
 			]
 		}
 	],
@@ -609,6 +613,11 @@
 			"sourceGroupIndex" : 2
 		},
 		{
+			"backtrace" : 4,
+			"path" : "ressource.qrc",
+			"sourceGroupIndex" : 2
+		},
+		{
 			"backtrace" : 0,
 			"isGenerated" : true,
 			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_mainwindow.h",
@@ -628,8 +637,21 @@
 		},
 		{
 			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/EWIEGA46WW/qrc_ressource.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
 			"isGenerated" : true,
 			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/timestamp.rule",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/EWIEGA46WW/qrc_ressource.cpp.rule",
 			"sourceGroupIndex" : 3
 		}
 	],

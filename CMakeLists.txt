@@ -26,6 +26,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         databasemanager.h databasemanager.cpp
         custommessagebox.h custommessagebox.cpp
         app.h app.cpp app.ui
+        ressource.qrc
+        formulairevente.h formulairevente.cpp formulairevente.ui
+
+
 
     )
 # Define target properties for Android with Qt 6 as:

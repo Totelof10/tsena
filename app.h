@@ -27,8 +27,9 @@ private slots:
     void handleVenteFacturation();
     void handleStockReaprovisionnement();
     void attributionAcces();
-    //void on_btnDeconnexion_clicked(); // Slot pour le bouton de déconnexion
-
+    void handleDeconnexion(); // Slot pour le bouton de déconnexion
+signals:
+    void deconnexion();
 private:
 
 };

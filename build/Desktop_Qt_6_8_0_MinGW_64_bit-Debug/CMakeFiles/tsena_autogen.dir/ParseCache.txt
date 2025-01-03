@@ -365,9 +365,9 @@ C:/Users/rtoha/Documents/tsena/mainwindow.h
  mdp:C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/moc_predefs.h
  mdp:C:/Users/rtoha/Documents/tsena/mainwindow.h
 C:/Users/rtoha/Documents/tsena/databasemanager.cpp
-C:/Users/rtoha/Documents/tsena/main.cpp
 C:/Users/rtoha/Documents/tsena/mainwindow.cpp
  uic:./ui_mainwindow.h
+C:/Users/rtoha/Documents/tsena/main.cpp
 C:/Users/rtoha/Documents/tsena/custommessagebox.h
  mmc:Q_OBJECT
  mdp:C:/Qt/6.8.0/mingw_64/include/QtCore/q20functional.h

@@ -147,6 +147,44 @@ QPushButton:focus{
         </property>
        </spacer>
       </item>
+      <item>
+       <widget class="QPushButton" name="btnDeconnexion">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>12</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{
+	border:none;
+	
+	image: url(:/Downloads/CartoBMW/img/se-deconnecter.png);
+}
+QPushButton:hover{
+	
+	image: url(:/Downloads/CartoBMW/img/se-deconnecter (1).png);
+	background-color: transparent;
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -167,7 +205,7 @@ QPushButton:focus{
          </font>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="page_vente">
          <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -210,30 +248,90 @@ QPushButton:focus{
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_3">
                 <item>
-                 <widget class="QPushButton" name="pushButton_6">
+                 <widget class="QPushButton" name="btnAjoutVente">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="mouseTracking">
+                   <bool>true</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nouveau&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/prefere.png);
+	border:none;
+}
+QPushButton:hover{
+	image:url(:/Downloads/CartoBMW/img/ajouter-le-contact.png);
+}</string>
+                  </property>
                   <property name="text">
-                   <string>Ajouter</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_7">
+                 <widget class="QPushButton" name="btnModifierVente">
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/crayon.png);
+	border:none;
+}
+QPushButton:hover{
+	image: url(:/Downloads/CartoBMW/img/crayon (1).png);
+}</string>
+                  </property>
                   <property name="text">
-                   <string>Modifier</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_5">
+                 <widget class="QPushButton" name="btnSupprimerVente">
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/supprimer.png);
+	border:none;
+}
+QPushButton:hover{
+	image: url(:/Downloads/CartoBMW/img/supprimer (1).png);
+}</string>
+                  </property>
                   <property name="text">
-                   <string>Supprimer</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_8">
+                 <widget class="QPushButton" name="btnImprimerVente">
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/imprimante.png);
+	border:none;
+}
+QPushButton:hover{
+	image: url(:/Downloads/CartoBMW/img/imprimante-papier.png);
+}</string>
+                  </property>
                   <property name="text">
-                   <string>Imprimer</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
@@ -299,28 +397,28 @@ QPushButton:focus{
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_4">
                 <item>
-                 <widget class="QPushButton" name="pushButton_12">
+                 <widget class="QPushButton" name="btnAjoutStock">
                   <property name="text">
                    <string>Ajouter</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_11">
+                 <widget class="QPushButton" name="btnModifierStock">
                   <property name="text">
                    <string>Modifier</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_10">
+                 <widget class="QPushButton" name="btnSupprimerStock">
                   <property name="text">
                    <string>Supprimer</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_9">
+                 <widget class="QPushButton" name="btnImprimerStock">
                   <property name="text">
                    <string>Imprimer</string>
                   </property>

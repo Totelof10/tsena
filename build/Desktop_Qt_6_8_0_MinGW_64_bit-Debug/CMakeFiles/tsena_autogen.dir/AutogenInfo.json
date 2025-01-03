@@ -292,7 +292,8 @@
 		"C:/Qt/6.8.0/mingw_64/lib/cmake/Qt6Sql/Qt6QSQLiteDriverPluginTargets-relwithdebinfo.cmake",
 		"C:/Qt/6.8.0/mingw_64/lib/cmake/Qt6Sql/Qt6QSQLiteDriverPluginAdditionalTargetInfo.cmake",
 		"C:/Qt/6.8.0/mingw_64/lib/cmake/Qt6Sql/Qt6SqlVersionlessAliasTargets.cmake",
-		"C:/Qt/Tools/CMake_64/share/cmake-3.29/Modules/GNUInstallDirs.cmake"
+		"C:/Qt/Tools/CMake_64/share/cmake-3.29/Modules/GNUInstallDirs.cmake",
+		"C:/Users/rtoha/Documents/tsena/ressource.qrc"
 	],
 	"CMAKE_SOURCE_DIR" : "C:/Users/rtoha/Documents/tsena",
 	"CROSS_CONFIG" : false,
@@ -316,6 +317,12 @@
 			"C:/Users/rtoha/Documents/tsena/databasemanager.h",
 			"MU",
 			"EWIEGA46WW/moc_databasemanager.cpp",
+			null
+		],
+		[
+			"C:/Users/rtoha/Documents/tsena/formulairevente.h",
+			"MU",
+			"EWIEGA46WW/moc_formulairevente.cpp",
 			null
 		],
 		[
@@ -401,6 +408,7 @@
 		[ "C:/Users/rtoha/Documents/tsena/app.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/custommessagebox.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/databasemanager.cpp", "MU", null ],
+		[ "C:/Users/rtoha/Documents/tsena/formulairevente.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/main.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/mainwindow.cpp", "MU", null ]
 	],

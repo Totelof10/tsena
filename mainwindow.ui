@@ -99,7 +99,7 @@ border-radius: 30px;</string>
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="page_3">
      <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -235,6 +235,9 @@ QLineEdit{
                 <widget class="QLineEdit" name="lineEdit_password">
                  <property name="cursor">
                   <cursorShape>PointingHandCursor</cursorShape>
+                 </property>
+                 <property name="echoMode">
+                  <enum>QLineEdit::EchoMode::Password</enum>
                  </property>
                 </widget>
                </item>
@@ -445,7 +448,11 @@ QLabel{
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QLineEdit" name="lineEdit_nouveau_password"/>
+                   <widget class="QLineEdit" name="lineEdit_nouveau_password">
+                    <property name="echoMode">
+                     <enum>QLineEdit::EchoMode::Password</enum>
+                    </property>
+                   </widget>
                   </item>
                   <item row="2" column="0">
                    <widget class="QLabel" name="label_3">
@@ -461,7 +468,11 @@ QLabel{
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QLineEdit" name="lineEdit_confirmation_password"/>
+                   <widget class="QLineEdit" name="lineEdit_confirmation_password">
+                    <property name="echoMode">
+                     <enum>QLineEdit::EchoMode::Password</enum>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </widget>
@@ -517,6 +528,35 @@ QLabel{
       </item>
      </layout>
     </widget>
+   </widget>
+   <widget class="QPushButton" name="btnFermer">
+    <property name="geometry">
+     <rect>
+      <x>364</x>
+      <y>10</y>
+      <width>81</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/360_F_725369225_904m6RnIEgn6BJOIYIkTwfY9pmuvXbza.jpg);
+	border: none;
+}
+QPushButton:hover{
+	
+	image: url(:/Downloads/CartoBMW/img/216926646-close-button-x-in-circle-red-cross-icon-symbol-vector.jpg);
+}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

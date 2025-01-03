@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../../Downloads/CartoBMW/img/360_F_725369225_904m6RnIEgn6BJOIYIkTwfY9pmuvXbza.jpg</file>
+        <file>../../Downloads/CartoBMW/img/216926646-close-button-x-in-circle-red-cross-icon-symbol-vector.jpg</file>
+        <file>../../Downloads/CartoBMW/img/ajouter-le-contact.png</file>
+        <file>../../Downloads/CartoBMW/img/prefere.png</file>
+        <file>../../Downloads/CartoBMW/img/crayon (1).png</file>
+        <file>../../Downloads/CartoBMW/img/crayon.png</file>
+        <file>../../Downloads/CartoBMW/img/imprimante.png</file>
+        <file>../../Downloads/CartoBMW/img/imprimante-papier.png</file>
+        <file>../../Downloads/CartoBMW/img/supprimer (1).png</file>
+        <file>../../Downloads/CartoBMW/img/supprimer.png</file>
+        <file>../../Downloads/CartoBMW/img/se-deconnecter (1).png</file>
+        <file>../../Downloads/CartoBMW/img/se-deconnecter.png</file>
+    </qresource>
+</RCC>
