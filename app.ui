@@ -205,7 +205,7 @@ QPushButton:hover{
          </font>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="page_vente">
          <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -385,7 +385,94 @@ QPushButton:hover{
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <widget class="QTableWidget" name="tableWidget_2"/>
+              <widget class="QTableWidget" name="tableStock">
+               <property name="styleSheet">
+                <string notr="true">background-color: white;</string>
+               </property>
+               <attribute name="horizontalHeaderStretchLastSection">
+                <bool>false</bool>
+               </attribute>
+               <column>
+                <property name="text">
+                 <string>Identifiant</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Abréviation</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Nom</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Prix Unitaire</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Fournisseur</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Unité</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Catégorie</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Quantite</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+              </widget>
              </item>
              <item>
               <widget class="QFrame" name="frame_3">
@@ -398,29 +485,77 @@ QPushButton:hover{
                <layout class="QVBoxLayout" name="verticalLayout_4">
                 <item>
                  <widget class="QPushButton" name="btnAjoutStock">
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/prefere.png);
+	border:none;
+}
+QPushButton:hover{
+	image:url(:/Downloads/CartoBMW/img/ajouter-le-contact.png);
+}</string>
+                  </property>
                   <property name="text">
-                   <string>Ajouter</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QPushButton" name="btnModifierStock">
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/crayon.png);
+	border:none;
+}
+QPushButton:hover{
+	image: url(:/Downloads/CartoBMW/img/crayon (1).png);
+}</string>
+                  </property>
                   <property name="text">
-                   <string>Modifier</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QPushButton" name="btnSupprimerStock">
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/supprimer.png);
+	border:none;
+}
+QPushButton:hover{
+	image: url(:/Downloads/CartoBMW/img/supprimer (1).png);
+}</string>
+                  </property>
                   <property name="text">
-                   <string>Supprimer</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QPushButton" name="btnImprimerStock">
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/imprimante.png);
+	border:none;
+}
+QPushButton:hover{
+	image: url(:/Downloads/CartoBMW/img/imprimante-papier.png);
+}</string>
+                  </property>
                   <property name="text">
-                   <string>Imprimer</string>
+                   <string/>
                   </property>
                  </widget>
                 </item>

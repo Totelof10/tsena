@@ -564,6 +564,10 @@ tsena_autogen/timestamp: \
 	C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/vadefs.h \
 	C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/wchar.h \
 	C:/Users/rtoha/Documents/tsena/CMakeLists.txt \
+	C:/Users/rtoha/Documents/tsena/ajoutfournisseur.cpp \
+	C:/Users/rtoha/Documents/tsena/ajoutfournisseur.h \
+	C:/Users/rtoha/Documents/tsena/ajoutnouveauproduits.cpp \
+	C:/Users/rtoha/Documents/tsena/ajoutnouveauproduits.h \
 	C:/Users/rtoha/Documents/tsena/app.cpp \
 	C:/Users/rtoha/Documents/tsena/app.h \
 	C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/.qtc/package-manager/auto-setup.cmake \
@@ -575,10 +579,15 @@ tsena_autogen/timestamp: \
 	C:/Users/rtoha/Documents/tsena/custommessagebox.h \
 	C:/Users/rtoha/Documents/tsena/databasemanager.cpp \
 	C:/Users/rtoha/Documents/tsena/databasemanager.h \
+	C:/Users/rtoha/Documents/tsena/formulairevente.cpp \
+	C:/Users/rtoha/Documents/tsena/formulairevente.h \
 	C:/Users/rtoha/Documents/tsena/main.cpp \
 	C:/Users/rtoha/Documents/tsena/mainwindow.cpp \
 	C:/Users/rtoha/Documents/tsena/mainwindow.h \
 	C:/Users/rtoha/Documents/tsena/ressource.qrc \
+	C:/Users/rtoha/Documents/tsena/ajoutfournisseur.ui \
+	C:/Users/rtoha/Documents/tsena/ajoutnouveauproduits.ui \
 	C:/Users/rtoha/Documents/tsena/app.ui \
+	C:/Users/rtoha/Documents/tsena/formulairevente.ui \
 	C:/Users/rtoha/Documents/tsena/mainwindow.ui \
 	C:/Qt/Tools/CMake_64/bin/cmake.exe

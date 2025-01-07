@@ -28,6 +28,8 @@ private slots:
     void handleStockReaprovisionnement();
     void attributionAcces();
     void handleDeconnexion(); // Slot pour le bouton de déconnexion
+    void ancienNouveau();
+    void afficherProduit();
 signals:
     void deconnexion();
 private:
