@@ -332,6 +332,12 @@
 			null
 		],
 		[
+			"C:/Users/rtoha/Documents/tsena/etatstock.h",
+			"MU",
+			"EWIEGA46WW/moc_etatstock.cpp",
+			null
+		],
+		[
 			"C:/Users/rtoha/Documents/tsena/formulairevente.h",
 			"MU",
 			"EWIEGA46WW/moc_formulairevente.cpp",
@@ -341,6 +347,12 @@
 			"C:/Users/rtoha/Documents/tsena/mainwindow.h",
 			"MU",
 			"EWIEGA46WW/moc_mainwindow.cpp",
+			null
+		],
+		[
+			"C:/Users/rtoha/Documents/tsena/mouvementdestock.h",
+			"MU",
+			"EWIEGA46WW/moc_mouvementdestock.cpp",
 			null
 		]
 	],
@@ -422,9 +434,11 @@
 		[ "C:/Users/rtoha/Documents/tsena/app.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/custommessagebox.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/databasemanager.cpp", "MU", null ],
+		[ "C:/Users/rtoha/Documents/tsena/etatstock.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/formulairevente.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/main.cpp", "MU", null ],
-		[ "C:/Users/rtoha/Documents/tsena/mainwindow.cpp", "MU", null ]
+		[ "C:/Users/rtoha/Documents/tsena/mainwindow.cpp", "MU", null ],
+		[ "C:/Users/rtoha/Documents/tsena/mouvementdestock.cpp", "MU", null ]
 	],
 	"UIC_OPTIONS" : [],
 	"UIC_SEARCH_PATHS" : [],

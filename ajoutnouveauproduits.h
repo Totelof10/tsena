@@ -2,6 +2,7 @@
 #define AJOUTNOUVEAUPRODUITS_H
 
 #include <QWidget>
+#include <QDateTime>
 
 namespace Ui {
 class AjoutNouveauProduits;

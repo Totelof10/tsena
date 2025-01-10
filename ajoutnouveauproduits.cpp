@@ -56,9 +56,9 @@ void AjoutNouveauProduits::ajouterLeProduit(){
     int fournisseur_id = ui->comboFournisseur->currentData().toInt();
     QString unite = ui->lineEditUnite->text().trimmed();
     QString categorie = ui->lineEditCategorie->text().trimmed();
-    int quantite = 0;
+    //int quantite = 0;
     QSqlQuery query(sqlitedb);
-    query.prepare("INSERT INTO produits (abreviation, nom, prix_unitaire, fournisseur_id, unite, categorie, quantite) VALUES (:abreviation, :nom, :prix_unitaire, :fournisseur_id, :unite, :categorie, :quantite)");
+    query.prepare("INSERT INTO produits (abreviation, nom, prix_unitaire, fournisseur_id, unite, categorie) VALUES (:abreviation, :nom, :prix_unitaire, :fournisseur_id, :unite, :categorie)");
     query.bindValue(":abreviation", abreviation);
     query.bindValue(":nom", nom);
     bool ok;
@@ -73,9 +73,29 @@ void AjoutNouveauProduits::ajouterLeProduit(){
     if(!query.exec()){
         msgBox.showError("","Erreur lors de l'ajout du produit");
         qDebug()<<"Erreur lors de l'ajout du produit"<<query.lastError();
+        sqlitedb.rollback();
         this->close();
     }
+
+    int idNouveauProduit = query.lastInsertId().toInt();
+    int quantite = 0;
+    //int seuil_alert = 480;
+    if(!query.prepare("INSERT INTO stock (produit_id, quantite, date_du_dernier_entree) VALUES (:produit_id, :quantite, :date_du_dernier_entree)")){
+        qDebug()<< "Erreur lors de la récupération des données" <<query.lastError();
+        sqlitedb.rollback();
+        return;
+    }
+    query.bindValue(":produit_id", idNouveauProduit);
     query.bindValue(":quantite", quantite);
+    //query.bindValue(":sueil_alert", seuil_alert);
+    query.bindValue(":date_du_dernier_entree", QDateTime::currentDateTime().toString("yyyy-MM-dd"));
+    if(!query.exec()){
+        qDebug()<< "Erreur lors de l'insertion des données"<<query.lastError();
+        sqlitedb.rollback();
+        return;
+    }
+
+    //query.bindValue(":quantite", quantite);
     msgBox.showInformation("", "Ajout réussi!");
     clearForm();
     emit ajoutProduit();

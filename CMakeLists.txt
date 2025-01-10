@@ -30,6 +30,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         formulairevente.h formulairevente.cpp formulairevente.ui
         ajoutfournisseur.h ajoutfournisseur.cpp ajoutfournisseur.ui
         ajoutnouveauproduits.h ajoutnouveauproduits.cpp ajoutnouveauproduits.ui
+        etatstock.h etatstock.cpp etatstock.ui
+        mouvementdestock.h mouvementdestock.cpp mouvementdestock.ui
 
 
 

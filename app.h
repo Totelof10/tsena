@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QDebug>
 #include "mainwindow.h" // Inclure MainWindow.h
+#include <QTableWidgetItem>
 
 namespace Ui {
 class App;
@@ -30,9 +31,15 @@ private slots:
     void handleDeconnexion(); // Slot pour le bouton de déconnexion
     void ancienNouveau();
     void afficherProduit();
+    void etatStock();
+    void mouvementStock();
+    void gererModificationCellule(QTableWidgetItem *item);
+    void supprimerLigne();
 signals:
     void deconnexion();
 private:
+    QString ancienneValeur;
+
 
 };
 
