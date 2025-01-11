@@ -6,6 +6,8 @@
 #include "ajoutnouveauproduits.h"
 #include "etatstock.h"
 #include "mouvementdestock.h"
+#include "ajoutclient.h"
+#include "ajoutvente.h"
 
 App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget *parent)
     : QWidget(parent)
@@ -24,6 +26,7 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     connect(ui->btnPageStock, &QPushButton::clicked,this, &App::handleStockReaprovisionnement);
     connect(ui->btnDeconnexion, &QPushButton::clicked, this, &App::handleDeconnexion);
     connect(ui->btnAjoutStock, &QPushButton::clicked, this, &App::ancienNouveau);
+    connect(ui->btnAjoutVente, &QPushButton::clicked, this, &App::ancienNouveauClient);
     connect(ui->btnEtatStock, &QPushButton::clicked, this, &App::etatStock);
     connect(ui->btnMouvement, &QPushButton::clicked, this, &App::mouvementStock);
     ui->tableStock->setEditTriggers(QAbstractItemView::DoubleClicked);
@@ -100,6 +103,31 @@ void App::ancienNouveau()
         ajout->show();
 
     }
+}
+
+void App::ancienNouveauClient(){
+    CustomMessageBox msgBox;
+    msgBox.setText("Est-ce un nouveau client?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    int ret = msgBox.exec();
+    if(ret == QMessageBox::Yes){
+        AjoutClient *client = new AjoutClient(nullptr);
+        connect(client, &AjoutClient::ajouteClient, this, [this](){
+            AjoutVente *vente = new AjoutVente(nullptr);
+            connect(vente, &AjoutVente::ajouterVente, this, &App::afficherVente);
+            vente->show();
+        });
+        client->show();
+    }else{
+        AjoutVente *vente = new AjoutVente(nullptr);
+        connect(vente, &AjoutVente::ajouterVente, this, &App::afficherVente);
+        vente->show();
+    }
+}
+
+void App::afficherVente(){
+
 }
 
 void App::afficherProduit(){

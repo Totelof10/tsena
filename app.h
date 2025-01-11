@@ -30,7 +30,9 @@ private slots:
     void attributionAcces();
     void handleDeconnexion(); // Slot pour le bouton de déconnexion
     void ancienNouveau();
+    void ancienNouveauClient();
     void afficherProduit();
+    void afficherVente();
     void etatStock();
     void mouvementStock();
     void gererModificationCellule(QTableWidgetItem *item);

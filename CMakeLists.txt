@@ -32,6 +32,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ajoutnouveauproduits.h ajoutnouveauproduits.cpp ajoutnouveauproduits.ui
         etatstock.h etatstock.cpp etatstock.ui
         mouvementdestock.h mouvementdestock.cpp mouvementdestock.ui
+        ajoutclient.h ajoutclient.cpp ajoutclient.ui
+        ajoutvente.h ajoutvente.cpp ajoutvente.ui
 
 
 

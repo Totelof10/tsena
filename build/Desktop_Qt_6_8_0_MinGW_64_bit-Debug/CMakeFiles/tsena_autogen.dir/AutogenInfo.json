@@ -302,6 +302,12 @@
 	"HEADERS" : 
 	[
 		[
+			"C:/Users/rtoha/Documents/tsena/ajoutclient.h",
+			"MU",
+			"EWIEGA46WW/moc_ajoutclient.cpp",
+			null
+		],
+		[
 			"C:/Users/rtoha/Documents/tsena/ajoutfournisseur.h",
 			"MU",
 			"EWIEGA46WW/moc_ajoutfournisseur.cpp",
@@ -311,6 +317,12 @@
 			"C:/Users/rtoha/Documents/tsena/ajoutnouveauproduits.h",
 			"MU",
 			"EWIEGA46WW/moc_ajoutnouveauproduits.cpp",
+			null
+		],
+		[
+			"C:/Users/rtoha/Documents/tsena/ajoutvente.h",
+			"MU",
+			"EWIEGA46WW/moc_ajoutvente.cpp",
 			null
 		],
 		[
@@ -429,8 +441,10 @@
 	"SETTINGS_FILE" : "C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/CMakeFiles/tsena_autogen.dir/AutogenUsed.txt",
 	"SOURCES" : 
 	[
+		[ "C:/Users/rtoha/Documents/tsena/ajoutclient.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/ajoutfournisseur.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/ajoutnouveauproduits.cpp", "MU", null ],
+		[ "C:/Users/rtoha/Documents/tsena/ajoutvente.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/app.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/custommessagebox.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/databasemanager.cpp", "MU", null ],
