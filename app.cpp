@@ -19,8 +19,10 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     ui->setupUi(this);
     attributionAcces();
     afficherProduit();
+    afficherVente();
     //connect(ui->btnPageStock, &QPushButton::clicked, this, &App::afficherProduit);
     ui->tableStock->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableVente->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->stackedWidget->setCurrentWidget(ui->page_vente);
     connect(ui->btnPageVente, &QPushButton::clicked,this, &App::handleVenteFacturation);
     connect(ui->btnPageStock, &QPushButton::clicked,this, &App::handleStockReaprovisionnement);
@@ -37,6 +39,7 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
             ancienneValeur = item->text(); // Sauvegarder l'ancienne valeur
         }
     });
+    connect(ui->btnSupprimerVente, &QPushButton::clicked, this, &App::supprimerVente);
 
 }
 
@@ -45,6 +48,7 @@ void App::handleVenteFacturation(){
 }
 void App::handleStockReaprovisionnement(){
     ui->stackedWidget->setCurrentWidget(ui->page_stock);
+
 }
 void App::attributionAcces() {
     qDebug() << "ID de l'utilisateur connecté:" << m_currentUserId;
@@ -127,6 +131,37 @@ void App::ancienNouveauClient(){
 }
 
 void App::afficherVente(){
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if(!sqlitedb.isOpen()){
+        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+    }
+    QSqlQuery queryAffichage(sqlitedb);
+    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, prix_total, date_vente FROM ligne_vente l "
+                           "INNER JOIN produits p ON id_produit = produit_id "
+                           "INNER JOIN clients c ON id_client = client_id");
+    if(!queryAffichage.exec()){
+        qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
+    }
+    ui->tableVente->setRowCount(0);
+    int row = 0;
+    while(queryAffichage.next()){
+        ui->tableVente->insertRow(row);
+        QString id_vente = queryAffichage.value(0).toString();
+        QString nom_produit = queryAffichage.value(1).toString();
+        QString nom_client = queryAffichage.value(2).toString();
+        int quantite = queryAffichage.value(3).toInt();
+        double prix_total = queryAffichage.value(4).toDouble();
+        QString date_vente = queryAffichage.value(5).toString();
+
+        ui->tableVente->setItem(row, 0, new QTableWidgetItem(id_vente));
+        ui->tableVente->setItem(row, 1, new QTableWidgetItem(nom_produit));
+        ui->tableVente->setItem(row, 2, new QTableWidgetItem(nom_client));
+        ui->tableVente->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
+        ui->tableVente->setItem(row, 4, new QTableWidgetItem(QString::number(prix_total)+" MGA"));
+        ui->tableVente->setItem(row, 5, new QTableWidgetItem(date_vente));
+
+        row++;
+    }
 
 }
 
@@ -146,6 +181,7 @@ void App::afficherProduit(){
         return;
     }
     ui->tableStock->setRowCount(0);
+    ui->tableStock->blockSignals(true);
 
     int row = 0;
     while(query.next()){
@@ -172,6 +208,7 @@ void App::afficherProduit(){
     }
 
     qDebug ()<<"Affiche du tableau";
+    ui->tableStock->blockSignals(false);
 }
 
 void App::gererModificationCellule(QTableWidgetItem *item) {
@@ -272,7 +309,51 @@ void App::supprimerLigne() {
     }
 }
 
+void App::supprimerVente(){
+    int row = ui->tableVente->currentRow();
+    if (row < 0) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner une ligne à supprimer.");
+        return;
+    }
 
+    // Récupérer l'ID du produit (colonne 0)
+    QTableWidgetItem *celluleId = ui->tableVente->item(row, 0);
+    if (!celluleId) {
+        CustomMessageBox().showError("Erreur", "Impossible de trouver l'ID du vente.");
+        return;
+    }
+
+    QString idVente = celluleId->text();
+
+    // Message de confirmation
+    CustomMessageBox msgBox;
+    msgBox.setWindowTitle("Confirmation");
+    msgBox.setText("Êtes-vous sûr de vouloir supprimer cet élément ?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    int ret = msgBox.exec();
+
+    if (ret == QMessageBox::Yes) {
+        // Supprimer de la base de données
+        QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+        QSqlQuery query(sqlitedb);
+        query.prepare("DELETE FROM ligne_vente WHERE id_vente = :id");
+        query.bindValue(":id", idVente);
+
+        if (!query.exec()) {
+            qDebug() << "Erreur lors de la suppression de la base de données :" << query.lastError();
+            CustomMessageBox().showError("Erreur", "Échec de la suppression de la base de données.");
+            return;
+        }
+
+        // Supprimer la ligne du tableau
+        ui->tableVente->removeRow(row);
+
+        // Afficher un message de succès
+        CustomMessageBox().showInformation("Succès", "L'élément a été supprimé avec succès.");
+    }
+
+}
 
 
 void App::etatStock(){

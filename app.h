@@ -37,6 +37,7 @@ private slots:
     void mouvementStock();
     void gererModificationCellule(QTableWidgetItem *item);
     void supprimerLigne();
+    void supprimerVente();
 signals:
     void deconnexion();
 private:
