@@ -2,6 +2,8 @@
 #define AJOUTVENTE_H
 
 #include <QWidget>
+#include <QListWidget>
+#include <QDate>
 
 namespace Ui {
 class AjoutVente;

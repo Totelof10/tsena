@@ -18,7 +18,7 @@ AjoutVente::AjoutVente(QWidget *parent)
             this, &AjoutVente::mettreAJourTotal);
     connect(ui->comboProduit, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &AjoutVente::remettreAZero);
-
+    connect(ui->btnValider, &QPushButton::clicked, this, &AjoutVente::ajouterNouvelleVente);
 
 }
 
@@ -97,37 +97,45 @@ void AjoutVente::ajouterPanier() {
     ui->listWidget->addItem(ligne);
     // Mettre à jour le champ total du panier
     ui->lineEditTotal->setText(QString::number(totalProduit, 'f', 2)); // Total avec 2 décimales
+    double prixTotalTotal = 0.0;
+    for(int i = 0; i< ui->listWidget->count(); i++){
+        QString ligne = ui->listWidget->item(i)->text();
+        QStringList elements = ligne.split("|");
+        if(elements.size()==4){
+            double prixTotal = elements[3].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
+            prixTotalTotal += prixTotal;
+            ui->labelTotal->setText(QString::number(prixTotalTotal)+" MGA");
+        }
+    }
 }
 
 
-void AjoutVente::enleverPanier(){
+void AjoutVente::enleverPanier() {
     CustomMessageBox msgBox;
     QListWidgetItem *item = ui->listWidget->currentItem();
+
     if (!item) {
-        CustomMessageBox msgBox;
         msgBox.showWarning("Erreur", "Veuillez sélectionner un produit à supprimer !");
         return;
     }
 
-    // Récupérer le texte de l'élément (exemple : "Client: Dupont | Produit: Stylo | Quantité: 2 | Prix Total: 20.00 €")
-    QString texteItem = item->text();
+    delete item;
 
-    // Extraire le prix total de la ligne (on suppose que c'est la dernière donnée après ": ")
-    QStringList parts = texteItem.split("Prix Total: ");
-    if (parts.size() == 2) {
-        QString prixStr = parts.last().replace("€", "").trimmed();
-        double prix = prixStr.toDouble();
-
-        // Soustraire le prix du total cumulatif
-        totalCumulatif -= prix;
-
-        // Mettre à jour le champ Total
-        ui->lineEditTotal->setText(QString::number(totalCumulatif, 'f', 2));
+    // Recalculer le total global après suppression de l'élément
+    double prixTotalTotal = 0.0;
+    for(int i = 0; i < ui->listWidget->count(); i++) {
+        QString ligne = ui->listWidget->item(i)->text();
+        QStringList elements = ligne.split("|");
+        if (elements.size() == 4) {
+            double prixTotal = elements[3].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
+            prixTotalTotal += prixTotal;
+        }
     }
 
-    // Supprimer l'élément de la liste
-    delete item;
+    // Mettre à jour le label total global
+    ui->labelTotal->setText(QString::number(prixTotalTotal) + " MGA");
 }
+
 
 void AjoutVente::mettreAJourPrix(int index) {
     // Récupérer l'identifiant du produit à partir de l'élément sélectionné
@@ -152,14 +160,9 @@ void AjoutVente::viderPanier(){
         return;
     }
     clearForm();
-
-    // Supprimer tous les éléments
-    ui->listWidget->clear();
     msgBox.showInformation("Succès", "Tous les éléments ont été supprimés de la liste !");
 }
-void AjoutVente::ajouterNouvelleVente(){
-    emit ajouterVente();
-}
+
 
 void AjoutVente::remettreAZero(int index)
 {
@@ -204,10 +207,84 @@ void AjoutVente::clearForm(){
     ui->spinBoxQuantite->clear();
     ui->lineEditPrix->clear();
     ui->lineEditTotal->clear();
+    ui->listWidget->clear();
+    ui->labelTotal->setText("0");
+    ui->lineEditTotal->clear();
 }
 
 
+void AjoutVente::ajouterNouvelleVente(){
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if(!sqlitedb.open()){
+        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+    }
+    for(int i = 0; i< ui->listWidget->count(); i++){
+        QListWidgetItem *item = ui->listWidget->item(i);
+        QString ligne = item->text();
 
+        QStringList elements = ligne.split("|");
+
+        if (elements.size() == 4) {
+            // Extraire les valeurs sans les préfixes pour Client et Produit
+            QString nomClient = elements[0].remove("Client: ").trimmed();
+
+            QString nomProduit = elements[1].remove("Produit: ").trimmed();
+
+            // Nettoyer la quantité et le prix total
+            QString quantiteStr = elements[2].remove("Quantité: ").trimmed();
+            int quantite = quantiteStr.toInt();  // Convertir en entier
+
+            QString prixTotalStr = elements[3].remove("Prix Total: ").remove("MGA").trimmed();
+
+            double prixTotal = prixTotalStr.toDouble();  // Convertir en flottant
+
+            // Créer les requêtes pour rechercher les ID
+            QSqlQuery queryProduit(sqlitedb);
+            QSqlQuery queryClient(sqlitedb);
+
+            // Rechercher l'ID du client
+            queryClient.prepare("SELECT id_client FROM clients WHERE nom = ?");
+            queryClient.addBindValue(nomClient);
+            if (!queryClient.exec() || !queryClient.next()) {
+                qDebug() << "Erreur lors de la recherche du client : " << queryClient.lastError().text();
+                continue; // Passer à la ligne suivante si le client n'est pas trouvé
+            }
+            int clientId = queryClient.value(0).toInt();
+
+            // Rechercher l'ID du produit
+            queryProduit.prepare("SELECT id_produit FROM produits WHERE nom = ?");
+            queryProduit.addBindValue(nomProduit);
+            if (!queryProduit.exec() || !queryProduit.next()) {
+                qDebug() << "Erreur lors de la recherche du produit : " << queryProduit.lastError().text();
+                continue; // Passer à la ligne suivante si le produit n'est pas trouvé
+            }
+
+            int produitId = queryProduit.value(0).toInt();
+
+            // Créer la requête d'insertion dans la table ligne_vente
+            QSqlQuery queryInsertion(sqlitedb);
+            queryInsertion.prepare("INSERT INTO ligne_vente (produit_id, client_id, quantite, prix_total, date_vente) "
+                                   "VALUES (?, ?, ?, ?, ?)");
+            queryInsertion.addBindValue(produitId);
+            queryInsertion.addBindValue(clientId);
+            queryInsertion.addBindValue(quantite);
+            queryInsertion.addBindValue(prixTotal);
+            queryInsertion.addBindValue(QDate::currentDate().toString("yyyy-MM-dd"));  // Date de la vente
+
+            // Exécuter l'insertion
+            if (!queryInsertion.exec()) {
+                qDebug() << "Erreur lors de l'insertion dans la table ligne_vente : " << queryInsertion.lastError().text();
+            }
+        } else {
+            qDebug() << "La ligne ne contient pas 4 éléments valides.";
+        }
+
+    }
+    CustomMessageBox msgBox;
+    msgBox.showInformation("", "Vente effectuée");
+    emit ajouterVente();
+    clearForm();
+}
 
 
 AjoutVente::~AjoutVente()
