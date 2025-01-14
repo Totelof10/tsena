@@ -38,6 +38,7 @@ private slots:
     void gererModificationCellule(QTableWidgetItem *item);
     void supprimerLigne();
     void supprimerVente();
+    void chiffreDaffaire();
 signals:
     void deconnexion();
 private:

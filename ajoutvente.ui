@@ -75,70 +75,6 @@ border-radius: 9px</string>
           </widget>
          </item>
          <item>
-          <widget class="QFrame" name="frame_8">
-           <property name="frameShape">
-            <enum>QFrame::Shape::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Shadow::Raised</enum>
-           </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QPushButton" name="pushButton">
-              <property name="font">
-               <font>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="cursor">
-               <cursorShape>PointingHandCursor</cursorShape>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{
-	border: 1px solid white;
-	border-radius: 7px;
-	background-color: #213555;
-	color:white;
-	padding: 7px;
-}
-QPushButton:hover{
-	background-color: #3E5879;
-}</string>
-              </property>
-              <property name="text">
-               <string>Imprimer</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
           <spacer name="verticalSpacer_2">
            <property name="orientation">
             <enum>Qt::Orientation::Vertical</enum>
@@ -267,6 +203,10 @@ QPushButton:hover{
             </item>
             <item row="2" column="1">
              <widget class="QSpinBox" name="spinBoxQuantite">
+              <property name="styleSheet">
+               <string notr="true">border: 1px solid black;
+border-raduis: 3px;</string>
+              </property>
               <property name="maximum">
                <number>999999999</number>
               </property>
@@ -355,6 +295,22 @@ QLineEdit:focus{
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
+       <spacer name="verticalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Orientation::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Policy::Preferred</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QPushButton" name="btnAdd">
         <property name="cursor">
          <cursorShape>PointingHandCursor</cursorShape>
@@ -417,10 +373,13 @@ QPushButton:hover{
         <property name="orientation">
          <enum>Qt::Orientation::Vertical</enum>
         </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Policy::Preferred</enum>
+        </property>
         <property name="sizeHint" stdset="0">
          <size>
           <width>20</width>
-          <height>40</height>
+          <height>250</height>
          </size>
         </property>
        </spacer>

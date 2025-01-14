@@ -38,6 +38,7 @@ private slots:
 
 signals:
     void ajouterVente();
+    void CA();
 
 private:
     Ui::AjoutVente *ui;

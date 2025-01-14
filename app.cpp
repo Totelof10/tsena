@@ -20,6 +20,7 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     attributionAcces();
     afficherProduit();
     afficherVente();
+    chiffreDaffaire();
     //connect(ui->btnPageStock, &QPushButton::clicked, this, &App::afficherProduit);
     ui->tableStock->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableVente->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
@@ -120,12 +121,14 @@ void App::ancienNouveauClient(){
         connect(client, &AjoutClient::ajouteClient, this, [this](){
             AjoutVente *vente = new AjoutVente(nullptr);
             connect(vente, &AjoutVente::ajouterVente, this, &App::afficherVente);
+            connect(vente, &AjoutVente::CA, this, &App::chiffreDaffaire);
             vente->show();
         });
         client->show();
     }else{
         AjoutVente *vente = new AjoutVente(nullptr);
         connect(vente, &AjoutVente::ajouterVente, this, &App::afficherVente);
+        connect(vente, &AjoutVente::CA, this, &App::chiffreDaffaire);
         vente->show();
     }
 }
@@ -355,6 +358,31 @@ void App::supprimerVente(){
 
 }
 
+void App::chiffreDaffaire(){
+    CustomMessageBox msgBox;
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    QSqlQuery query(sqlitedb);
+    query.prepare("SELECT SUM(prix_total) FROM ligne_vente");
+    if(!query.exec()){
+        qDebug()<<query.lastError();
+        msgBox.showError("Erreur", "Erreur de calcul "+query.lastError().text());
+        return;
+    }
+    if (!query.exec()) {
+        qDebug() << query.lastError();
+        msgBox.showError("Erreur", "Erreur de calcul: " + query.lastError().text());
+        return;
+    }
+
+    if (query.next()) {  // Vérifie si la requête a renvoyé une ligne
+        QString somme = query.value(0).toString();  // Récupère la somme
+        ui->labelCA->setText(somme + " MGA");  // Affiche la somme avec "Ar"
+    } else {
+        // Cas où il n'y a pas de résultats (s'il n'y a pas de montants ou de lignes correspondantes)
+        msgBox.showError("Information", "Aucun montant trouvé.");
+        ui->labelCA->setText("0 MGA");
+    }
+}
 
 void App::etatStock(){
     EtatStock *stock = new EtatStock(nullptr);

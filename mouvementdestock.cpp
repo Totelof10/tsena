@@ -55,7 +55,7 @@ void MouvementDeStock::recherche(){
     }
     QString recherche = ui->lineEditRecherche->text();
     QSqlQuery query(sqlitedb);
-    query.prepare("SELECT id_mouvement, stock_id, nom, quantite, type_mouvement, date_mouvement, commande_id FROM mouvements_de_stock WHERE nom LIKE :recherche");
+    query.prepare("SELECT id_mouvement, stock_id, nom, quantite, type_mouvement, date_mouvement, vente FROM mouvements_de_stock WHERE nom LIKE :recherche");
     query.bindValue(":recherche", "%"+recherche+"%");
     if(!query.exec()){
         qDebug()<<"Erreur lors de la récupération de données"<<query.lastError();
@@ -70,7 +70,7 @@ void MouvementDeStock::recherche(){
         int quantite = query.value(3).toInt();
         QString type_mouvement = query.value(4).toString();
         QString date_mouvement = query.value(5).toString();
-        QString commande_id = query.value(6).toString();
+        QString vente = query.value(6).toString();
 
         ui->tableWidgetMouvement->setItem(row, 0, new QTableWidgetItem(id_mouvement));
         ui->tableWidgetMouvement->setItem(row, 1, new QTableWidgetItem(stock_id));
@@ -78,7 +78,7 @@ void MouvementDeStock::recherche(){
         ui->tableWidgetMouvement->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
         ui->tableWidgetMouvement->setItem(row, 4, new QTableWidgetItem(type_mouvement));
         ui->tableWidgetMouvement->setItem(row, 5, new QTableWidgetItem(date_mouvement));
-        ui->tableWidgetMouvement->setItem(row, 6, new QTableWidgetItem(commande_id));
+        ui->tableWidgetMouvement->setItem(row, 6, new QTableWidgetItem(vente));
 
         row++;
 
@@ -93,9 +93,9 @@ void MouvementDeStock::filtrageMouvement(){
         qDebug()<<"Erreur lors de la récupération des données"<<sqlitedb.rollback();
     }
     if(combo == "Tous"){
-        query.prepare("SELECT id_mouvement, stock_id, nom, quantite, type_mouvement, date_mouvement, commande_id FROM mouvements_de_stock");
+        query.prepare("SELECT id_mouvement, stock_id, nom, quantite, type_mouvement, date_mouvement, vente FROM mouvements_de_stock");
     }else{
-        query.prepare("SELECT id_mouvement, stock_id, nom, quantite, type_mouvement, date_mouvement, commande_id FROM mouvements_de_stock WHERE type_mouvement = :type_mouvement");
+        query.prepare("SELECT id_mouvement, stock_id, nom, quantite, type_mouvement, date_mouvement, vente FROM mouvements_de_stock WHERE type_mouvement = :type_mouvement");
         query.bindValue(":type_mouvement", combo);
     }
     if(!query.exec()){
@@ -111,7 +111,7 @@ void MouvementDeStock::filtrageMouvement(){
         int quantite = query.value(3).toInt();
         QString type_mouvement = query.value(4).toString();
         QString date_mouvement = query.value(5).toString();
-        QString commande_id = query.value(6).toString();
+        QString vente = query.value(6).toString();
 
         ui->tableWidgetMouvement->setItem(row, 0, new QTableWidgetItem(id_mouvement));
         ui->tableWidgetMouvement->setItem(row, 1, new QTableWidgetItem(stock_id));
@@ -119,7 +119,7 @@ void MouvementDeStock::filtrageMouvement(){
         ui->tableWidgetMouvement->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
         ui->tableWidgetMouvement->setItem(row, 4, new QTableWidgetItem(type_mouvement));
         ui->tableWidgetMouvement->setItem(row, 5, new QTableWidgetItem(date_mouvement));
-        ui->tableWidgetMouvement->setItem(row, 6, new QTableWidgetItem(commande_id));
+        ui->tableWidgetMouvement->setItem(row, 6, new QTableWidgetItem(vente));
 
         row++;
     }

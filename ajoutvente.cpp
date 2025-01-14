@@ -445,6 +445,7 @@ void AjoutVente::ajouterNouvelleVente() {
     CustomMessageBox msgBox;
     msgBox.showInformation("", "Vente effectuée");
     emit ajouterVente();
+    emit CA();
     clearForm();
 }
 
