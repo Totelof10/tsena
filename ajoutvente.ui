@@ -50,6 +50,9 @@ border-radius: 9px</string>
          </item>
          <item>
           <widget class="QFrame" name="frame_7">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255);</string>
+           </property>
            <property name="frameShape">
             <enum>QFrame::Shape::StyledPanel</enum>
            </property>
@@ -204,8 +207,8 @@ QPushButton:hover{
             <item row="2" column="1">
              <widget class="QSpinBox" name="spinBoxQuantite">
               <property name="styleSheet">
-               <string notr="true">border: 1px solid black;
-border-raduis: 3px;</string>
+               <string notr="true">border: 1px solid grey;
+border-radius: 3px;</string>
               </property>
               <property name="maximum">
                <number>999999999</number>
