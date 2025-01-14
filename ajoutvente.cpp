@@ -213,7 +213,7 @@ void AjoutVente::clearForm(){
 }
 
 
-void AjoutVente::ajouterNouvelleVente(){
+/*void AjoutVente::ajouterNouvelleVente(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.open()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
@@ -302,7 +302,7 @@ void AjoutVente::ajouterNouvelleVente(){
             queryMouvement.bindValue(":quantite", quantite);
             queryMouvement.bindValue(":type_mouvement", "Sortie Vente");
             queryMouvement.bindValue(":date_mouvement", currentDateTime);
-            queryMouvement.bindValue(":vente", QString("Vente du %1 par %2").arg(currentDate).arg(nomClient));
+            queryMouvement.bindValue(":vente", QString("Achat du %1 par %2").arg(currentDate).arg(nomClient));
 
             if (!queryMouvement.exec()) {
                 qDebug() << "Erreur lors de l'insertion dans mouvements_de_stock : " << queryMouvement.lastError().text();
@@ -316,7 +316,138 @@ void AjoutVente::ajouterNouvelleVente(){
     msgBox.showInformation("", "Vente effectuée");
     emit ajouterVente();
     clearForm();
+}*/
+
+void AjoutVente::ajouterNouvelleVente() {
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if (!sqlitedb.open()) {
+        qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
+    }
+
+    QString contenuFacture; // Pour générer le contenu à imprimer
+    contenuFacture += "<h1>Facture des ventes</h1>";
+    contenuFacture += "<table border='1' cellspacing='0' cellpadding='5'>";
+    contenuFacture += "<tr><th>Client</th><th>Produit</th><th>Quantité</th><th>Prix Total</th><th>Date</th></tr>";
+
+    for (int i = 0; i < ui->listWidget->count(); i++) {
+        QListWidgetItem *item = ui->listWidget->item(i);
+        QString ligne = item->text();
+
+        QStringList elements = ligne.split("|");
+
+        // Récupération de la date et de l'heure actuelle
+        QString currentDate = QDate::currentDate().toString("yyyy-MM-dd");
+        QString currentDateTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+
+        // Parcourir les éléments
+        if (elements.size() == 4) {
+            // Extraire les valeurs
+            QString nomClient = elements[0].remove("Client: ").trimmed();
+            QString nomProduit = elements[1].remove("Produit: ").trimmed();
+            int quantite = elements[2].remove("Quantité: ").trimmed().toInt();
+            double prixTotal = elements[3].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
+
+            // Requêtes SQL
+            QSqlQuery queryProduit(sqlitedb);
+            QSqlQuery queryClient(sqlitedb);
+            QSqlQuery queryUpdateQuantite(sqlitedb);
+            QSqlQuery queryMouvement(sqlitedb);
+            QSqlQuery queryStock(sqlitedb);
+
+            // Rechercher l'ID du client
+            queryClient.prepare("SELECT id_client FROM clients WHERE nom = ?");
+            queryClient.addBindValue(nomClient);
+            if (!queryClient.exec() || !queryClient.next()) {
+                qDebug() << "Erreur lors de la recherche du client : " << queryClient.lastError().text();
+                continue; // Passer à l'élément suivant
+            }
+            int clientId = queryClient.value(0).toInt();
+
+            // Rechercher l'ID du produit
+            queryProduit.prepare("SELECT id_produit FROM produits WHERE nom = ?");
+            queryProduit.addBindValue(nomProduit);
+            if (!queryProduit.exec() || !queryProduit.next()) {
+                qDebug() << "Erreur lors de la recherche du produit : " << queryProduit.lastError().text();
+                continue;
+            }
+            int produitId = queryProduit.value(0).toInt();
+
+            // Rechercher l'ID du stock
+            queryStock.prepare("SELECT id_stock FROM stock WHERE produit_id = :produit_id");
+            queryStock.bindValue(":produit_id", produitId);
+            if (!queryStock.exec() || !queryStock.next()) {
+                qDebug() << "Erreur lors de la récupération de l'ID du stock : " << queryStock.lastError().text();
+                continue;
+            }
+            int id_stock = queryStock.value(0).toInt();
+
+            // Insertion dans ligne_vente
+            QSqlQuery queryInsertion(sqlitedb);
+            queryInsertion.prepare("INSERT INTO ligne_vente (produit_id, client_id, quantite, prix_total, date_vente) "
+                                   "VALUES (?, ?, ?, ?, ?)");
+            queryInsertion.addBindValue(produitId);
+            queryInsertion.addBindValue(clientId);
+            queryInsertion.addBindValue(quantite);
+            queryInsertion.addBindValue(prixTotal);
+            queryInsertion.addBindValue(currentDate); // Date de la vente
+
+            if (!queryInsertion.exec()) {
+                qDebug() << "Erreur lors de l'insertion dans ligne_vente : " << queryInsertion.lastError().text();
+                continue;
+            }
+
+            // Mise à jour du stock
+            queryUpdateQuantite.prepare("UPDATE stock SET quantite = quantite - :quantite WHERE produit_id = :id");
+            queryUpdateQuantite.bindValue(":quantite", quantite);
+            queryUpdateQuantite.bindValue(":id", produitId);
+            if (!queryUpdateQuantite.exec()) {
+                qDebug() << "Erreur lors de la mise à jour du stock : " << queryUpdateQuantite.lastError().text();
+                continue;
+            }
+
+            // Insertion dans mouvements_de_stock
+            queryMouvement.prepare("INSERT INTO mouvements_de_stock (stock_id, nom, quantite, type_mouvement, date_mouvement, vente) "
+                                   "VALUES (:stock_id, :nom, :quantite, :type_mouvement, :date_mouvement, :vente)");
+            queryMouvement.bindValue(":stock_id", id_stock);
+            queryMouvement.bindValue(":nom", nomProduit);
+            queryMouvement.bindValue(":quantite", quantite);
+            queryMouvement.bindValue(":type_mouvement", "Sortie Vente");
+            queryMouvement.bindValue(":date_mouvement", currentDateTime);
+            queryMouvement.bindValue(":vente", QString("Achat du %1 par %2").arg(currentDate).arg(nomClient));
+
+            if (!queryMouvement.exec()) {
+                qDebug() << "Erreur lors de l'insertion dans mouvements_de_stock : " << queryMouvement.lastError().text();
+            }
+
+            // Ajouter à la facture
+            contenuFacture += QString("<tr><td>%1</td><td>%2</td><td>%3</td><td>%4 MGA</td><td>%5</td></tr>")
+                                  .arg(nomClient)
+                                  .arg(nomProduit)
+                                  .arg(quantite)
+                                  .arg(prixTotal)
+                                  .arg(currentDate);
+        } else {
+            qDebug() << "La ligne ne contient pas 4 éléments valides.";
+        }
+    }
+
+    contenuFacture += "</table>";
+
+    // Impression
+    QPrinter printer;
+    QPrintDialog dialog(&printer, this);
+    if (dialog.exec() == QDialog::Accepted) {
+        QTextDocument document;
+        document.setHtml(contenuFacture);
+        document.print(&printer);
+    }
+
+    CustomMessageBox msgBox;
+    msgBox.showInformation("", "Vente effectuée");
+    emit ajouterVente();
+    clearForm();
 }
+
 
 
 AjoutVente::~AjoutVente()

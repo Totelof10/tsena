@@ -321,6 +321,9 @@ QLineEdit:focus{
                <property name="styleSheet">
                 <string notr="true">background-color: white;</string>
                </property>
+               <attribute name="horizontalHeaderStretchLastSection">
+                <bool>false</bool>
+               </attribute>
                <column>
                 <property name="text">
                  <string>Identifiant</string>

@@ -12,5 +12,11 @@
         <file>../../Downloads/CartoBMW/img/supprimer.png</file>
         <file>../../Downloads/CartoBMW/img/se-deconnecter (1).png</file>
         <file>../../Downloads/CartoBMW/img/se-deconnecter.png</file>
+        <file>../../Downloads/CartoBMW/img/panier.png</file>
+        <file>../../Downloads/CartoBMW/img/panier-dachat.png</file>
+        <file>../../Downloads/CartoBMW/img/symbole-moins.png</file>
+        <file>../../Downloads/CartoBMW/img/moins.png</file>
+        <file>../../Downloads/CartoBMW/img/fermer.png</file>
+        <file>../../Downloads/CartoBMW/img/marque-de-croix.png</file>
     </qresource>
 </RCC>

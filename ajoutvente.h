@@ -4,6 +4,12 @@
 #include <QWidget>
 #include <QListWidget>
 #include <QDate>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QTextDocument>
+#include <QFile>
+#include <QTextStream>
+
 
 namespace Ui {
 class AjoutVente;
