@@ -18,5 +18,9 @@
         <file>../../Downloads/CartoBMW/img/moins.png</file>
         <file>../../Downloads/CartoBMW/img/fermer.png</file>
         <file>../../Downloads/CartoBMW/img/marque-de-croix.png</file>
+        <file>../../Downloads/CartoBMW/img/annuler.png</file>
+        <file>../../Downloads/CartoBMW/img/faire-pivoter-le-symbole-dinterface-fleche-circulaire-gauche.png</file>
+        <file>../../Downloads/CartoBMW/img/filtrage-des-donnees.png</file>
+        <file>../../Downloads/CartoBMW/img/systeme-de-filtrage-des-donnees.png</file>
     </qresource>
 </RCC>

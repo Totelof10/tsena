@@ -39,6 +39,7 @@ private slots:
     void supprimerLigne();
     void supprimerVente();
     void chiffreDaffaire();
+    void affichageFinance();
 signals:
     void deconnexion();
 private:

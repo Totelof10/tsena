@@ -10,12 +10,14 @@
 	"INPUTS" : 
 	[
 		"C:/Users/rtoha/Downloads/CartoBMW/img/360_F_725369225_904m6RnIEgn6BJOIYIkTwfY9pmuvXbza.jpg",
+		"C:/Users/rtoha/Downloads/CartoBMW/img/filtrage-des-donnees.png",
 		"C:/Users/rtoha/Downloads/CartoBMW/img/fermer.png",
 		"C:/Users/rtoha/Downloads/CartoBMW/img/panier-dachat.png",
 		"C:/Users/rtoha/Downloads/CartoBMW/img/crayon.png",
 		"C:/Users/rtoha/Downloads/CartoBMW/img/se-deconnecter.png",
 		"C:/Users/rtoha/Downloads/CartoBMW/img/symbole-moins.png",
 		"C:/Users/rtoha/Downloads/CartoBMW/img/prefere.png",
+		"C:/Users/rtoha/Downloads/CartoBMW/img/annuler.png",
 		"C:/Users/rtoha/Downloads/CartoBMW/img/marque-de-croix.png",
 		"C:/Users/rtoha/Downloads/CartoBMW/img/supprimer.png",
 		"C:/Users/rtoha/Downloads/CartoBMW/img/crayon (1).png",
@@ -26,7 +28,9 @@
 		"C:/Users/rtoha/Downloads/CartoBMW/img/imprimante.png",
 		"C:/Users/rtoha/Downloads/CartoBMW/img/216926646-close-button-x-in-circle-red-cross-icon-symbol-vector.jpg",
 		"C:/Users/rtoha/Downloads/CartoBMW/img/imprimante-papier.png",
-		"C:/Users/rtoha/Downloads/CartoBMW/img/panier.png"
+		"C:/Users/rtoha/Downloads/CartoBMW/img/panier.png",
+		"C:/Users/rtoha/Downloads/CartoBMW/img/faire-pivoter-le-symbole-dinterface-fleche-circulaire-gauche.png",
+		"C:/Users/rtoha/Downloads/CartoBMW/img/systeme-de-filtrage-des-donnees.png"
 	],
 	"LOCK_FILE" : "C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/CMakeFiles/tsena_autogen.dir/AutoRcc_ressource_EWIEGA46WW_Lock.lock",
 	"MULTI_CONFIG" : false,

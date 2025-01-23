@@ -8,6 +8,7 @@
 #include "mouvementdestock.h"
 #include "ajoutclient.h"
 #include "ajoutvente.h"
+#include "financecompta.h"
 
 App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget *parent)
     : QWidget(parent)
@@ -41,6 +42,7 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
         }
     });
     connect(ui->btnSupprimerVente, &QPushButton::clicked, this, &App::supprimerVente);
+    connect(ui->btnFinance, &QPushButton::clicked, this, &App::affichageFinance);
 
 }
 
@@ -57,12 +59,12 @@ void App::attributionAcces() {
 
     if (m_currentUserStatus == "Vendeur") {
         ui->btnPageStock->setDisabled(true);
-        ui->btnPageFinance->setDisabled(true);
+        //ui->btnPageFinance->setDisabled(true);
         ui->btnModifierVente->setDisabled(true);
         ui->btnSupprimerVente->setDisabled(true);
     } else {
         ui->btnPageStock->setDisabled(false);
-        ui->btnPageFinance->setDisabled(false);
+        //ui->btnPageFinance->setDisabled(false);
         ui->btnModifierVente->setDisabled(false);
         ui->btnSupprimerVente->setDisabled(false);
     }
@@ -393,6 +395,12 @@ void App::mouvementStock(){
     MouvementDeStock *stock = new MouvementDeStock(nullptr);
     stock->show();
 }
+
+void App::affichageFinance(){
+    FinanceCompta *compta = new FinanceCompta(nullptr);
+    compta->show();
+}
+
 App::~App()
 {
     delete ui;

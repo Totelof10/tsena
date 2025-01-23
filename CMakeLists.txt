@@ -34,6 +34,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         mouvementdestock.h mouvementdestock.cpp mouvementdestock.ui
         ajoutclient.h ajoutclient.cpp ajoutclient.ui
         ajoutvente.h ajoutvente.cpp ajoutvente.ui
+        financecompta.h financecompta.cpp financecompta.ui
+        ../../Downloads/CartoBMW/img/annuler.png ../../Downloads/CartoBMW/img/faire-pivoter-le-symbole-dinterface-fleche-circulaire-gauche.png ../../Downloads/CartoBMW/img/filtrage-des-donnees.png ../../Downloads/CartoBMW/img/systeme-de-filtrage-des-donnees.png
 
 
 

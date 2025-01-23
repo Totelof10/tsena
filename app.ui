@@ -55,16 +55,16 @@ QPushButton:focus{
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">
-       <number>30</number>
+       <number>40</number>
       </property>
       <property name="leftMargin">
-       <number>9</number>
+       <number>0</number>
       </property>
       <property name="topMargin">
        <number>9</number>
       </property>
       <property name="rightMargin">
-       <number>9</number>
+       <number>0</number>
       </property>
       <property name="bottomMargin">
        <number>9</number>
@@ -73,7 +73,8 @@ QPushButton:focus{
        <widget class="QLabel" name="label">
         <property name="font">
          <font>
-          <pointsize>10</pointsize>
+          <family>Times New Roman</family>
+          <pointsize>13</pointsize>
           <italic>true</italic>
           <bold>true</bold>
           <underline>true</underline>
@@ -83,7 +84,7 @@ QPushButton:focus{
          <string notr="true">color: white;</string>
         </property>
         <property name="text">
-         <string>Gestion Commerciale</string>
+         <string>TSENA MAVO</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -115,34 +116,6 @@ QPushButton:focus{
         </property>
         <property name="text">
          <string>Produits et stock</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnPageFinance">
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>13</pointsize>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Finance et compta</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_4">
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>13</pointsize>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>PushButton</string>
         </property>
        </widget>
       </item>
@@ -236,87 +209,6 @@ QPushButton:hover{
             <property name="alignment">
              <set>Qt::AlignmentFlag::AlignCenter</set>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QFrame" name="frame_9">
-            <property name="frameShape">
-             <enum>QFrame::Shape::StyledPanel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Shadow::Raised</enum>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_7">
-             <item>
-              <widget class="QLineEdit" name="lineEditRecherche">
-               <property name="styleSheet">
-                <string notr="true">QLineEdit{
-	border: 1px solid grey;
-	border-radius: 5px;
-	background-color: white;
-}
-
-QLineEdit:focus{
-	border: 2px solid black;
-}</string>
-               </property>
-               <property name="placeholderText">
-                <string>Recherche...</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QFrame" name="frame_8">
-               <property name="styleSheet">
-                <string notr="true">background-color: rgb(255, 255, 255);</string>
-               </property>
-               <property name="frameShape">
-                <enum>QFrame::Shape::StyledPanel</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Shadow::Raised</enum>
-               </property>
-               <layout class="QHBoxLayout" name="horizontalLayout_5">
-                <item>
-                 <widget class="QLabel" name="label_4">
-                  <property name="text">
-                   <string>Du :</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDateEdit" name="dateEditDebut"/>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_5">
-                  <property name="text">
-                   <string>Au :</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDateEdit" name="dateEditFin"/>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_2">
-                  <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QComboBox" name="comboBoxClient"/>
-                </item>
-               </layout>
-              </widget>
-             </item>
-            </layout>
            </widget>
           </item>
           <item>
@@ -526,6 +418,48 @@ QPushButton:hover{
              <enum>QFrame::Shadow::Raised</enum>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="btnFinance">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+	border: 1px solid white;
+	border-radius: 7px;
+	background-color: #872341;
+	color:white;
+	padding: 7px;
+}
+QPushButton:hover{
+	background-color: #BE3144;
+}</string>
+               </property>
+               <property name="text">
+                <string>Finance et compta</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <spacer name="horizontalSpacer_3">
                <property name="orientation">

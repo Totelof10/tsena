@@ -671,6 +671,8 @@ tsena_autogen/timestamp: \
 	C:/Users/rtoha/Documents/tsena/databasemanager.h \
 	C:/Users/rtoha/Documents/tsena/etatstock.cpp \
 	C:/Users/rtoha/Documents/tsena/etatstock.h \
+	C:/Users/rtoha/Documents/tsena/financecompta.cpp \
+	C:/Users/rtoha/Documents/tsena/financecompta.h \
 	C:/Users/rtoha/Documents/tsena/formulairevente.cpp \
 	C:/Users/rtoha/Documents/tsena/formulairevente.h \
 	C:/Users/rtoha/Documents/tsena/main.cpp \
@@ -685,6 +687,7 @@ tsena_autogen/timestamp: \
 	C:/Users/rtoha/Documents/tsena/ajoutvente.ui \
 	C:/Users/rtoha/Documents/tsena/app.ui \
 	C:/Users/rtoha/Documents/tsena/etatstock.ui \
+	C:/Users/rtoha/Documents/tsena/financecompta.ui \
 	C:/Users/rtoha/Documents/tsena/formulairevente.ui \
 	C:/Users/rtoha/Documents/tsena/mainwindow.ui \
 	C:/Users/rtoha/Documents/tsena/mouvementdestock.ui \
