@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>301</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -145,6 +145,16 @@ QPushButton:hover{
       </item>
       <item>
        <widget class="QLineEdit" name="lineEdit">
+        <property name="styleSheet">
+         <string notr="true">QLineEdit{
+	border: 1px solid white;
+	border-radius: 5px;
+}
+
+QLineEdit:focus{
+	border: 1px solid black;
+}</string>
+        </property>
         <property name="placeholderText">
          <string>Recherche...</string>
         </property>

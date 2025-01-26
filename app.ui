@@ -212,6 +212,105 @@ QPushButton:hover{
            </widget>
           </item>
           <item>
+           <widget class="QLineEdit" name="lineEditRecherche">
+            <property name="styleSheet">
+             <string notr="true">QLineEdit{
+	border: 1px solid white;
+	border-radius: 5px;
+	
+	background-color: rgb(255, 255, 255);
+}
+
+QLineEdit:focus{
+	border: 1px solid black;
+}</string>
+            </property>
+            <property name="placeholderText">
+             <string>Recherche...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="frame_8">
+            <property name="frameShape">
+             <enum>QFrame::Shape::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Shadow::Raised</enum>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Du :</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDateEdit" name="dateDebut"/>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_5">
+               <property name="text">
+                <string>Au :</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDateEdit" name="dateFin"/>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnFiltrerDate">
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+	border:none;
+	image: url(:/Downloads/CartoBMW/img/systeme-de-filtrage-des-donnees.png);
+}
+QPushButton:hover{
+	image: url(:/Downloads/CartoBMW/img/filtrage-des-donnees.png);
+	
+}</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnReinitialiser">
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+	border:none;
+	
+	image: url(:/Downloads/CartoBMW/img/faire-pivoter-le-symbole-dinterface-fleche-circulaire-gauche.png);
+}
+QPushButton:hover{
+	image: url(:/Downloads/CartoBMW/img/annuler.png);
+	
+}</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
            <widget class="QFrame" name="frame_5">
             <property name="frameShape">
              <enum>QFrame::Shape::StyledPanel</enum>

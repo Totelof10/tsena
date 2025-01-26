@@ -22,7 +22,6 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     afficherProduit();
     afficherVente();
     chiffreDaffaire();
-    //connect(ui->btnPageStock, &QPushButton::clicked, this, &App::afficherProduit);
     ui->tableStock->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableVente->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->stackedWidget->setCurrentWidget(ui->page_vente);
@@ -43,6 +42,10 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     });
     connect(ui->btnSupprimerVente, &QPushButton::clicked, this, &App::supprimerVente);
     connect(ui->btnFinance, &QPushButton::clicked, this, &App::affichageFinance);
+    connect(ui->btnImprimerVente, &QPushButton::clicked, this, &App::imprimerVente);
+    connect(ui->lineEditRecherche, &QLineEdit::textChanged, this, &App::recherche);
+    connect(ui->btnFiltrerDate, &QPushButton::clicked, this, &App::filtrageDate);
+    connect(ui->btnReinitialiser, &QPushButton::clicked, this, &App::reinitialiserAffichage);
 
 }
 
@@ -166,6 +169,7 @@ void App::afficherVente(){
         ui->tableVente->setItem(row, 5, new QTableWidgetItem(date_vente));
 
         row++;
+
     }
 
 }
@@ -384,6 +388,169 @@ void App::chiffreDaffaire(){
         msgBox.showError("Information", "Aucun montant trouvé.");
         ui->labelCA->setText("0 MGA");
     }
+}
+
+void App::imprimerVente(){
+    //Créer un fonction permettant d'imprimer la ligne séléctionnée
+    CustomMessageBox msgBox;
+    int row = ui->tableVente->currentRow();
+    if(row < 0){
+        msgBox.showError("Erreur", "Veuillez sélectionner une ligne à imprimer");
+        return;
+    }
+    QTableWidgetItem *celluleId = ui->tableVente->item(row, 0);
+    if(!celluleId){
+        msgBox.showError("Erreur", "Impossible de trouver l'ID de la vente");
+        return;
+    }
+    QString idVente = celluleId->text();
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    QSqlQuery query(sqlitedb);
+    query.prepare("SELECT p.nom, c.nom, quantite, prix_total, date_vente FROM ligne_vente l "
+                  "INNER JOIN produits p ON id_produit = produit_id "
+                  "INNER JOIN clients c ON id_client = client_id "
+                  "WHERE id_vente = :id");
+    query.bindValue(":id", idVente);
+    if(!query.exec()){
+        msgBox.showError("Erreur", "Erreur lors de la récupération des données");
+        qDebug()<<query.lastError();
+        return;
+    }
+    if(query.next()){
+        QString nom_produit = query.value(0).toString();
+        QString nom_client = query.value(1).toString();
+        int quantite = query.value(2).toInt();
+        double prix_total = query.value(3).toDouble();
+        QString date_vente = query.value(4).toString();
+
+        QString contenu = "Nom du produit: "+nom_produit+"\n"
+                "Nom du client: "+nom_client+"\n"
+                "Quantité: "+QString::number(quantite)+"\n"
+                "Prix total: "+QString::number(prix_total)+" MGA\n"
+                "Date de vente: "+date_vente;
+        msgBox.showInformation("Information", contenu);
+        //Mettre un bouton imprimer dans le message box
+        QPrinter printer;
+        QPrintDialog dialog(&printer, this);
+        if(dialog.exec() == QDialog::Accepted){
+            QPainter painter(&printer);
+            painter.setPen(Qt::black);
+            painter.setFont(QFont("Arial", 12));
+            painter.drawText(100, 100, contenu);
+        }
+    }
+}
+
+void App::recherche(){
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if(!sqlitedb.isOpen()){
+        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+    }
+    QString recherche = ui->lineEditRecherche->text();
+    QSqlQuery queryAffichage(sqlitedb);
+    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, prix_total, date_vente FROM ligne_vente l "
+                           "INNER JOIN produits p ON id_produit = produit_id "
+                           "INNER JOIN clients c ON id_client = client_id WHERE p.nom LIKE :recherche");
+    queryAffichage.bindValue(":recherche", "%"+recherche+"%");
+    if(!queryAffichage.exec()){
+        qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
+    }
+    ui->tableVente->setRowCount(0);
+    int row = 0;
+    while(queryAffichage.next()){
+        ui->tableVente->insertRow(row);
+        QString id_vente = queryAffichage.value(0).toString();
+        QString nom_produit = queryAffichage.value(1).toString();
+        QString nom_client = queryAffichage.value(2).toString();
+        int quantite = queryAffichage.value(3).toInt();
+        double prix_total = queryAffichage.value(4).toDouble();
+        QString date_vente = queryAffichage.value(5).toString();
+
+        ui->tableVente->setItem(row, 0, new QTableWidgetItem(id_vente));
+        ui->tableVente->setItem(row, 1, new QTableWidgetItem(nom_produit));
+        ui->tableVente->setItem(row, 2, new QTableWidgetItem(nom_client));
+        ui->tableVente->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
+        ui->tableVente->setItem(row, 4, new QTableWidgetItem(QString::number(prix_total)+" MGA"));
+        ui->tableVente->setItem(row, 5, new QTableWidgetItem(date_vente));
+        row++;
+
+    }
+    //afficher dans labelCA le prix total des ventes filtrées
+    QSqlQuery query(sqlitedb);
+    query.prepare("SELECT SUM(prix_total) FROM ligne_vente l "
+                  "INNER JOIN produits p ON id_produit = produit_id "
+                  "INNER JOIN clients c ON id_client = client_id WHERE p.nom LIKE :recherche");
+    query.bindValue(":recherche", "%"+recherche+"%");
+    if(!query.exec()){
+        qDebug()<<query.lastError();
+        return;
+    }
+    if(query.next()){
+        QString somme = query.value(0).toString();
+        ui->labelCA->setText(somme+" MGA");
+    }
+}
+
+void App::filtrageDate(){
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if(!sqlitedb.isOpen()){
+        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+    }
+    QString dateDebut = ui->dateDebut->date().toString("yyyy-MM-dd");
+    QString dateFin = ui->dateFin->date().toString("yyyy-MM-dd");
+    QSqlQuery queryAffichage(sqlitedb);
+    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, prix_total, date_vente FROM ligne_vente l "
+                           "INNER JOIN produits p ON id_produit = produit_id "
+                           "INNER JOIN clients c ON id_client = client_id "
+                           "WHERE date_vente BETWEEN :dateDebut AND :dateFin");
+    queryAffichage.bindValue(":dateDebut", dateDebut);
+    queryAffichage.bindValue(":dateFin", dateFin);
+    if(!queryAffichage.exec()){
+        qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
+        return;
+    }
+    ui->tableVente->setRowCount(0);
+    int row = 0;
+    while(queryAffichage.next()){
+        ui->tableVente->insertRow(row);
+        QString id_vente = queryAffichage.value(0).toString();
+        QString nom_produit = queryAffichage.value(1).toString();
+        QString nom_client = queryAffichage.value(2).toString();
+        int quantite = queryAffichage.value(3).toInt();
+        double prix_total = queryAffichage.value(4).toDouble();
+        QString date_vente = queryAffichage.value(5).toString();
+
+        ui->tableVente->setItem(row, 0, new QTableWidgetItem(id_vente));
+        ui->tableVente->setItem(row, 1, new QTableWidgetItem(nom_produit));
+        ui->tableVente->setItem(row, 2, new QTableWidgetItem(nom_client));
+        ui->tableVente->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
+        ui->tableVente->setItem(row, 4, new QTableWidgetItem(QString::number(prix_total)+" MGA"));
+        ui->tableVente->setItem(row, 5, new QTableWidgetItem(date_vente));
+
+        row++;
+
+    }
+    //afficher dans labelCA le prix total des ventes filtrées
+    QSqlQuery query(sqlitedb);
+    query.prepare("SELECT SUM(prix_total) FROM ligne_vente WHERE date_vente BETWEEN :dateDebut AND :dateFin");
+    query.bindValue(":dateDebut", dateDebut);
+    query.bindValue(":dateFin", dateFin);
+    if(!query.exec()){
+        qDebug()<<query.lastError();
+        return;
+    }
+    if(query.next()){
+        QString somme = query.value(0).toString();
+        ui->labelCA->setText(somme+" MGA");
+    }
+}
+
+void App::reinitialiserAffichage(){
+    QDate dateActuelle = QDate::currentDate();
+    ui->dateDebut->setDate(dateActuelle);  // Mettre la date de début au jour actuel
+    ui->dateFin->setDate(dateActuelle);
+    afficherVente();
+    chiffreDaffaire();
 }
 
 void App::etatStock(){

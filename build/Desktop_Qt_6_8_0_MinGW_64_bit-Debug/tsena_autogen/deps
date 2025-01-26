@@ -135,6 +135,7 @@ tsena_autogen/timestamp: \
 	C:/Qt/6.8.0/mingw_64/include/QtCore/qversiontagging.h \
 	C:/Qt/6.8.0/mingw_64/include/QtCore/qxptype_traits.h \
 	C:/Qt/6.8.0/mingw_64/include/QtCore/qyieldcpu.h \
+	C:/Qt/6.8.0/mingw_64/include/QtGui/QPainter \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/QTextDocument \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qaction.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qbitmap.h \
@@ -152,7 +153,9 @@ tsena_autogen/timestamp: \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qpageranges.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qpagesize.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qpaintdevice.h \
+	C:/Qt/6.8.0/mingw_64/include/QtGui/qpainter.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qpalette.h \
+	C:/Qt/6.8.0/mingw_64/include/QtGui/qpen.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qpixelformat.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qpixmap.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qpolygon.h \
@@ -160,6 +163,7 @@ tsena_autogen/timestamp: \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qrgb.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qrgba64.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qtextdocument.h \
+	C:/Qt/6.8.0/mingw_64/include/QtGui/qtextoption.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qtgui-config.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qtguiexports.h \
 	C:/Qt/6.8.0/mingw_64/include/QtGui/qtguiglobal.h \

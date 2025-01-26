@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "mainwindow.h" // Inclure MainWindow.h
 #include <QTableWidgetItem>
+#include <QPainter>
 
 namespace Ui {
 class App;
@@ -40,6 +41,10 @@ private slots:
     void supprimerVente();
     void chiffreDaffaire();
     void affichageFinance();
+    void imprimerVente();
+    void recherche();
+    void filtrageDate();
+    void reinitialiserAffichage();
 signals:
     void deconnexion();
 private:
