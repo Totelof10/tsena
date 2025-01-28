@@ -11,7 +11,7 @@ MouvementDeStock::MouvementDeStock(QWidget *parent)
     afficherMouvement();
     connect(ui->lineEditRecherche, &QLineEdit::textChanged,this, &MouvementDeStock::recherche);
     connect(ui->comboMouvement, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MouvementDeStock::filtrageMouvement);
-
+    connect(ui->btnImprimerMouvement, &QPushButton::clicked, this, &MouvementDeStock::imprimerMouvement);
 }
 
 void MouvementDeStock::afficherMouvement(){
@@ -124,6 +124,33 @@ void MouvementDeStock::filtrageMouvement(){
         row++;
     }
 
+}
+
+void MouvementDeStock::imprimerMouvement(){
+    //Récupérer les données des lignes dans le tableau et les imprimer
+    QPrinter printer;
+    QPrintDialog printDialog(&printer, this);
+    if(printDialog.exec() == QDialog::Accepted){
+        QPainter painter(&printer);
+        painter.setPen(Qt::black);
+        painter.setFont(QFont("Arial", 12));
+
+        //Entête
+        painter.drawText(100, 100, "ID Mouvement");
+        painter.drawText(200, 100, "Stock ID");
+        painter.drawText(300, 100, "Nom");
+        painter.drawText(400, 100, "Quantité");
+        painter.drawText(500, 100, "Type Mouvement");
+        painter.drawText(600, 100, "Date Mouvement");
+        painter.drawText(700, 100, "Vente");
+
+        //Affichage des données
+        for(int i=0; i<ui->tableWidgetMouvement->rowCount(); i++){
+            for(int j=0; j<ui->tableWidgetMouvement->columnCount(); j++){
+                painter.drawText(100+j*100, 150+i*50, ui->tableWidgetMouvement->item(i,j)->text());
+            }
+        }
+    }
 }
 
 MouvementDeStock::~MouvementDeStock()

@@ -166,12 +166,29 @@ QLineEdit:focus{
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QPushButton" name="btnImprimer">
+       <widget class="QPushButton" name="btnImprimerMouvement">
+        <property name="font">
+         <font>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="cursor">
          <cursorShape>PointingHandCursor</cursorShape>
         </property>
         <property name="mouseTracking">
          <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton{
+	border: 1px solid white;
+	border-radius: 7px;
+	background-color: #872341;
+	color:white;
+	padding: 7px;
+}
+QPushButton:hover{
+	background-color: #BE3144;
+}</string>
         </property>
         <property name="text">
          <string>Imprimer</string>

@@ -2,6 +2,10 @@
 #define MOUVEMENTDESTOCK_H
 
 #include <QWidget>
+#include <QPrinter>
+#include <QPainter>
+#include <QPrintDialog>
+#include <QPropertyAnimation>
 
 namespace Ui {
 class MouvementDeStock;
@@ -19,6 +23,7 @@ private slots:
     void afficherMouvement();
     void recherche();
     void filtrageMouvement();
+    void imprimerMouvement();
 
 private:
     Ui::MouvementDeStock *ui;

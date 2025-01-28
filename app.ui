@@ -183,6 +183,16 @@ QPushButton:hover{
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
+       <widget class="QLabel" name="labelWorkspace">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="font">
          <font>

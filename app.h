@@ -6,6 +6,8 @@
 #include "mainwindow.h" // Inclure MainWindow.h
 #include <QTableWidgetItem>
 #include <QPainter>
+#include <QShortcut>
+#include <QFileDialog>
 
 namespace Ui {
 class App;
@@ -20,6 +22,9 @@ private:
     int m_currentUserId;
     QString m_currentUserStatus;
     MainWindow* m_mainWindow; // Pointeur vers MainWindow
+    QShortcut *saveShortcut;
+    QShortcut *loadShortcut;
+    QString databasePath;
 
 public:
     App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget *parent = nullptr); // Constructeur modifié
@@ -45,6 +50,8 @@ private slots:
     void recherche();
     void filtrageDate();
     void reinitialiserAffichage();
+    void saveDatabase();
+    void loadDatabase();
 signals:
     void deconnexion();
 private:

@@ -127,6 +127,7 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_a
   C:/Qt/6.8.0/mingw_64/include/QtCore/qversiontagging.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qxptype_traits.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qyieldcpu.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/QPainter \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qaction.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qbitmap.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qbrush.h \
@@ -138,21 +139,37 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_a
   C:/Qt/6.8.0/mingw_64/include/QtGui/qicon.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qimage.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qkeysequence.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qpagedpaintdevice.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qpagelayout.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qpageranges.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qpagesize.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qpaintdevice.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qpainter.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qpalette.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qpen.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qpixelformat.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qpixmap.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qpolygon.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qregion.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qrgb.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qrgba64.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qtextoption.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qtgui-config.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qtguiexports.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qtguiglobal.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qtransform.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs_win.h \
+  C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/QPrintDialog \
+  C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/QPrinter \
+  C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qabstractprintdialog.h \
+  C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qprintdialog.h \
+  C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qprinter.h \
+  C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qtprintsupport-config.h \
+  C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qtprintsupportexports.h \
+  C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qtprintsupportglobal.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QWidget \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/qdialog.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qsizepolicy.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtwidgets-config.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtwidgetsexports.h \

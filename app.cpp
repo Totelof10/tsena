@@ -18,6 +18,9 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     , m_mainWindow(mainWindow)
 {
     ui->setupUi(this);
+    databasePath = "C:/db_test/toavina_yaourt.db";
+    QFileInfo fileInfo(databasePath);
+    ui->labelWorkspace->setText(fileInfo.fileName());
     attributionAcces();
     afficherProduit();
     afficherVente();
@@ -46,9 +49,69 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     connect(ui->lineEditRecherche, &QLineEdit::textChanged, this, &App::recherche);
     connect(ui->btnFiltrerDate, &QPushButton::clicked, this, &App::filtrageDate);
     connect(ui->btnReinitialiser, &QPushButton::clicked, this, &App::reinitialiserAffichage);
+    saveShortcut = new QShortcut(QKeySequence("Ctrl+S"), this);
+    connect(saveShortcut, &QShortcut::activated, this, &App::saveDatabase);
+    loadShortcut = new QShortcut(QKeySequence("Ctrl+O"), this);
+    connect(loadShortcut, &QShortcut::activated, this, &App::loadDatabase);
 
 }
 
+void App::loadDatabase() {
+    //Créer un fonction permettant de charger une autre base de données
+    QString loadPath = QFileDialog::getOpenFileName(this, "Charger une base de données", "", "Fichier SQLite (*.db)");
+    if(loadPath.isEmpty()){
+        return;
+    }
+
+    // Fermer la base de données actuelle
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if(sqlitedb.isOpen()){
+        sqlitedb.close();
+    }
+
+    // Ouvrir la nouvelle base de données
+    sqlitedb.setDatabaseName(loadPath);
+    if(!sqlitedb.open()){
+        CustomMessageBox msgBox;
+        msgBox.showError("Erreur", "Impossible d'ouvrir la nouvelle base de données");
+        qDebug() << sqlitedb.lastError().text();
+        return;
+    }
+
+    CustomMessageBox msgBox;
+    msgBox.showInformation("Succès", "Base de données chargée avec succès");
+    QFileInfo fileInfo(loadPath);
+    ui->labelWorkspace->setText(fileInfo.fileName());
+    //Recharger les données
+    afficherProduit();
+    afficherVente();
+    chiffreDaffaire();
+}
+
+
+void App::saveDatabase(){
+    //Vérifier si la base de données est ouverte avant de la copier et la fermer
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if(!sqlitedb.isOpen()){
+        CustomMessageBox msgBox;
+        msgBox.showError("Erreur", "Impossible d'ouvrir la base de données");
+        return;
+    }
+    sqlitedb.close();
+
+    QString savePath = QFileDialog::getSaveFileName(this, "Enregistrer la base de données", "", "Fichier SQLite (*.db)");
+    if(savePath.isEmpty()){
+        return;
+    }
+    QFile file(databasePath);
+    if(!file.copy(savePath)){
+        CustomMessageBox msgBox;
+        msgBox.showError("Erreur", "Impossible de copier la base de données");
+        return;
+    }
+    CustomMessageBox msgBox;
+    msgBox.showInformation("Succès", "Base de données enregistrée avec succès");
+}
 void App::handleVenteFacturation(){
     ui->stackedWidget->setCurrentWidget(ui->page_vente);
 }

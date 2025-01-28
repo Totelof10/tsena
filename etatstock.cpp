@@ -18,6 +18,7 @@ EtatStock::EtatStock(QWidget *parent)
     // Gestion du clic sur le bouton "Ajouter Quantité"
     connect(ui->btnAjouterQuantite, &QPushButton::clicked, this, &EtatStock::ajouterQuantite);
     connect (ui->lineEditRecherche, &QLineEdit::textChanged, this, &EtatStock::recherche);
+    connect(ui->btnImprimerStock, &QPushButton::clicked, this, &EtatStock::imprimerStock);
 
 
 }
@@ -161,6 +162,30 @@ void EtatStock::recherche(){
         ui->tableEtatStock->setItem(row, 2, new QTableWidgetItem(QString::number(quantite)));
 
         row++;
+    }
+}
+
+void EtatStock::imprimerStock(){
+    //Récupérer les données des lignes dans le tableau et les imprimer
+    QPrinter printer;
+    QPrintDialog printDialog(&printer, this);
+    if(printDialog.exec() == QDialog::Accepted){
+        QPainter painter(&printer);
+        painter.setPen(Qt::black);
+        painter.setFont(QFont("Arial", 12));
+
+        //Entête
+        painter.drawText(100, 100, "ID Stock");
+        painter.drawText(200, 100, "Nom");
+        painter.drawText(300, 100, "Quantité");
+        painter.drawText(400, 100, "Date du dernier entrée");
+
+        //Affichage des données
+        for(int i=0; i<ui->tableEtatStock->rowCount(); i++){
+            for(int j=0; j<ui->tableEtatStock->columnCount(); j++){
+                painter.drawText(100+j*100, 150+i*50, ui->tableEtatStock->item(i,j)->text());
+            }
+        }
     }
 }
 

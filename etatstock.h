@@ -4,6 +4,9 @@
 #include <QItemSelectionModel>
 #include <QWidget>
 #include <QDateTime>
+#include <QPrinter>
+#include <QPrintDialog>
+#include <QPainter>
 
 namespace Ui {
 class EtatStock;
@@ -21,6 +24,7 @@ private slots:
     void affichageEtatStock();
     void ajouterQuantite();
     void recherche();
+    void imprimerStock();
 
 private:
     Ui::EtatStock *ui;
