@@ -151,13 +151,17 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_a
   C:/Qt/6.8.0/mingw_64/include/QtGui/qpagesize.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qpaintdevice.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qpalette.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qpen.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qpixelformat.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qpixmap.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qpolygon.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qregion.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qrgb.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qrgba64.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qtextcursor.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qtextdocument.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qtextformat.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qtextoption.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qtgui-config.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qtguiexports.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qtguiglobal.h \
@@ -166,14 +170,17 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_a
   C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs_win.h \
   C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/QPrintDialog \
+  C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/QPrintPreviewDialog \
   C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/QPrinter \
   C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qabstractprintdialog.h \
   C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qprintdialog.h \
   C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qprinter.h \
+  C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qprintpreviewdialog.h \
   C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qtprintsupport-config.h \
   C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qtprintsupportexports.h \
   C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qtprintsupportglobal.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QListWidget \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/QTextEdit \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QWidget \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qabstractitemdelegate.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qabstractitemview.h \
@@ -191,6 +198,7 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_a
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qstyleoption.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtabbar.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtabwidget.h \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtextedit.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtwidgets-config.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtwidgetsexports.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtwidgetsglobal.h \

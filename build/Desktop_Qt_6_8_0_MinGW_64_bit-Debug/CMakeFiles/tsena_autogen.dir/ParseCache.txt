@@ -1627,13 +1627,17 @@ C:/Users/rtoha/Documents/tsena/ajoutvente.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qpagesize.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qpaintdevice.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qpalette.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qpen.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qpixelformat.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qpixmap.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qpolygon.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qregion.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qrgb.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qrgba64.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtextcursor.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtextdocument.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtextformat.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtextoption.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtgui-config.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtguiexports.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtguiglobal.h
@@ -1642,14 +1646,17 @@ C:/Users/rtoha/Documents/tsena/ajoutvente.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs_win.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/QPrintDialog
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/QPrintPreviewDialog
  mdp:C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/QPrinter
  mdp:C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qabstractprintdialog.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qprintdialog.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qprinter.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qprintpreviewdialog.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qtprintsupport-config.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qtprintsupportexports.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtPrintSupport/qtprintsupportglobal.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QListWidget
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QTextEdit
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QWidget
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qabstractitemdelegate.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qabstractitemview.h
@@ -1667,6 +1674,7 @@ C:/Users/rtoha/Documents/tsena/ajoutvente.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qstyleoption.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtabbar.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtabwidget.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtextedit.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtwidgets-config.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtwidgetsexports.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtwidgetsglobal.h

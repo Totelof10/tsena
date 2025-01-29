@@ -20,6 +20,7 @@ AjoutVente::AjoutVente(QWidget *parent)
             this, &AjoutVente::remettreAZero);
     connect(ui->btnValider, &QPushButton::clicked, this, &AjoutVente::ajouterNouvelleVente);
 
+
 }
 
 void AjoutVente::afficherInformation(){
@@ -233,17 +234,61 @@ void AjoutVente::clearForm(){
 }
 
 
+#include <QPrintPreviewDialog>
+
 void AjoutVente::ajouterNouvelleVente() {
+    texte = new QTextEdit();
+    QString totalPayer = ui->labelTotal->text();
+    QString dateActuelle = QDate::currentDate().toString("dd-MM-yyyy");
+    QString nom_client = ui->comboClient->currentText();
     CustomMessageBox msgBox;
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if (!sqlitedb.open()) {
         qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
     }
+    QString contenuFacture;
+    contenuFacture = QString("<!DOCTYPE html>"
+                             "<html>"
+                             "<head>"
+                             "<meta charset='UTF-8'>"
+                             "<style>"
+                             "table {"
+                             "  width: 100%;"
+                             "  border-collapse: collapse;"
+                             "  margin-top: 20px;"
+                             "}"
+                             "th, td {"
+                             "  border: 1px solid black;"
+                             "  padding: 10px;"
+                             "  text-align: center;"
+                             "}"
+                             "th {"
+                             "  background-color: #f2f2f2;"
+                             "  font-weight: bold;"
+                             "}"
+                             "</style>"
+                             "</head>"
+                             "<body>"
+                             "<p>TSENA MAVOBE</p>"
+                             "<p>Nif : </p>"
+                             "<p>STAT : </p>"
+                             "<p>Adresse : </p>"
+                             "<p>Contact : </p>"
+                             "<div style='text-align: center; font-size: 20px;'>"
+                             "<h2>FACTURE</h2>"
+                             "</div>"
+                             "<h2>Client : %1</h2>"
+                             "<table>"
+                             "<thead>"
+                             "<tr>"
+                             "<th>Désignation</th>"
+                             "<th>Quantité</th>"
+                             "<th>Prix Unitaire (MGA)</th>"
+                             "<th>Prix Total (MGA)</th>"
+                             "</tr>"
+                             "</thead>"
+                             "<tbody>").arg(nom_client);
 
-    QString contenuFacture; // Pour générer le contenu à imprimer
-    contenuFacture += "<h1>Facture des ventes</h1>";
-    contenuFacture += "<table border='1' cellspacing='0' cellpadding='5'>";
-    contenuFacture += "<tr><th>Client</th><th>Produit</th><th>Quantité</th><th>Prix Total</th><th>Date</th></tr>";
 
     for (int i = 0; i < ui->listWidget->count(); i++) {
         QListWidgetItem *item = ui->listWidget->item(i);
@@ -280,13 +325,14 @@ void AjoutVente::ajouterNouvelleVente() {
             int clientId = queryClient.value(0).toInt();
 
             // Rechercher l'ID du produit
-            queryProduit.prepare("SELECT id_produit FROM produits WHERE nom = ?");
+            queryProduit.prepare("SELECT id_produit, prix_unitaire FROM produits WHERE nom = ?");
             queryProduit.addBindValue(nomProduit);
             if (!queryProduit.exec() || !queryProduit.next()) {
                 qDebug() << "Erreur lors de la recherche du produit : " << queryProduit.lastError().text();
                 continue;
             }
             int produitId = queryProduit.value(0).toInt();
+            double prixUnitaire = queryProduit.value(1).toDouble();
 
             // Rechercher l'ID du stock
             queryStock.prepare("SELECT id_stock, quantite FROM stock WHERE produit_id = :produit_id");
@@ -336,28 +382,78 @@ void AjoutVente::ajouterNouvelleVente() {
             }
 
             // Ajouter à la facture
-            contenuFacture += QString("<tr><td>%1</td><td>%2</td><td>%3</td><td>%4 MGA</td><td>%5</td></tr>")
-                                  .arg(nomClient)
+            contenuFacture += QString("<tr>"
+                                      "<td>%1</td>"
+                                      "<td>%2</td>"
+                                      "<td>%3 MGA</td>"
+                                      "<td>%4 MGA</td>"
+                                      "</tr>"
+                                      )
                                   .arg(nomProduit)
                                   .arg(quantite)
-                                  .arg(prixTotal)
-                                  .arg(currentDate);
+                                  .arg(prixUnitaire)
+                                  .arg(prixTotal);
         } else {
             qDebug() << "La ligne ne contient pas 4 éléments valides.";
         }
     }
 
-    contenuFacture += "</table>";
+    totalPayer=totalPayer.remove(" MGA").trimmed();
+    long long totalPayerInt = totalPayer.toLongLong();
+    QString totalEnLettres = convertirNombreEnLettres(totalPayerInt);
+    contenuFacture += QString(
+                          "</tbody></table>"  // Fermeture du tableau
+                          "<br><br>"  // Ajoute des espaces pour séparer les infos du tableau
 
-    // Impression
-    QPrinter printer;
-    QPrintDialog dialog(&printer, this);
-    if (dialog.exec() == QDialog::Accepted) {
-        QTextDocument document;
-        document.setHtml(contenuFacture);
-        document.print(&printer);
+                          // Texte pour l'arrêté de la somme
+                          "<p><strong>Arrêtée la facture à la somme de :</strong> %1</p>"
+
+                          // Zone de total bien centrée
+                          "<div style='text-align: right; font-size: 18px; margin-top: 20px;'>"
+                          "<h2>TOTAL À PAYER : %2 MGA</h2>"
+                          "<h2>DATE DU : %3</h2>"
+                          "</div>"
+
+                          // Ajout de la signature en bas
+                          "<div style='text-align: right; margin-top: 50px;'>"
+                          "<p>Signature :</p>"
+                          "<p>______________________</p>"
+                          "</div>"
+
+                          "</body></html>"  // Fermeture du HTML
+                          ).arg(totalEnLettres)  // Convertit en lettres
+                          .arg(totalPayer)
+                          .arg(dateActuelle);
+    qDebug()<<convertirNombreEnLettres(totalPayer.toLongLong());
+
+    QTextDocument document;
+    document.setHtml(contenuFacture);
+
+    // Assurez-vous que le contenu est correct
+    qDebug() << document.toPlainText();
+
+    // Configurez l'impression pour l'aperçu
+    QPrinter previewPrinter(QPrinter::PrinterResolution);
+    previewPrinter.setOutputFormat(QPrinter::PdfFormat);
+    previewPrinter.setOutputFileName("facture.pdf");
+
+    // Aperçu avant impression
+    QPrintPreviewDialog previewDialog(&previewPrinter, this);
+    connect(&previewDialog, &QPrintPreviewDialog::paintRequested, [&document](QPrinter *printer) {
+        document.print(printer);
+    });
+    previewDialog.exec();
+
+    // Création d'un nouvel objet QPrinter pour l'impression réelle
+    QPrinter printPrinter(QPrinter::HighResolution);
+    QPrintDialog printDialog(&printPrinter, this);
+
+    if (printDialog.exec() == QDialog::Accepted) {
+        document.print(&printPrinter);
     }
 
+
+    qDebug() << contenuFacture;
     msgBox.showInformation("", "Vente effectuée");
     emit ajouterVente();
     emit CA();
