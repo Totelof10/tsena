@@ -4,6 +4,7 @@
 #include "EWIEGA46WW/moc_ajoutnouveauproduits.cpp"
 #include "EWIEGA46WW/moc_ajoutvente.cpp"
 #include "EWIEGA46WW/moc_app.cpp"
+#include "EWIEGA46WW/moc_bondelivraison.cpp"
 #include "EWIEGA46WW/moc_custommessagebox.cpp"
 #include "EWIEGA46WW/moc_etatstock.cpp"
 #include "EWIEGA46WW/moc_financecompta.cpp"

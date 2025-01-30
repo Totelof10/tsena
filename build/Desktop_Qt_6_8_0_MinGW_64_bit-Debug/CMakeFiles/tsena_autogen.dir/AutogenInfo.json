@@ -342,6 +342,12 @@
 			null
 		],
 		[
+			"C:/Users/rtoha/Documents/tsena/bondelivraison.h",
+			"MU",
+			"EWIEGA46WW/moc_bondelivraison.cpp",
+			null
+		],
+		[
 			"C:/Users/rtoha/Documents/tsena/custommessagebox.h",
 			"MU",
 			"EWIEGA46WW/moc_custommessagebox.cpp",
@@ -464,6 +470,7 @@
 		[ "C:/Users/rtoha/Documents/tsena/ajoutnouveauproduits.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/ajoutvente.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/app.cpp", "MU", null ],
+		[ "C:/Users/rtoha/Documents/tsena/bondelivraison.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/custommessagebox.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/databasemanager.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/etatstock.cpp", "MU", null ],

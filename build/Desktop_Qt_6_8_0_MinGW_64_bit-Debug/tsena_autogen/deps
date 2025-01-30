@@ -683,6 +683,8 @@ tsena_autogen/timestamp: \
 	C:/Users/rtoha/Documents/tsena/ajoutvente.h \
 	C:/Users/rtoha/Documents/tsena/app.cpp \
 	C:/Users/rtoha/Documents/tsena/app.h \
+	C:/Users/rtoha/Documents/tsena/bondelivraison.cpp \
+	C:/Users/rtoha/Documents/tsena/bondelivraison.h \
 	C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/.qtc/package-manager/auto-setup.cmake \
 	C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/CMakeFiles/3.29.3/CMakeCXXCompiler.cmake \
 	C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/CMakeFiles/3.29.3/CMakeRCCompiler.cmake \
@@ -709,6 +711,7 @@ tsena_autogen/timestamp: \
 	C:/Users/rtoha/Documents/tsena/ajoutnouveauproduits.ui \
 	C:/Users/rtoha/Documents/tsena/ajoutvente.ui \
 	C:/Users/rtoha/Documents/tsena/app.ui \
+	C:/Users/rtoha/Documents/tsena/bondelivraison.ui \
 	C:/Users/rtoha/Documents/tsena/etatstock.ui \
 	C:/Users/rtoha/Documents/tsena/financecompta.ui \
 	C:/Users/rtoha/Documents/tsena/formulairevente.ui \

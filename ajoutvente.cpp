@@ -269,11 +269,11 @@ void AjoutVente::ajouterNouvelleVente() {
                              "</style>"
                              "</head>"
                              "<body>"
-                             "<p>TSENA MAVOBE</p>"
+                             "<p>RAHENINTSOA ALASORA</p>"
                              "<p>Nif : </p>"
                              "<p>STAT : </p>"
-                             "<p>Adresse : </p>"
-                             "<p>Contact : </p>"
+                             "<p>Adresse : ALASORA Commune en Face de Sopromer</p>"
+                             "<p>Contact : 0347636886</p>"
                              "<div style='text-align: center; font-size: 20px;'>"
                              "<h2>FACTURE</h2>"
                              "</div>"
@@ -297,8 +297,8 @@ void AjoutVente::ajouterNouvelleVente() {
         QStringList elements = ligne.split("|");
 
         // Récupération de la date et de l'heure actuelle
-        QString currentDate = QDate::currentDate().toString("yyyy-MM-dd");
-        QString currentDateTime = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+        QString currentDate = QDate::currentDate().toString("dd-MM-yyyy");
+        QString currentDateTime = QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss");
 
         // Parcourir les éléments
         if (elements.size() == 4) {

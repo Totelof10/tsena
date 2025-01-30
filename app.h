@@ -33,10 +33,12 @@ public:
 private slots:
     void handleVenteFacturation();
     void handleStockReaprovisionnement();
+    void handleBonDeLivraison();
     void attributionAcces();
     void handleDeconnexion(); // Slot pour le bouton de déconnexion
     void ancienNouveau();
     void ancienNouveauClient();
+    void ancienNouveauClientBonDeLivraison();
     void afficherProduit();
     void afficherVente();
     void etatStock();
@@ -52,6 +54,12 @@ private slots:
     void reinitialiserAffichage();
     void saveDatabase();
     void loadDatabase();
+    void afficherBonDeLivraison();
+    void supprimerBonDeLivraison();
+    void filtrageDateBonDeLivraison();
+    void rechercheBl();
+    void reinitialiserBl();
+    void livrePaye();
 signals:
     void deconnexion();
 private:
