@@ -128,6 +128,9 @@ QPushButton:hover{
          <string notr="true">border: 1px solid grey;
 	border-radius: 4px;</string>
         </property>
+        <property name="editable">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="2" column="0">
@@ -142,6 +145,9 @@ QPushButton:hover{
         <property name="styleSheet">
          <string notr="true">border: 1px solid grey;
 	border-radius: 4px;</string>
+        </property>
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

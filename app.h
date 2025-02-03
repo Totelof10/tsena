@@ -60,6 +60,7 @@ private slots:
     void rechercheBl();
     void reinitialiserBl();
     void livrePaye();
+    void tableDesOperations();
 signals:
     void deconnexion();
 private:

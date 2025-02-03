@@ -113,6 +113,7 @@ private:
         if (nombre > 0) {
             result += convertirCentaines(nombre);
         }
+        result += " Ariary";
 
         return result;
     }

@@ -10,6 +10,7 @@
 #include "ajoutvente.h"
 #include "financecompta.h"
 #include "bondelivraison.h"
+#include "operation.h"
 
 App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget *parent)
     : QWidget(parent)
@@ -62,7 +63,12 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     connect(ui->lineEditRechercheBl, &QLineEdit::textChanged, this, &App::rechercheBl);
     //connect(ui->btnSupprimerBonDeLivraison, &QPushButton::clicked, this, &App::supprimerBonDeLivraison);
     connect(ui->btnModifierBl, &QPushButton::clicked, this, &App::livrePaye);
+    connect(ui->btnOperation, &QPushButton::clicked, this, &App::tableDesOperations);
+}
 
+void App::tableDesOperations(){
+    Operation *operation = new Operation();
+    operation->show();
 }
 
 void App::handleBonDeLivraison(){
@@ -402,7 +408,7 @@ void App::livrePaye(){
 
     // 4. Récupérer l'ID du stock
     QSqlQuery queryIdStock(sqlitedb);
-    queryIdStock.prepare("SELECT id_stock FROM stock WHERE produit_id = :id");
+    queryIdStock.prepare("SELECT id_stock, quantite FROM stock WHERE produit_id = :id");
     queryIdStock.bindValue(":id", idProduit);
     if(!queryIdStock.exec() || !queryIdStock.next()){
         qDebug() << "Erreur récupération id_stock :" << queryIdStock.lastError();
@@ -411,6 +417,7 @@ void App::livrePaye(){
         return;
     }
     int idStock = queryIdStock.value(0).toInt();
+    int quantiteStock = queryIdStock.value(1).toInt();
 
     // 5. Insérer dans `mouvements_de_stock`
     QSqlQuery queryMouvement(sqlitedb);
@@ -439,6 +446,20 @@ void App::livrePaye(){
         sqlitedb.rollback();
         CustomMessageBox().showError("Erreur", "Échec de l'insertion des données dans la vente.");
         return;
+    }
+    QSqlQuery queryOperation(sqlitedb);
+    queryOperation.prepare("INSERT INTO operation (mouvement_id, stock_id, nom_produit, stock_depart, quantite_entree, quantite_sortie, stock_actuel, date_operation) "
+                           "VALUES (:mouvement_id, :stock_id, :nom_produit, :stock_depart, :quantite_entree, :quantite_sortie, :stock_actuel, :date_operation)");
+    queryOperation.bindValue(":mouvement_id", queryMouvement.lastInsertId());
+    queryOperation.bindValue(":stock_id", idStock);
+    queryOperation.bindValue(":nom_produit", ui->tableBonDeLivraison->item(row, 2)->text());
+    queryOperation.bindValue(":stock_depart", quantiteStock);
+    queryOperation.bindValue(":quantite_sortie", quantite);
+    queryOperation.bindValue(":quantite_entree", 0);
+    queryOperation.bindValue(":stock_actuel", quantiteStock - quantite);
+    queryOperation.bindValue(":date_operation", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
+    if (!queryOperation.exec()) {
+        qDebug() << "Erreur lors de l'insertion des données" << queryOperation.lastError();
     }
 
     // Validation de la transaction
@@ -718,53 +739,129 @@ void App::chiffreDaffaire(){
 }
 
 void App::imprimerVente(){
-    //Créer un fonction permettant d'imprimer la ligne séléctionnée
-    CustomMessageBox msgBox;
-    int row = ui->tableVente->currentRow();
-    if(row < 0){
-        msgBox.showError("Erreur", "Veuillez sélectionner une ligne à imprimer");
+    // Selection de plusieurs lignes
+    QModelIndexList selection = ui->tableVente->selectionModel()->selectedRows();
+    if(selection.isEmpty()){
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner une ou plusieurs lignes à imprimer.");
         return;
     }
-    QTableWidgetItem *celluleId = ui->tableVente->item(row, 0);
-    if(!celluleId){
-        msgBox.showError("Erreur", "Impossible de trouver l'ID de la vente");
-        return;
+    //Récupérer les lignes sélectionnées
+    QStringList listeIdVente;
+    foreach(const QModelIndex &index, selection){
+        listeIdVente.append(ui->tableVente->item(index.row(), 0)->text());
     }
-    QString idVente = celluleId->text();
+    //Récuperer le nom du client, le nom du produit, la quantité, le prix unitaire, le prix total et la date de vente dans le tableau
+    QString contenuVente;
+    contenuVente = QString("<!DOCTYPE html>"
+                           "<html>"
+                           "<head>"
+                           "<meta charset='UTF-8'>"
+                           "<style>"
+                           "table {"
+                           "  width: 100%;"
+                           "  border-collapse: collapse;"
+                           "  margin-top: 20px; "
+                           "} "
+                           "th, td {"
+                           "  border: 1px solid black; "
+                           "  padding: 10px; "
+                           "  text-align: center; "
+                           "} "
+                           "th {"
+                           "  background-color: #f2f2f2; "
+                           "  font-weight: bold; "
+                           "} "
+                           "</style>"
+                           "</head>"
+                           "<body>"
+                           "<p><strong>RAHENINTSOA ALASORA</strong></p>"
+                           "<p><strong>Nif : </strong></p>"
+                           "<p><strong>STAT : </strong></p>"
+                           "<p><strong>Adresse : </strong>ALASORA Commune en Face de Sopromer</p>"
+                           "<p><strong>Contact : </strong>0347636886</p>"
+                           "<div style='text-align: center; font-size: 20px;'>"
+                           "<h2>FACTURE</h2>"
+                           "</div>"
+                           "<table>"
+                           "<thead>"
+                           "<tr>"
+                           "<th>Client</th>"
+                           "<th>Produit</th>"
+                           "<th>Quantité</th>"
+                           "<th>Prix Unitaire (MGA)</th>"
+                           "<th>Prix Total (MGA)</th>"
+                           "<th>Date de Vente</th>"
+                           "</tr>"
+                           "</thead>"
+                           "<tbody>");
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     QSqlQuery query(sqlitedb);
-    query.prepare("SELECT p.nom, c.nom, quantite, prix_total, date_vente FROM ligne_vente l "
+    // Préparer la requête UNE SEULE FOIS avant la boucle
+    query.prepare("SELECT c.nom, p.nom, quantite, p.prix_unitaire, prix_total, date_vente FROM ligne_vente l "
                   "INNER JOIN produits p ON id_produit = produit_id "
                   "INNER JOIN clients c ON id_client = client_id "
                   "WHERE id_vente = :id");
-    query.bindValue(":id", idVente);
-    if(!query.exec()){
-        msgBox.showError("Erreur", "Erreur lors de la récupération des données");
-        qDebug()<<query.lastError();
-        return;
-    }
-    if(query.next()){
-        QString nom_produit = query.value(0).toString();
-        QString nom_client = query.value(1).toString();
-        int quantite = query.value(2).toInt();
-        double prix_total = query.value(3).toDouble();
-        QString date_vente = query.value(4).toString();
 
-        QString contenu = "Nom du produit: "+nom_produit+"\n"
-                "Nom du client: "+nom_client+"\n"
-                "Quantité: "+QString::number(quantite)+"\n"
-                "Prix total: "+QString::number(prix_total)+" MGA\n"
-                "Date de vente: "+date_vente;
-        msgBox.showInformation("Information", contenu);
-        //Mettre un bouton imprimer dans le message box
-        QPrinter printer;
-        QPrintDialog dialog(&printer, this);
-        if(dialog.exec() == QDialog::Accepted){
-            QPainter painter(&printer);
-            painter.setPen(Qt::black);
-            painter.setFont(QFont("Arial", 12));
-            painter.drawText(100, 100, contenu);
+    for (const QString &idVente : listeIdVente) {
+        query.bindValue(":id", idVente);
+
+        if (!query.exec()) {
+            qDebug() << "Erreur SQL:" << query.lastError();
+            return;
         }
+
+        while (query.next()) {
+            QString nomClient = query.value(0).toString();
+            QString nomProduit = query.value(1).toString();
+            int quantite = query.value(2).toInt();
+            double prixUnitaire = query.value(3).toDouble();
+            double prixTotal = query.value(4).toDouble();
+            QString dateVente = query.value(5).toString();
+
+            contenuVente += QString("<tr>"
+                                    "<td>%1</td>"
+                                    "<td>%2</td>"
+                                    "<td>%3</td>"
+                                    "<td>%4 MGA</td>"
+                                    "<td>%5 MGA</td>"
+                                    "<td>%6</td>"
+                                    "</tr>"
+                                    )
+                                .arg(nomClient)
+                                .arg(nomProduit)
+                                .arg(quantite)
+                                .arg(prixUnitaire)
+                                .arg(prixTotal)
+                                .arg(dateVente);
+        }
+    }
+
+    // Ajouter le reste du HTML après la boucle
+    contenuVente += "</tbody>"
+                    "</table>"
+                    "</body>"
+                    "</html>";
+
+    QTextDocument document;
+    document.setHtml(contenuVente);
+
+    // Aperçu avant impression
+    QPrinter previewPrinter(QPrinter::PrinterResolution);
+    previewPrinter.setOutputFormat(QPrinter::PdfFormat);
+    previewPrinter.setOutputFileName("facture.pdf");
+
+    QPrintPreviewDialog previewDialog(&previewPrinter, this);
+    connect(&previewDialog, &QPrintPreviewDialog::paintRequested, [&document](QPrinter *printer) {
+        document.print(printer);
+    });
+    previewDialog.exec();
+
+    // Impression réelle
+    QPrinter printPrinter(QPrinter::HighResolution);
+    QPrintDialog printDialog(&printPrinter, this);
+
+    if (printDialog.exec() == QDialog::Accepted) {
+        document.print(&printPrinter);
     }
 }
 

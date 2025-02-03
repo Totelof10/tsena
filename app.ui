@@ -216,7 +216,7 @@ QPushButton:hover{
          </font>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="page_vente">
          <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -656,7 +656,7 @@ QPushButton:hover{
              </font>
             </property>
             <property name="text">
-             <string>Stock et réaprovisionnement</string>
+             <string>Liste des produits</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -921,6 +921,33 @@ QPushButton:hover{
                </property>
                <property name="text">
                 <string>Mouvement de stock</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnOperation">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+	border: 1px solid white;
+	border-radius: 7px;
+	background-color: #E195AB;
+	color:white;
+	padding: 7px;
+}
+QPushButton:hover{
+	background-color: #FFEDFA;
+}</string>
+               </property>
+               <property name="text">
+                <string>Tableau des opérations</string>
                </property>
               </widget>
              </item>

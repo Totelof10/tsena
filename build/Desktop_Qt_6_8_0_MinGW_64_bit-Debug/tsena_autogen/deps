@@ -705,6 +705,8 @@ tsena_autogen/timestamp: \
 	C:/Users/rtoha/Documents/tsena/mainwindow.h \
 	C:/Users/rtoha/Documents/tsena/mouvementdestock.cpp \
 	C:/Users/rtoha/Documents/tsena/mouvementdestock.h \
+	C:/Users/rtoha/Documents/tsena/operation.cpp \
+	C:/Users/rtoha/Documents/tsena/operation.h \
 	C:/Users/rtoha/Documents/tsena/ressource.qrc \
 	C:/Users/rtoha/Documents/tsena/ajoutclient.ui \
 	C:/Users/rtoha/Documents/tsena/ajoutfournisseur.ui \
@@ -717,4 +719,5 @@ tsena_autogen/timestamp: \
 	C:/Users/rtoha/Documents/tsena/formulairevente.ui \
 	C:/Users/rtoha/Documents/tsena/mainwindow.ui \
 	C:/Users/rtoha/Documents/tsena/mouvementdestock.ui \
+	C:/Users/rtoha/Documents/tsena/operation.ui \
 	C:/Qt/Tools/CMake_64/bin/cmake.exe

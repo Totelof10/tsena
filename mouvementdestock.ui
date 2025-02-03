@@ -59,6 +59,11 @@ QLineEdit:focus{
         </item>
         <item>
          <property name="text">
+          <string>Sortie Livraison</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>Modification</string>
          </property>
         </item>

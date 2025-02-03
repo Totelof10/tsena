@@ -125,6 +125,21 @@ void EtatStock::ajouterQuantite() {
                 if (!queryMouvement.exec()) {
                     qDebug()<<"Erreur lors de l'insertion des données"<<queryMouvement.lastError();
                 }
+                QSqlQuery queryOperation(sqlitedb);
+                queryOperation.prepare("INSERT INTO operation (mouvement_id, stock_id, nom_produit, stock_depart, quantite_entree, stock_actuel, date_operation) "
+                                       "VALUES (:mouvement_id, :stock_id, :nom_produit, :stock_depart, :quantite_entree, :quantite_sortie, :stock_actuel, :date_operation)");
+                queryOperation.bindValue(":mouvement_id", queryMouvement.lastInsertId());
+                queryOperation.bindValue(":stock_id", ui->tableEtatStock->item(row, 0)->text());
+                queryOperation.bindValue(":nom_produit", ui->tableEtatStock->item(row, 1)->text());
+                queryOperation.bindValue(":stock_depart", quantiteInitiale);
+                queryOperation.bindValue(":quantite_sortie", 0);
+                queryOperation.bindValue(":quantite_entree", valeurAjoutee);
+                queryOperation.bindValue(":stock_actuel", quantiteInitiale + valeurAjoutee);
+                queryOperation.bindValue(":date_operation", QDateTime::currentDateTime().toString("yyyy-MM-dd"));
+                if (!queryOperation.exec()) {
+                    qDebug()<<"Erreur lors de l'insertion des données"<<queryOperation.lastError();
+                }
+
             } else {
                 // Annuler et vider la cellule
                 item->setText("");

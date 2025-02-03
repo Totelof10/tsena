@@ -388,6 +388,12 @@
 			"MU",
 			"EWIEGA46WW/moc_mouvementdestock.cpp",
 			null
+		],
+		[
+			"C:/Users/rtoha/Documents/tsena/operation.h",
+			"MU",
+			"EWIEGA46WW/moc_operation.cpp",
+			null
 		]
 	],
 	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
@@ -478,7 +484,8 @@
 		[ "C:/Users/rtoha/Documents/tsena/formulairevente.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/main.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/mainwindow.cpp", "MU", null ],
-		[ "C:/Users/rtoha/Documents/tsena/mouvementdestock.cpp", "MU", null ]
+		[ "C:/Users/rtoha/Documents/tsena/mouvementdestock.cpp", "MU", null ],
+		[ "C:/Users/rtoha/Documents/tsena/operation.cpp", "MU", null ]
 	],
 	"UIC_OPTIONS" : [],
 	"UIC_SEARCH_PATHS" : [],

@@ -19,6 +19,29 @@ AjoutVente::AjoutVente(QWidget *parent)
     connect(ui->comboProduit, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &AjoutVente::remettreAZero);
     connect(ui->btnValider, &QPushButton::clicked, this, &AjoutVente::ajouterNouvelleVente);
+    connect(ui->comboClient->lineEdit(), &QLineEdit::textEdited, this, [=](const QString &text) {
+        for (int i = 0; i < ui->comboClient->count(); ++i) {
+            bool match = ui->comboClient->itemText(i).contains(text, Qt::CaseInsensitive);
+            ui->comboClient->setItemData(i, match ? QVariant() : QVariant(0), Qt::UserRole - 1);
+        }
+    });
+    connect(ui->comboClient, &QComboBox::currentIndexChanged, this, [=]() {
+        for (int i = 0; i < ui->comboClient->count(); ++i) {
+            ui->comboClient->setItemData(i, QVariant(), Qt::UserRole - 1);
+        }
+    });
+    // Connecter le signal pour filtrer les éléments existants
+    connect(ui->comboProduit->lineEdit(), &QLineEdit::textEdited, this, [=](const QString &text) {
+        for (int i = 0; i < ui->comboProduit->count(); ++i) {
+            bool match = ui->comboProduit->itemText(i).contains(text, Qt::CaseInsensitive);
+            ui->comboProduit->setItemData(i, match ? QVariant() : QVariant(0), Qt::UserRole - 1);
+        }
+    });
+    connect(ui->comboProduit, &QComboBox::currentIndexChanged, this, [=]() {
+        for (int i = 0; i < ui->comboProduit->count(); ++i) {
+            ui->comboProduit->setItemData(i, QVariant(), Qt::UserRole - 1);
+        }
+    });
 
 
 }
@@ -270,10 +293,10 @@ void AjoutVente::ajouterNouvelleVente() {
                              "</head>"
                              "<body>"
                              "<p>RAHENINTSOA ALASORA</p>"
-                             "<p>Nif : </p>"
-                             "<p>STAT : </p>"
-                             "<p>Adresse : ALASORA Commune en Face de Sopromer</p>"
-                             "<p>Contact : 0347636886</p>"
+                             "<p><strong>Nif : </strong></p>"
+                             "<p><strong>STAT : </strong></p>"
+                             "<p><strong>Adresse : </strong>ALASORA Commune en Face de Sopromer</p>"
+                             "<p><strong>Contact : </strong>0347636886</p>"
                              "<div style='text-align: center; font-size: 20px;'>"
                              "<h2>FACTURE</h2>"
                              "</div>"
@@ -314,6 +337,7 @@ void AjoutVente::ajouterNouvelleVente() {
             QSqlQuery queryUpdateQuantite(sqlitedb);
             QSqlQuery queryMouvement(sqlitedb);
             QSqlQuery queryStock(sqlitedb);
+            QSqlQuery operation(sqlitedb);
 
             // Rechercher l'ID du client
             queryClient.prepare("SELECT id_client FROM clients WHERE nom = ?");
@@ -342,6 +366,7 @@ void AjoutVente::ajouterNouvelleVente() {
                 continue;
             }
             int id_stock = queryStock.value(0).toInt();
+            int quantiteStock = queryStock.value(1).toInt();
 
             // Insertion dans ligne_vente
             QSqlQuery queryInsertion(sqlitedb);
@@ -375,10 +400,24 @@ void AjoutVente::ajouterNouvelleVente() {
             queryMouvement.bindValue(":quantite", quantite);
             queryMouvement.bindValue(":type_mouvement", "Sortie Vente");
             queryMouvement.bindValue(":date_mouvement", currentDateTime);
-            queryMouvement.bindValue(":vente", QString("Achat du %1 par %2").arg(currentDate).arg(nomClient));
-
+            queryMouvement.bindValue(":vente", QString("Achat de %1").arg(nomClient));
             if (!queryMouvement.exec()) {
                 qDebug() << "Erreur lors de l'insertion dans mouvements_de_stock : " << queryMouvement.lastError().text();
+            }
+
+            QSqlQuery queryOperation(sqlitedb);
+            queryOperation.prepare("INSERT INTO operation (mouvement_id, stock_id, nom_produit, stock_depart, quantite_entree, quantite_sortie, stock_actuel, date_operation) "
+                                   "VALUES (:mouvement_id, :stock_id, :nom_produit, :stock_depart, :quantite_entree, :quantite_sortie, :stock_actuel, :date_operation)");
+            queryOperation.bindValue(":mouvement_id", queryMouvement.lastInsertId());
+            queryOperation.bindValue(":stock_id", id_stock);
+            queryOperation.bindValue(":nom_produit", nomProduit);
+            queryOperation.bindValue(":stock_depart", quantiteStock);
+            queryOperation.bindValue(":quantite_sortie", quantite);
+            queryOperation.bindValue(":quantite_entree", 0);
+            queryOperation.bindValue(":stock_actuel", quantiteStock - quantite);
+            queryOperation.bindValue(":date_operation", currentDateTime);
+            if (!queryOperation.exec()) {
+                qDebug() << "Erreur lors de l'insertion des données" << queryOperation.lastError();
             }
 
             // Ajouter à la facture

@@ -18,7 +18,31 @@ BonDeLivraison::BonDeLivraison(QWidget *parent)
             this, &BonDeLivraison::mettreAJourTotalBl);
     connect(ui->comboProduit, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &BonDeLivraison::remettreAZeroBl);
-    connect(ui->btnValider, &QPushButton::clicked, this, &BonDeLivraison::ajouterNouvelleBl);
+    connect(ui->btnValider, &QPushButton::clicked, this, &BonDeLivraison::ajouterNouvelleBl);    
+    // Connecter le signal pour filtrer les éléments existants
+    connect(ui->comboClient->lineEdit(), &QLineEdit::textEdited, this, [=](const QString &text) {
+        for (int i = 0; i < ui->comboClient->count(); ++i) {
+            bool match = ui->comboClient->itemText(i).contains(text, Qt::CaseInsensitive);
+            ui->comboClient->setItemData(i, match ? QVariant() : QVariant(0), Qt::UserRole - 1);
+        }
+    });
+    connect(ui->comboClient, &QComboBox::currentIndexChanged, this, [=]() {
+        for (int i = 0; i < ui->comboClient->count(); ++i) {
+            ui->comboClient->setItemData(i, QVariant(), Qt::UserRole - 1);
+        }
+    });
+    // Connecter le signal pour filtrer les éléments existants
+    connect(ui->comboProduit->lineEdit(), &QLineEdit::textEdited, this, [=](const QString &text) {
+        for (int i = 0; i < ui->comboProduit->count(); ++i) {
+            bool match = ui->comboProduit->itemText(i).contains(text, Qt::CaseInsensitive);
+            ui->comboProduit->setItemData(i, match ? QVariant() : QVariant(0), Qt::UserRole - 1);
+        }
+    });
+    connect(ui->comboProduit, &QComboBox::currentIndexChanged, this, [=]() {
+        for (int i = 0; i < ui->comboProduit->count(); ++i) {
+            ui->comboProduit->setItemData(i, QVariant(), Qt::UserRole - 1);
+        }
+    });
 
 
 }
