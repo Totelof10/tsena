@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Ajout d'un nouveau fournisseur</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="ressource.qrc">
+    <normaloff>:/db_test/Nouveau dossier/shopping-en-ligne.png</normaloff>:/db_test/Nouveau dossier/shopping-en-ligne.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,2,0">
    <item>
@@ -160,6 +164,8 @@ QPushButton:hover{
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="ressource.qrc"/>
+ </resources>
  <connections/>
 </ui>

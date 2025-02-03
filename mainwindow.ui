@@ -25,6 +25,10 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="ressource.qrc">
+    <normaloff>:/db_test/Nouveau dossier/shopping-en-ligne.png</normaloff>:/db_test/Nouveau dossier/shopping-en-ligne.png</iconset>
+  </property>
   <property name="styleSheet">
    <string notr="true">QMainWindow{
 	background-color:#F9FCFF;
@@ -571,6 +575,8 @@ QPushButton:hover{
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <resources/>
+ <resources>
+  <include location="ressource.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Tsena</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="ressource.qrc">
+    <normaloff>:/db_test/Nouveau dossier/shopping-en-ligne.png</normaloff>:/db_test/Nouveau dossier/shopping-en-ligne.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: #F3FCFF</string>
@@ -1304,6 +1308,8 @@ QPushButton:hover{
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="ressource.qrc"/>
+ </resources>
  <connections/>
 </ui>
