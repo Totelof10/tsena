@@ -427,8 +427,8 @@ void App::livrePaye(){
     queryMouvement.bindValue(":nom", nom);
     queryMouvement.bindValue(":quantite", quantite);
     queryMouvement.bindValue(":type_mouvement", "Sortie Livraison");
-    queryMouvement.bindValue(":date_mouvement", QDateTime::currentDateTime().toString("yyyy-MM-dd"));
-    queryMouvement.bindValue(":vente", QString("Livraison du %1 pour %2").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd")).arg(ui->tableBonDeLivraison->item(row, 1)->text()));
+    queryMouvement.bindValue(":date_mouvement", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
+    queryMouvement.bindValue(":vente", QString("Livraison du %1 pour %2").arg(QDateTime::currentDateTime().toString("dd-MM-yyyy")).arg(ui->tableBonDeLivraison->item(row, 1)->text()));
     if(!queryMouvement.exec()){
         qDebug() << "Erreur insertion mouvements_de_stock :" << queryMouvement.lastError();
         sqlitedb.rollback();
@@ -959,10 +959,10 @@ void App::filtrageDate(){
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
     }
-    QString dateDebut = ui->dateDebut->date().toString("yyyy-MM-dd");
-    QString dateFin = ui->dateFin->date().toString("yyyy-MM-dd");
+    QString dateDebut = ui->dateDebut->date().toString("dd-MM-yyyy");
+    QString dateFin = ui->dateFin->date().toString("dd-MM-yyyy");
     QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, prix_total, date_vente FROM ligne_vente l "
+    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, prix_total, date_vente, num_bon_livraison FROM ligne_vente l "
                            "INNER JOIN produits p ON id_produit = produit_id "
                            "INNER JOIN clients c ON id_client = client_id "
                            "WHERE date_vente BETWEEN :dateDebut AND :dateFin");
@@ -982,6 +982,7 @@ void App::filtrageDate(){
         int quantite = queryAffichage.value(3).toInt();
         double prix_total = queryAffichage.value(4).toDouble();
         QString date_vente = queryAffichage.value(5).toString();
+        QString bl_id = queryAffichage.value(6).toString();
 
         ui->tableVente->setItem(row, 0, new QTableWidgetItem(id_vente));
         ui->tableVente->setItem(row, 1, new QTableWidgetItem(nom_produit));
@@ -989,7 +990,7 @@ void App::filtrageDate(){
         ui->tableVente->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
         ui->tableVente->setItem(row, 4, new QTableWidgetItem(QString::number(prix_total)+" MGA"));
         ui->tableVente->setItem(row, 5, new QTableWidgetItem(date_vente));
-
+        ui->tableVente->setItem(row, 6, new QTableWidgetItem(bl_id));
         row++;
 
     }

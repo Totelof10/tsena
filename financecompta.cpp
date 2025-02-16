@@ -109,8 +109,8 @@ void FinanceCompta::filtrerParDate() {
     }
 
     // Récupérer les dates à partir des QDateEdit
-    QString dateDebut = ui->dateDebut->date().toString("yyyy-MM-dd");
-    QString dateFin = ui->dateFin->date().toString("yyyy-MM-dd");
+    QString dateDebut = ui->dateDebut->date().toString("dd-MM-yyyy");
+    QString dateFin = ui->dateFin->date().toString("dd-MM-yyyy");
 
     QSqlQuery queryAffichage(sqlitedb);
     queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, date_vente, p.prix_base, p.prix_unitaire FROM ligne_vente l "

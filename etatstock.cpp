@@ -105,7 +105,7 @@ void EtatStock::ajouterQuantite() {
                 query.prepare("UPDATE stock SET quantite = quantite + :valeurAjoutee , date_du_dernier_entree= :date_du_dernier_entree WHERE id_stock = :id");
                 query.bindValue(":valeurAjoutee", valeurAjoutee);
                 query.bindValue(":id", ui->tableEtatStock->item(row, 0)->text());
-                query.bindValue(":date_du_dernier_entree", QDateTime::currentDateTime().toString("yyyy-MM-dd"));
+                query.bindValue(":date_du_dernier_entree", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
                 if (!query.exec()) {
                     qDebug() << "Erreur lors de la mise à jour de la quantité :" << query.lastError();
                     CustomMessageBox().showError("Erreur", "Échec de la mise à jour de la base de données.");
@@ -121,7 +121,7 @@ void EtatStock::ajouterQuantite() {
                 queryMouvement.bindValue(":nom", ui->tableEtatStock->item(row, 1)->text()); // Récupérer l'ID du produit (à adapter selon votre structure)
                 queryMouvement.bindValue(":type_mouvement", QStringLiteral("Entrée"));
                 queryMouvement.bindValue(":quantite", valeurAjoutee);
-                queryMouvement.bindValue(":date_mouvement", QDateTime::currentDateTime().toString("yyyy-MM-dd"));
+                queryMouvement.bindValue(":date_mouvement", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
                 if (!queryMouvement.exec()) {
                     qDebug()<<"Erreur lors de l'insertion des données"<<queryMouvement.lastError();
                 }
@@ -135,7 +135,7 @@ void EtatStock::ajouterQuantite() {
                 queryOperation.bindValue(":quantite_sortie", 0);
                 queryOperation.bindValue(":quantite_entree", valeurAjoutee);
                 queryOperation.bindValue(":stock_actuel", quantiteInitiale + valeurAjoutee);
-                queryOperation.bindValue(":date_operation", QDateTime::currentDateTime().toString("yyyy-MM-dd"));
+                queryOperation.bindValue(":date_operation", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
                 if (!queryOperation.exec()) {
                     qDebug()<<"Erreur lors de l'insertion des données"<<queryOperation.lastError();
                 }

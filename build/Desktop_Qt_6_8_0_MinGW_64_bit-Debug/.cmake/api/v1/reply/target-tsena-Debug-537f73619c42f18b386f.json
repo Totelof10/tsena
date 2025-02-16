@@ -296,7 +296,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-O3 -DNDEBUG -std=gnu++17 -fdiagnostics-color=always"
+					"fragment" : "-DQT_QML_DEBUG -g -std=gnu++17 -fdiagnostics-color=always"
 				}
 			],
 			"defines" : 
@@ -316,10 +316,6 @@
 				{
 					"backtrace" : 14,
 					"define" : "QT_NEEDS_QMAIN"
-				},
-				{
-					"backtrace" : 14,
-					"define" : "QT_NO_DEBUG"
 				},
 				{
 					"backtrace" : 6,
@@ -362,7 +358,7 @@
 			[
 				{
 					"backtrace" : 0,
-					"path" : "C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include"
+					"path" : "C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include"
 				},
 				{
 					"backtrace" : 14,
@@ -434,11 +430,11 @@
 	"dependencies" : 
 	[
 		{
-			"id" : "tsena_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
-		},
-		{
 			"backtrace" : 0,
 			"id" : "tsena_autogen::@6890427a1f51a3e7e1df"
+		},
+		{
+			"id" : "tsena_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
 		}
 	],
 	"id" : "tsena::@6890427a1f51a3e7e1df",
@@ -461,7 +457,7 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-O3 -DNDEBUG",
+				"fragment" : "-DQT_QML_DEBUG -g",
 				"role" : "flags"
 			},
 			{
@@ -660,7 +656,7 @@
 			"backtrace" : 0,
 			"compileGroupIndex" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/mocs_compilation.cpp",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/mocs_compilation.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -895,92 +891,92 @@
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_mainwindow.h",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_mainwindow.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_app.h",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_app.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_ajoutfournisseur.h",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_ajoutfournisseur.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_ajoutnouveauproduits.h",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_ajoutnouveauproduits.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_etatstock.h",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_etatstock.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_mouvementdestock.h",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_mouvementdestock.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_ajoutclient.h",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_ajoutclient.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_ajoutvente.h",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_ajoutvente.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_financecompta.h",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_financecompta.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_bondelivraison.h",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_bondelivraison.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_operation.h",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/include/ui_operation.h",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/timestamp",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/timestamp",
 			"sourceGroupIndex" : 2
 		},
 		{
 			"backtrace" : 0,
 			"compileGroupIndex" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/EWIEGA46WW/qrc_ressource.cpp",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/EWIEGA46WW/qrc_ressource.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/timestamp.rule",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/timestamp.rule",
 			"sourceGroupIndex" : 4
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/EWIEGA46WW/qrc_ressource.cpp.rule",
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Debug/tsena_autogen/EWIEGA46WW/qrc_ressource.cpp.rule",
 			"sourceGroupIndex" : 4
 		}
 	],

@@ -372,12 +372,6 @@
 			null
 		],
 		[
-			"C:/Users/rtoha/Documents/tsena/formulairevente.h",
-			"MU",
-			"EWIEGA46WW/moc_formulairevente.cpp",
-			null
-		],
-		[
 			"C:/Users/rtoha/Documents/tsena/mainwindow.h",
 			"MU",
 			"EWIEGA46WW/moc_mainwindow.cpp",
@@ -481,7 +475,6 @@
 		[ "C:/Users/rtoha/Documents/tsena/databasemanager.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/etatstock.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/financecompta.cpp", "MU", null ],
-		[ "C:/Users/rtoha/Documents/tsena/formulairevente.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/main.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/mainwindow.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/mouvementdestock.cpp", "MU", null ],

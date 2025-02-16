@@ -90,7 +90,7 @@ void AjoutNouveauProduits::ajouterLeProduit(){
     query.bindValue(":produit_id", idNouveauProduit);
     query.bindValue(":quantite", quantite);
     //query.bindValue(":sueil_alert", seuil_alert);
-    query.bindValue(":date_du_dernier_entree", QDateTime::currentDateTime().toString("yyyy-MM-dd"));
+    query.bindValue(":date_du_dernier_entree", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
     if(!query.exec()){
         qDebug()<< "Erreur lors de l'insertion des données"<<query.lastError();
         sqlitedb.rollback();

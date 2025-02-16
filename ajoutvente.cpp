@@ -94,11 +94,11 @@ void AjoutVente::ajouterPanier() {
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base données"<<sqlitedb.rollback();
     }
+
     QSqlQuery queryStock(sqlitedb);
     QString client = ui->comboClient->currentText();
     QString produit = ui->comboProduit->currentText();
     int quantite = ui->spinBoxQuantite->value();
-
     // Récupérer l'ID du produit actuellement sélectionné dans le QComboBox
     int idProduit = ui->comboProduit->currentData().toInt();
     int quantiteStock = -1;
@@ -262,6 +262,7 @@ void AjoutVente::clearForm(){
 void AjoutVente::ajouterNouvelleVente() {
     texte = new QTextEdit();
     QString totalPayer = ui->labelTotal->text();
+    QString client_id = ui->comboClient->currentData().toString();
     QString dateActuelle = QDate::currentDate().toString("dd-MM-yyyy");
     QString nom_client = ui->comboClient->currentText();
     CustomMessageBox msgBox;
@@ -269,6 +270,9 @@ void AjoutVente::ajouterNouvelleVente() {
     if (!sqlitedb.open()) {
         qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
     }
+    int id_facture = ui->spinBox->value();
+    qDebug()<<"Id facture: "<<id_facture;
+
     QString contenuFacture;
     contenuFacture = QString("<!DOCTYPE html>"
                              "<html>"
@@ -298,9 +302,10 @@ void AjoutVente::ajouterNouvelleVente() {
                              "<p><strong>Adresse : </strong>ALASORA Commune en Face de Sopromer</p>"
                              "<p><strong>Contact : </strong>0347636886</p>"
                              "<div style='text-align: center; font-size: 20px;'>"
-                             "<h2>FACTURE</h2>"
+                             "<h1>Date du %1</h1>"
+                             "<h2>FACTURE N° %3</h2>"
                              "</div>"
-                             "<h2>Client : %1</h2>"
+                             "<h2>Client : %2</h2>"
                              "<table>"
                              "<thead>"
                              "<tr>"
@@ -310,7 +315,7 @@ void AjoutVente::ajouterNouvelleVente() {
                              "<th>Prix Total (MGA)</th>"
                              "</tr>"
                              "</thead>"
-                             "<tbody>").arg(nom_client);
+                             "<tbody>").arg(dateActuelle).arg(nom_client).arg(QString::number(id_facture));
 
 
     for (int i = 0; i < ui->listWidget->count(); i++) {
@@ -450,7 +455,6 @@ void AjoutVente::ajouterNouvelleVente() {
                           // Zone de total bien centrée
                           "<div style='text-align: right; font-size: 18px; margin-top: 20px;'>"
                           "<h2>TOTAL À PAYER : %2 MGA</h2>"
-                          "<h2>DATE DU : %3</h2>"
                           "</div>"
 
                           // Ajout de la signature en bas
@@ -461,8 +465,7 @@ void AjoutVente::ajouterNouvelleVente() {
 
                           "</body></html>"  // Fermeture du HTML
                           ).arg(totalEnLettres)  // Convertit en lettres
-                          .arg(totalPayer)
-                          .arg(dateActuelle);
+                          .arg(totalPayer);
     qDebug()<<convertirNombreEnLettres(totalPayer.toLongLong());
 
     QTextDocument document;
