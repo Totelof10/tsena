@@ -16,6 +16,7 @@ void AjoutClient::ajouterNouveauClient(){
     CustomMessageBox msgBox;
     QString client = ui->lineEditClient->text().trimmed();
     QString coordonnees = ui->lineEditCoordonnees->text().trimmed();
+    QString lieu = ui->lineEditLieu->text().trimmed();
     if (client.isEmpty()) { // Validation : le nom du client est obligatoire
         msgBox.showError("", "Le nom du client est obligatoire.");
         return;
@@ -25,9 +26,10 @@ void AjoutClient::ajouterNouveauClient(){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
     }
     QSqlQuery query(sqlitedb);
-    query.prepare("INSERT INTO clients (nom, coordonnees) VALUES (:nom, :coordonnees)");
+    query.prepare("INSERT INTO clients (nom, coordonnees, lieu) VALUES (:nom, :coordonnees, :lieu)");
     query.bindValue(":nom", client);
     query.bindValue(":coordonnees", coordonnees);
+    query.bindValue(":lieu", lieu);
     if(!query.exec()){
         qDebug()<<"Erreur lors de l'insertion des données"<<query.lastError();
     }

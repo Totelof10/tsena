@@ -11,6 +11,7 @@
 #include "financecompta.h"
 #include "bondelivraison.h"
 #include "operation.h"
+#include "tiers.h"
 
 App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget *parent)
     : QWidget(parent)
@@ -61,9 +62,11 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     connect(ui->btnNouveauBonDeLivraison, &QPushButton::clicked, this, &App::ancienNouveauClientBonDeLivraison);
     connect(ui->btnFiltrageDateBl, &QPushButton::clicked, this, &App::filtrageDateBonDeLivraison);
     connect(ui->lineEditRechercheBl, &QLineEdit::textChanged, this, &App::rechercheBl);
+    connect(ui->btnReinitialiserBl, &QPushButton::clicked, this, &App::reinitialiserBl);
     //connect(ui->btnSupprimerBonDeLivraison, &QPushButton::clicked, this, &App::supprimerBonDeLivraison);
     connect(ui->btnModifierBl, &QPushButton::clicked, this, &App::livrePaye);
     connect(ui->btnOperation, &QPushButton::clicked, this, &App::tableDesOperations);
+    connect(ui->btnTiers, &QPushButton::clicked, this, &App::affichageTiers);
 }
 
 void App::tableDesOperations(){
@@ -244,6 +247,7 @@ void App::afficherBonDeLivraison(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        return;
     }
     QSqlQuery queryAffichage(sqlitedb);
     queryAffichage.prepare("SELECT id_livraison, c.nom, p.nom, quantite, date, statut, prix_total_a_payer FROM bon_de_livraison b "
@@ -251,6 +255,7 @@ void App::afficherBonDeLivraison(){
                            "INNER JOIN clients c ON id_client = client_id");
     if(!queryAffichage.exec()){
         qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
+        return;
     }
     ui->tableBonDeLivraison->setRowCount(0);
     int row = 0;
@@ -487,6 +492,7 @@ void App::afficherVente(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        return;
     }
     QSqlQuery queryAffichage(sqlitedb);
     queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, prix_total, date_vente, num_bon_livraison FROM ligne_vente l "
@@ -495,6 +501,7 @@ void App::afficherVente(){
                            );
     if(!queryAffichage.exec()){
         qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
+        return;
     }
     ui->tableVente->setRowCount(0);
     int row = 0;
@@ -869,6 +876,7 @@ void App::rechercheBl(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        return;
     }
     QString recherche = ui->lineEditRechercheBl->text();
     QSqlQuery queryAffichage(sqlitedb);
@@ -908,6 +916,7 @@ void App::recherche(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        return;
     }
     QString recherche = ui->lineEditRecherche->text();
     QSqlQuery queryAffichage(sqlitedb);
@@ -917,6 +926,7 @@ void App::recherche(){
     queryAffichage.bindValue(":recherche", "%"+recherche+"%");
     if(!queryAffichage.exec()){
         qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
+        return;
     }
     ui->tableVente->setRowCount(0);
     int row = 0;
@@ -958,6 +968,7 @@ void App::filtrageDate(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        return;
     }
     QString dateDebut = ui->dateDebut->date().toString("dd-MM-yyyy");
     QString dateFin = ui->dateFin->date().toString("dd-MM-yyyy");
@@ -1013,16 +1024,17 @@ void App::filtrageDateBonDeLivraison(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        return;
     }
-    QString dateDebut = ui->dateDebut->date().toString("dd-MM-yyyy");
-    QString dateFin = ui->dateFin->date().toString("dd-MM-yyyy");
+    QString dateDebutBl = ui->dateDebutBl->date().toString("dd-MM-yyyy");
+    QString dateFinBl = ui->dateFinBl->date().toString("dd-MM-yyyy");
     QSqlQuery queryAffichage(sqlitedb);
     queryAffichage.prepare("SELECT id_livraison, c.nom, p.nom, quantite, date, statut, prix_total_a_payer FROM bon_de_livraison b "
                            "INNER JOIN produits p ON id_produit = produit_id "
                            "INNER JOIN clients c ON id_client = client_id "
-                           "WHERE date BETWEEN :dateDebut AND :dateFin");
-    queryAffichage.bindValue(":dateDebut", dateDebut);
-    queryAffichage.bindValue(":dateFin", dateFin);
+                           "WHERE date BETWEEN :dateDebutBl AND :dateFinBl");
+    queryAffichage.bindValue(":dateDebutBl", dateDebutBl);
+    queryAffichage.bindValue(":dateFinBl", dateFinBl);
     if(!queryAffichage.exec()){
         qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
         return;
@@ -1061,8 +1073,8 @@ void App::reinitialiserAffichage(){
 
 void App::reinitialiserBl(){
     QDate dateActuelle = QDate::currentDate();
-    ui->dateDebut->setDate(dateActuelle);  // Mettre la date de début au jour actuel
-    ui->dateFin->setDate(dateActuelle);
+    ui->dateDebutBl->setDate(dateActuelle);  // Mettre la date de début au jour actuel
+    ui->dateFinBl->setDate(dateActuelle);
     afficherBonDeLivraison();
 }
 
@@ -1079,6 +1091,11 @@ void App::mouvementStock(){
 void App::affichageFinance(){
     FinanceCompta *compta = new FinanceCompta(nullptr);
     compta->show();
+}
+
+void App::affichageTiers(){
+    Tiers *tiers = new Tiers(nullptr);
+    tiers->show();
 }
 
 App::~App()

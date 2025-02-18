@@ -25,6 +25,7 @@ void AjoutFournisseur::ajouterNouveauFournisseur(){
 
     QString fournisseur = ui->lineEditFournisseur->text().trimmed(); // Retirer les espaces inutiles
     QString coordonnees = ui->lineEditCoordonnees->text().trimmed();
+    QString lieu = ui->lineEditLieu->text().trimmed();
 
     if (fournisseur.isEmpty()) { // Validation : le nom du fournisseur est obligatoire
         msgBox.showError("", "Le nom du fournisseur est obligatoire.");
@@ -32,9 +33,10 @@ void AjoutFournisseur::ajouterNouveauFournisseur(){
     }
 
     QSqlQuery queryFournisseur(sqlitedb);
-    queryFournisseur.prepare("INSERT INTO fournisseur (nom, coordonnees) VALUES (:nom, :coordonnees)");
+    queryFournisseur.prepare("INSERT INTO fournisseur (nom, coordonnees, lieu) VALUES (:nom, :coordonnees, :lieu)");
     queryFournisseur.bindValue(":nom", fournisseur); // Utiliser :nom
     queryFournisseur.bindValue(":coordonnees", coordonnees);
+    queryFournisseur.bindValue(":lieu", lieu);
 
     if(!queryFournisseur.exec()){
         msgBox.showError("", "Erreur lors de l'ajout du fournisseur : " + queryFournisseur.lastError().text()); // Message d'erreur plus clair

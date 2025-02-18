@@ -38,6 +38,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ../../Downloads/CartoBMW/img/annuler.png ../../Downloads/CartoBMW/img/faire-pivoter-le-symbole-dinterface-fleche-circulaire-gauche.png ../../Downloads/CartoBMW/img/filtrage-des-donnees.png ../../Downloads/CartoBMW/img/systeme-de-filtrage-des-donnees.png
         bondelivraison.h bondelivraison.cpp bondelivraison.ui
         operation.h operation.cpp operation.ui
+        tiers.h tiers.cpp tiers.ui
+
 
 
 

@@ -19,6 +19,7 @@ EtatStock::EtatStock(QWidget *parent)
     connect(ui->btnAjouterQuantite, &QPushButton::clicked, this, &EtatStock::ajouterQuantite);
     connect (ui->lineEditRecherche, &QLineEdit::textChanged, this, &EtatStock::recherche);
     connect(ui->btnImprimerStock, &QPushButton::clicked, this, &EtatStock::imprimerStock);
+    connect(ui->btnRafraichir, &QPushButton::clicked, this, &EtatStock::rafraichir);
 
 
 }
@@ -27,32 +28,47 @@ void EtatStock::affichageEtatStock(){
     CustomMessageBox msgBox;
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
-        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
         msgBox.showError("", "Erreur lors de l'ouverture de la base de données");
         return;
     }
+
     QSqlQuery query(sqlitedb);
-    query.prepare("SELECT s.id_stock, p.nom, s.quantite FROM stock s "
+    query.prepare("SELECT s.id_stock, p.nom, s.quantite, p.prix_base FROM stock s "
                   "INNER JOIN produits p ON s.produit_id = p.id_produit");
+
     if(!query.exec()){
-        qDebug()<<"Erreur lors de la récupération de données"<<query.lastError();
-        msgBox.showError("","Erreur lors de la récupération des données");
+        qDebug() << "Erreur lors de la récupération de données" << query.lastError();
+        msgBox.showError("", "Erreur lors de la récupération des données");
         return;
     }
+
     ui->tableEtatStock->setRowCount(0);
     int row = 0;
+    double totalValeurStock = 0.0; // Variable pour stocker le total
+
     while(query.next()){
         ui->tableEtatStock->insertRow(row);
         QString id_stock = query.value(0).toString();
         QString nom = query.value(1).toString();
         int quantite = query.value(2).toInt();
+        double prix_base = query.value(3).toDouble();
+
+        // Calcul du total par produit (prix_base * quantite)
+        double valeurProduit = prix_base * quantite;
+        totalValeurStock += valeurProduit; // Ajout au total général
 
         ui->tableEtatStock->setItem(row, 0, new QTableWidgetItem(id_stock));
         ui->tableEtatStock->setItem(row, 1, new QTableWidgetItem(nom));
         ui->tableEtatStock->setItem(row, 2, new QTableWidgetItem(QString::number(quantite)));
+        ui->tableEtatStock->setItem(row, 3, new QTableWidgetItem(QString::number(prix_base, 'f', 2)));
+        ui->tableEtatStock->setItem(row, 4, new QTableWidgetItem(QString::number(valeurProduit, 'f', 2)));
 
         row++;
     }
+
+    // Affichage du total dans un QLabel
+    ui->labelTotalValeurStock->setText("Valeur totale du stock : " + QString::number(totalValeurStock, 'f', 2) + " MGA");
 }
 
 void EtatStock::ajouterQuantite() {
@@ -70,10 +86,10 @@ void EtatStock::ajouterQuantite() {
     int quantiteInitiale = celluleQuantiteInitiale->text().toInt();
 
     // Créer une nouvelle cellule pour la quantité à ajouter (colonne 3)
-    QTableWidgetItem *celluleQuantiteAjoutee = ui->tableEtatStock->item(row, 3);
+    QTableWidgetItem *celluleQuantiteAjoutee = ui->tableEtatStock->item(row, 5);
     if (!celluleQuantiteAjoutee) {
         celluleQuantiteAjoutee = new QTableWidgetItem();
-        ui->tableEtatStock->setItem(row, 3, celluleQuantiteAjoutee);
+        ui->tableEtatStock->setItem(row, 5, celluleQuantiteAjoutee);
     }
 
     // Activer le mode édition pour la cellule
@@ -81,7 +97,7 @@ void EtatStock::ajouterQuantite() {
 
     // Connexion pour traiter les modifications de la cellule
     connect(ui->tableEtatStock, &QTableWidget::itemChanged, this, [this, row, quantiteInitiale, celluleQuantiteInitiale](QTableWidgetItem *item) {
-        if (item->row() == row && item->column() == 3) {
+        if (item->row() == row && item->column() == 5) {
             bool ok;
             int valeurAjoutee = item->text().toInt(&ok); // Conversion en entier
             if (!ok || valeurAjoutee <= 0) {
@@ -123,10 +139,10 @@ void EtatStock::ajouterQuantite() {
                 queryMouvement.bindValue(":quantite", valeurAjoutee);
                 queryMouvement.bindValue(":date_mouvement", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
                 if (!queryMouvement.exec()) {
-                    qDebug()<<"Erreur lors de l'insertion des données"<<queryMouvement.lastError();
+                    qDebug()<<"Erreur lors de l'insertion des données mouvements"<<queryMouvement.lastError();
                 }
                 QSqlQuery queryOperation(sqlitedb);
-                queryOperation.prepare("INSERT INTO operation (mouvement_id, stock_id, nom_produit, stock_depart, quantite_entree, stock_actuel, date_operation) "
+                queryOperation.prepare("INSERT INTO operation (mouvement_id, stock_id, nom_produit, stock_depart, quantite_entree, quantite_sortie, stock_actuel, date_operation) "
                                        "VALUES (:mouvement_id, :stock_id, :nom_produit, :stock_depart, :quantite_entree, :quantite_sortie, :stock_actuel, :date_operation)");
                 queryOperation.bindValue(":mouvement_id", queryMouvement.lastInsertId());
                 queryOperation.bindValue(":stock_id", ui->tableEtatStock->item(row, 0)->text());
@@ -137,7 +153,7 @@ void EtatStock::ajouterQuantite() {
                 queryOperation.bindValue(":stock_actuel", quantiteInitiale + valeurAjoutee);
                 queryOperation.bindValue(":date_operation", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
                 if (!queryOperation.exec()) {
-                    qDebug()<<"Erreur lors de l'insertion des données"<<queryOperation.lastError();
+                    qDebug()<<"Erreur lors de l'insertion des données opérations"<<queryOperation.lastError();
                 }
 
             } else {
@@ -155,6 +171,7 @@ void EtatStock::recherche(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        return;
     }
     QString recherche = ui->lineEditRecherche->text();
     QSqlQuery query(sqlitedb);
@@ -163,6 +180,7 @@ void EtatStock::recherche(){
     query.bindValue(":recherche", "%"+recherche+"%");
     if(!query.exec()){
         qDebug()<<"Erreur lors de la récupération des données"<<query.lastError();
+        return;
     }
     ui->tableEtatStock->setRowCount(0);
     int row = 0;
@@ -202,6 +220,10 @@ void EtatStock::imprimerStock(){
             }
         }
     }
+}
+
+void EtatStock::rafraichir(){
+    affichageEtatStock();
 }
 
 

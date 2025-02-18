@@ -12,12 +12,15 @@ MouvementDeStock::MouvementDeStock(QWidget *parent)
     connect(ui->lineEditRecherche, &QLineEdit::textChanged,this, &MouvementDeStock::recherche);
     connect(ui->comboMouvement, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MouvementDeStock::filtrageMouvement);
     connect(ui->btnImprimerMouvement, &QPushButton::clicked, this, &MouvementDeStock::imprimerMouvement);
+    connect(ui->btnFiltrageMouvement, &QPushButton::clicked, this, &MouvementDeStock::filtrageDateMouvement);
+    connect(ui->btnReinitialiserAffichageMouvement, &QPushButton::clicked, this, &MouvementDeStock::reinitialiserAffichage);
 }
 
 void MouvementDeStock::afficherMouvement(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base données"<<sqlitedb.rollback();
+        return;
     }
     QSqlQuery query(sqlitedb);
     query.prepare("SELECT id_mouvement, stock_id, nom, quantite, type_mouvement, date_mouvement, vente FROM mouvements_de_stock");
@@ -52,6 +55,7 @@ void MouvementDeStock::recherche(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de la récupération des données"<<sqlitedb.rollback();
+        return;
     }
     QString recherche = ui->lineEditRecherche->text();
     QSqlQuery query(sqlitedb);
@@ -126,6 +130,7 @@ void MouvementDeStock::filtrageMouvement(){
 
 }
 
+
 void MouvementDeStock::imprimerMouvement(){
     //Récupérer les données des lignes dans le tableau et les imprimer
     QPrinter printer;
@@ -151,6 +156,62 @@ void MouvementDeStock::imprimerMouvement(){
             }
         }
     }
+}
+
+void MouvementDeStock::filtrageDateMouvement() {
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if (!sqlitedb.isOpen()) {
+        qDebug() << "Erreur lors de la récupération des données" << sqlitedb.rollback();
+        return;
+    }
+
+    QDate dateDebut = ui->dateDebutMouvement->date();
+    QDate dateFin = ui->dateFinMouvement->date();
+
+    QSqlQuery query(sqlitedb);
+    QString queryString = "SELECT id_mouvement, stock_id, nom, quantite, type_mouvement, date_mouvement, vente FROM mouvements_de_stock";
+
+    // Ajout du filtre par date uniquement si elles sont valides
+    if (dateDebut.isValid() && dateFin.isValid()) {
+        queryString += " WHERE date_mouvement BETWEEN :dateDebut AND :dateFin";
+    }
+
+    query.prepare(queryString);
+
+    // Liaison des valeurs des dates
+    if (dateDebut.isValid() && dateFin.isValid()) {
+        query.bindValue(":dateDebut", dateDebut.toString("dd-MM-yyyy"));
+        query.bindValue(":dateFin", dateFin.toString("dd-MM-yyyy"));
+    }
+
+    if (!query.exec()) {
+        qDebug() << "Erreur lors de la récupération des mouvements de stock" << query.lastError();
+        return;
+    }
+
+    // Mise à jour du tableau des mouvements
+    ui->tableWidgetMouvement->setRowCount(0);
+    int row = 0;
+    while (query.next()) {
+        ui->tableWidgetMouvement->insertRow(row);
+        ui->tableWidgetMouvement->setItem(row, 0, new QTableWidgetItem(query.value(0).toString()));
+        ui->tableWidgetMouvement->setItem(row, 1, new QTableWidgetItem(query.value(1).toString()));
+        ui->tableWidgetMouvement->setItem(row, 2, new QTableWidgetItem(query.value(2).toString()));
+        ui->tableWidgetMouvement->setItem(row, 3, new QTableWidgetItem(query.value(3).toString()));
+        ui->tableWidgetMouvement->setItem(row, 4, new QTableWidgetItem(query.value(4).toString()));
+        ui->tableWidgetMouvement->setItem(row, 5, new QTableWidgetItem(query.value(5).toString()));
+        ui->tableWidgetMouvement->setItem(row, 6, new QTableWidgetItem(query.value(6).toString()));
+
+        row++;
+    }
+}
+
+
+void MouvementDeStock::reinitialiserAffichage(){
+    QDate dateActuelle = QDate::currentDate();
+    ui->dateDebutMouvement->setDate(dateActuelle);  // Mettre la date de début au jour actuel
+    ui->dateFinMouvement->setDate(dateActuelle);
+    afficherMouvement();
 }
 
 MouvementDeStock::~MouvementDeStock()

@@ -19,6 +19,7 @@ void FinanceCompta::affichageDesVentes(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        return;
     }
     QSqlQuery queryAffichage(sqlitedb);
     queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, date_vente, p.prix_base, p.prix_unitaire FROM ligne_vente l "
@@ -60,6 +61,7 @@ void FinanceCompta::recherche(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        return;
     }
     QString recherche = ui->lineEdit->text();
     QSqlQuery queryAffichage(sqlitedb);

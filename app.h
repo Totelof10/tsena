@@ -61,6 +61,7 @@ private slots:
     void reinitialiserBl();
     void livrePaye();
     void tableDesOperations();
+    void affichageTiers();
 signals:
     void deconnexion();
 private:

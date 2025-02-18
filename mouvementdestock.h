@@ -24,6 +24,8 @@ private slots:
     void recherche();
     void filtrageMouvement();
     void imprimerMouvement();
+    void filtrageDateMouvement();
+    void reinitialiserAffichage();
 
 private:
     Ui::MouvementDeStock *ui;

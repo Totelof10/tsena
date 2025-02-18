@@ -25,6 +25,7 @@ private slots:
     void ajouterQuantite();
     void recherche();
     void imprimerStock();
+    void rafraichir();
 
 private:
     Ui::EtatStock *ui;

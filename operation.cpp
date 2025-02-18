@@ -19,11 +19,13 @@ void Operation::nomProduitDansComboBox(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        return;
     }
     QSqlQuery query(sqlitedb);
     query.prepare("SELECT nom FROM produits");
     if(!query.exec()){
         qDebug()<<"Erreur lors de la récupération des données"<<query.lastError();
+        return;
     }
     while(query.next()){
         QString nom_produit = query.value(0).toString();
@@ -36,6 +38,7 @@ void Operation::affichageOperationParFiltrageComboBox(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
         qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+        return;
     }
     QString nomProduit = ui->comboProduit->currentText();
     QSqlQuery query(sqlitedb);
@@ -47,6 +50,7 @@ void Operation::affichageOperationParFiltrageComboBox(){
     if(!query.exec()){
         qDebug()<<"Erreur lors de la récupération des données"<<query.lastError();
         messageBox.showError("Erreur", "Erreur lors de la récupération des données");
+        return;
     }
     ui->tableOperation->setRowCount(0);
     int row = 0;

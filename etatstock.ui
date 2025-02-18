@@ -90,6 +90,26 @@ QLineEdit:focus{
         </column>
         <column>
          <property name="text">
+          <string>Prix de base</string>
+         </property>
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Valeur du produit</string>
+         </property>
+         <property name="font">
+          <font>
+           <bold>true</bold>
+          </font>
+         </property>
+        </column>
+        <column>
+         <property name="text">
           <string>Réapprovisionnement</string>
          </property>
          <property name="font">
@@ -151,6 +171,24 @@ QPushButton:hover{
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="btnRafraichir">
+        <property name="styleSheet">
+         <string notr="true">QPushButton{
+	border:none;
+	
+	image: url(:/Downloads/CartoBMW/img/faire-pivoter-le-symbole-dinterface-fleche-circulaire-gauche.png);
+}
+QPushButton:hover{
+	image: url(:/Downloads/CartoBMW/img/annuler.png);
+	
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Orientation::Horizontal</enum>
@@ -162,6 +200,13 @@ QPushButton:hover{
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelTotalValeurStock">
+        <property name="text">
+         <string>0 MGA</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

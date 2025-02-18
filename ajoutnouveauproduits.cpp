@@ -25,8 +25,6 @@ void AjoutNouveauProduits::afficherFournisseur(){
         qDebug() << queryFournisseur.lastError();
         return;
     };
-    qDebug() << "Requête SQL : " << queryFournisseur.lastQuery()
-             << "erreur" << queryFournisseur.lastError(); // Afficher la requête
 
     if (!queryFournisseur.exec()) {
         qDebug() << "Erreur SQL : " << queryFournisseur.lastError().text();

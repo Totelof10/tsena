@@ -138,6 +138,20 @@ QPushButton:focus{
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="btnTiers">
+        <property name="font">
+         <font>
+          <family>Times New Roman</family>
+          <pointsize>13</pointsize>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Tiers</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Orientation::Vertical</enum>
@@ -220,7 +234,7 @@ QPushButton:hover{
          </font>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="page_vente">
          <layout class="QVBoxLayout" name="verticalLayout_6">
