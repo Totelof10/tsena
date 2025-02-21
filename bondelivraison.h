@@ -37,7 +37,12 @@ signals:
 
 private:
     Ui::BonDeLivraison *ui;
-    QMap<int, double> mapPrixProduits;
+    struct PrixProduit {
+        double prix_unitaire;
+        double prix_detail;
+        double prix_remise;
+    };
+    QMap<int, PrixProduit> mapPrixProduits;
     QMap<int, double> mapTotauxProduits; // Stocke les totaux par produit
     QTextEdit *texte;
     double totalCumulatif = 0.0; // Stocke le total cumulé

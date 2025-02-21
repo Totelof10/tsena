@@ -159,6 +159,9 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena
   C:/Qt/6.8.0/mingw_64/include/QtGui/qrgb.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qrgba64.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qshortcut.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qtextcursor.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qtextdocument.h \
+  C:/Qt/6.8.0/mingw_64/include/QtGui/qtextformat.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qtextoption.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qtgui-config.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qtguiexports.h \
@@ -168,6 +171,7 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena
   C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs_win.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QFileDialog \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/QInputDialog \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QMainWindow \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QTableWidgetItem \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QWidget \
@@ -179,6 +183,8 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qdialog.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qfiledialog.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qframe.h \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/qinputdialog.h \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/qlineedit.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qmainwindow.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qrubberband.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qsizepolicy.h \

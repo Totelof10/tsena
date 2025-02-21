@@ -22,7 +22,8 @@ void FinanceCompta::affichageDesVentes(){
         return;
     }
     QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, date_vente, p.prix_base, p.prix_unitaire FROM ligne_vente l "
+    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, date_vente, p.prix_base, prix_vente "
+                           "FROM ligne_vente l "
                            "INNER JOIN produits p ON id_produit = produit_id "
                            "INNER JOIN clients c ON id_client = client_id");
     if(!queryAffichage.exec()){
@@ -39,8 +40,8 @@ void FinanceCompta::affichageDesVentes(){
         int quantite = queryAffichage.value(3).toInt();
         QString date = queryAffichage.value(4).toString();
         double prix_base = queryAffichage.value(5).toDouble();
-        double prix_unitaire = queryAffichage.value(6).toDouble();
-        double benefice = (prix_unitaire-prix_base)*quantite;
+        double prix_vente = queryAffichage.value(6).toDouble();
+        double benefice = (prix_vente-prix_base)*quantite;
         totalBenefices += benefice;
 
         ui->tableCompta->setItem(row, 0, new QTableWidgetItem(identifiant));
@@ -49,7 +50,7 @@ void FinanceCompta::affichageDesVentes(){
         ui->tableCompta->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
         ui->tableCompta->setItem(row, 4, new QTableWidgetItem(date));
         ui->tableCompta->setItem(row, 5, new QTableWidgetItem(QString::number(prix_base)+" MGA"));
-        ui->tableCompta->setItem(row, 6, new QTableWidgetItem(QString::number(prix_unitaire)+ " MGA"));
+        ui->tableCompta->setItem(row, 6, new QTableWidgetItem(QString::number(prix_vente)+ " MGA"));
         ui->tableCompta->setItem(row, 7, new QTableWidgetItem(QString::number(benefice)+ " MGA"));
 
         row++;
@@ -65,7 +66,7 @@ void FinanceCompta::recherche(){
     }
     QString recherche = ui->lineEdit->text();
     QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, date_vente, p.prix_base, p.prix_unitaire FROM ligne_vente l "
+    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, date_vente, p.prix_base, prix_vente FROM ligne_vente l "
                            "INNER JOIN produits p ON id_produit = produit_id "
                            "INNER JOIN clients c ON id_client = client_id "
                            "WHERE p.nom LIKE :recherche");
@@ -85,8 +86,8 @@ void FinanceCompta::recherche(){
         int quantite = queryAffichage.value(3).toInt();
         QString date = queryAffichage.value(4).toString();
         double prix_base = queryAffichage.value(5).toDouble();
-        double prix_unitaire = queryAffichage.value(6).toDouble();
-        double benefice = (prix_unitaire-prix_base)*quantite;
+        double prix_vente = queryAffichage.value(6).toDouble();
+        double benefice = (prix_vente-prix_base)*quantite;
         totalBenefices += benefice;
 
         ui->tableCompta->setItem(row, 0, new QTableWidgetItem(identifiant));
@@ -95,7 +96,7 @@ void FinanceCompta::recherche(){
         ui->tableCompta->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
         ui->tableCompta->setItem(row, 4, new QTableWidgetItem(date));
         ui->tableCompta->setItem(row, 5, new QTableWidgetItem(QString::number(prix_base)+" MGA"));
-        ui->tableCompta->setItem(row, 6, new QTableWidgetItem(QString::number(prix_unitaire)+ " MGA"));
+        ui->tableCompta->setItem(row, 6, new QTableWidgetItem(QString::number(prix_vente)+ " MGA"));
         ui->tableCompta->setItem(row, 7, new QTableWidgetItem(QString::number(benefice)+ " MGA"));
 
         row++;
@@ -115,7 +116,7 @@ void FinanceCompta::filtrerParDate() {
     QString dateFin = ui->dateFin->date().toString("dd-MM-yyyy");
 
     QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, date_vente, p.prix_base, p.prix_unitaire FROM ligne_vente l "
+    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, date_vente, p.prix_base, prix_vente FROM ligne_vente l "
                            "INNER JOIN produits p ON id_produit = produit_id "
                            "INNER JOIN clients c ON id_client = client_id "
                            "WHERE date_vente BETWEEN :dateDebut AND :dateFin");
@@ -133,7 +134,7 @@ void FinanceCompta::filtrerParDate() {
     double totalBenefices = 0.0;
 
     // Remplir les données du tableau
-    while (queryAffichage.next()) {
+    while(queryAffichage.next()){
         ui->tableCompta->insertRow(row);
         QString identifiant = queryAffichage.value(0).toString();
         QString nom_produit = queryAffichage.value(1).toString();
@@ -141,8 +142,8 @@ void FinanceCompta::filtrerParDate() {
         int quantite = queryAffichage.value(3).toInt();
         QString date = queryAffichage.value(4).toString();
         double prix_base = queryAffichage.value(5).toDouble();
-        double prix_unitaire = queryAffichage.value(6).toDouble();
-        double benefice = (prix_unitaire - prix_base) * quantite;
+        double prix_vente = queryAffichage.value(6).toDouble();
+        double benefice = (prix_vente-prix_base)*quantite;
         totalBenefices += benefice;
 
         ui->tableCompta->setItem(row, 0, new QTableWidgetItem(identifiant));
@@ -150,14 +151,12 @@ void FinanceCompta::filtrerParDate() {
         ui->tableCompta->setItem(row, 2, new QTableWidgetItem(nom_client));
         ui->tableCompta->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
         ui->tableCompta->setItem(row, 4, new QTableWidgetItem(date));
-        ui->tableCompta->setItem(row, 5, new QTableWidgetItem(QString::number(prix_base) + " MGA"));
-        ui->tableCompta->setItem(row, 6, new QTableWidgetItem(QString::number(prix_unitaire) + " MGA"));
-        ui->tableCompta->setItem(row, 7, new QTableWidgetItem(QString::number(benefice) + " MGA"));
+        ui->tableCompta->setItem(row, 5, new QTableWidgetItem(QString::number(prix_base)+" MGA"));
+        ui->tableCompta->setItem(row, 6, new QTableWidgetItem(QString::number(prix_vente)+ " MGA"));
+        ui->tableCompta->setItem(row, 7, new QTableWidgetItem(QString::number(benefice)+ " MGA"));
 
         row++;
     }
-
-    // Mettre à jour le label des bénéfices totaux
     ui->labelBenefice->setText(QString::number(totalBenefices) + " MGA");
 }
 

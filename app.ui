@@ -234,7 +234,7 @@ QPushButton:hover{
          </font>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="page_vente">
          <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -740,6 +740,26 @@ QPushButton:hover{
                </column>
                <column>
                 <property name="text">
+                 <string>Prix Détail</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Prix Remise</string>
+                </property>
+                <property name="font">
+                 <font>
+                  <bold>true</bold>
+                 </font>
+                </property>
+               </column>
+               <column>
+                <property name="text">
                  <string>Fournisseur</string>
                 </property>
                 <property name="font">
@@ -794,6 +814,22 @@ QPushButton:hover{
 }
 QPushButton:hover{
 	image:url(:/Downloads/CartoBMW/img/ajouter-le-contact.png);
+}</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnAjouterPrix">
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/euro.png);
+	border:none;
+}
+QPushButton:hover{
+	image:url(:/Downloads/CartoBMW/img/euro (1).png);
 }</string>
                   </property>
                   <property name="text">
@@ -1204,6 +1240,16 @@ QPushButton:hover{
                     </font>
                    </property>
                   </column>
+                  <column>
+                   <property name="text">
+                    <string>Prix de vente</string>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                  </column>
                  </widget>
                 </item>
                </layout>
@@ -1242,6 +1288,22 @@ QPushButton:hover{
                   <property name="cursor">
                    <cursorShape>PointingHandCursor</cursorShape>
                   </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/mode-de-paiement.png);
+	border:none;
+}
+QPushButton:hover{
+	image: url(:/Downloads/CartoBMW/img/mode-de-paiement (1).png);
+}</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnReporterDateBl">
                   <property name="styleSheet">
                    <string notr="true">QPushButton{
 	image: url(:/Downloads/CartoBMW/img/crayon.png);

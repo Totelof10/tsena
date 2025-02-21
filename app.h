@@ -8,6 +8,7 @@
 #include <QPainter>
 #include <QShortcut>
 #include <QFileDialog>
+#include <QInputDialog>
 
 namespace Ui {
 class App;
@@ -62,6 +63,7 @@ private slots:
     void livrePaye();
     void tableDesOperations();
     void affichageTiers();
+    void reporterDateBl();
 signals:
     void deconnexion();
 private:

@@ -52,12 +52,14 @@ void AjoutNouveauProduits::ajouterLeProduit(){
     QString nom = ui->lineEditNom->text().trimmed();
     QString prix_base = ui->lineEditPrixBase->text().trimmed();
     QString prix_unitaire = ui->lineEditPrixUnitaire->text().trimmed();
+    QString prix_detail = ui->lineEditPrixDetail->text().trimmed();
+    QString prix_remise = ui->lineEditEditPrixRemise->text().trimmed();
     int fournisseur_id = ui->comboFournisseur->currentData().toInt();
     QString unite = ui->lineEditUnite->text().trimmed();
     QString categorie = ui->lineEditCategorie->text().trimmed();
     //int quantite = 0;
     QSqlQuery query(sqlitedb);
-    query.prepare("INSERT INTO produits (abreviation, nom, prix_unitaire, fournisseur_id, unite, categorie, prix_base) VALUES (:abreviation, :nom, :prix_unitaire, :fournisseur_id, :unite, :categorie, :prix_base)");
+    query.prepare("INSERT INTO produits (abreviation, nom, prix_unitaire, fournisseur_id, unite, categorie, prix_base, prix_detail, prix_remise) VALUES (:abreviation, :nom, :prix_unitaire, :fournisseur_id, :unite, :categorie, :prix_base, :prix_detail, :prix_remise)");
     query.bindValue(":abreviation", abreviation);
     query.bindValue(":nom", nom);
     bool ok;
@@ -70,6 +72,8 @@ void AjoutNouveauProduits::ajouterLeProduit(){
     query.bindValue(":categorie", categorie);
     query.bindValue(":unite", unite);
     query.bindValue(":prix_base", prix_base);
+    query.bindValue(":prix_detail", prix_detail);
+    query.bindValue(":prix_remise", prix_remise);
     if(!query.exec()){
         msgBox.showError("","Erreur lors de l'ajout du produit");
         qDebug()<<"Erreur lors de l'ajout du produit"<<query.lastError();

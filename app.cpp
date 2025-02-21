@@ -13,6 +13,14 @@
 #include "operation.h"
 #include "tiers.h"
 
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QDateEdit>
+#include <QDialogButtonBox>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QDebug>
+
 App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::App)
@@ -67,6 +75,7 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     connect(ui->btnModifierBl, &QPushButton::clicked, this, &App::livrePaye);
     connect(ui->btnOperation, &QPushButton::clicked, this, &App::tableDesOperations);
     connect(ui->btnTiers, &QPushButton::clicked, this, &App::affichageTiers);
+    connect(ui->btnReporterDateBl, &QPushButton::clicked, this, &App::reporterDateBl);
 }
 
 void App::tableDesOperations(){
@@ -250,7 +259,7 @@ void App::afficherBonDeLivraison(){
         return;
     }
     QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_livraison, c.nom, p.nom, quantite, date, statut, prix_total_a_payer FROM bon_de_livraison b "
+    queryAffichage.prepare("SELECT id_livraison, c.nom, p.nom, quantite, date, statut, prix_total_a_payer, prix_vente FROM bon_de_livraison b "
                            "INNER JOIN produits p ON id_produit = produit_id "
                            "INNER JOIN clients c ON id_client = client_id");
     if(!queryAffichage.exec()){
@@ -268,6 +277,7 @@ void App::afficherBonDeLivraison(){
         QString date = queryAffichage.value(4).toString();
         QString statut = queryAffichage.value(5).toString();
         double prix_total = queryAffichage.value(6).toDouble();
+        double prix_vente = queryAffichage.value(7).toDouble();
 
         ui->tableBonDeLivraison->setItem(row, 0, new QTableWidgetItem(id_livraison));
         ui->tableBonDeLivraison->setItem(row, 1, new QTableWidgetItem(nom_client));
@@ -276,6 +286,8 @@ void App::afficherBonDeLivraison(){
         ui->tableBonDeLivraison->setItem(row, 4, new QTableWidgetItem(date));
         ui->tableBonDeLivraison->setItem(row, 5, new QTableWidgetItem(statut));
         ui->tableBonDeLivraison->setItem(row, 6, new QTableWidgetItem(QString::number(prix_total)));
+        ui->tableBonDeLivraison->setItem(row, 7, new QTableWidgetItem(QString::number(prix_vente)));
+
 
         row++;
     }
@@ -443,8 +455,8 @@ void App::livrePaye(){
 
     // 6. Insérer dans `ligne_vente`
     QSqlQuery queryInsertion(sqlitedb);
-    queryInsertion.prepare("INSERT INTO ligne_vente (client_id, produit_id, quantite, date_vente, prix_total, num_bon_livraison) "
-                           "SELECT client_id, produit_id, quantite, date, prix_total_a_payer, id_livraison FROM bon_de_livraison WHERE id_livraison = :id");
+    queryInsertion.prepare("INSERT INTO ligne_vente (client_id, produit_id, quantite, date_vente, prix_total, num_bon_livraison, prix_vente) "
+                           "SELECT client_id, produit_id, quantite, date, prix_total_a_payer, id_livraison, prix_vente FROM bon_de_livraison WHERE id_livraison = :id");
     queryInsertion.bindValue(":id", idLivraison);
     if(!queryInsertion.exec()){
         qDebug() << "Erreur insertion ligne_vente :" << queryInsertion.lastError();
@@ -486,6 +498,60 @@ void App::livrePaye(){
     }
 }
 
+
+
+void App::reporterDateBl() {
+    int row = ui->tableBonDeLivraison->currentRow();
+    if (row < 0) {
+        CustomMessageBox::warning(this, "Modification", "Veuillez sélectionner un BL à modifier.");
+        return;
+    }
+
+    QString id_bl = ui->tableBonDeLivraison->item(row, 0)->text();
+    QString date_bl = ui->tableBonDeLivraison->item(row, 4)->text();
+    QDate dateActuelle = QDate::fromString(date_bl, "dd/MM/yyyy");
+
+    // 📌 Création de la boîte de dialogue avec un QDateEdit
+    QDialog dialog(this);
+    dialog.setWindowTitle("Reporter la date");
+    QVBoxLayout layout(&dialog);
+
+    QDateEdit dateEdit;
+    dateEdit.setCalendarPopup(true);
+    dateEdit.setDate(dateActuelle.isValid() ? dateActuelle : QDate::currentDate());
+    layout.addWidget(&dateEdit);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    layout.addWidget(&buttonBox);
+
+    QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    if (dialog.exec() == QDialog::Rejected) return;
+
+    QDate nouvelle_date = dateEdit.date();
+
+    // 📌 Mettre à jour la table avec la nouvelle date
+    ui->tableBonDeLivraison->item(row, 4)->setText(nouvelle_date.toString("dd/MM/yyyy"));
+
+    // 📌 Mise à jour dans la base de données
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if (!sqlitedb.isOpen()) {
+        qDebug() << "Erreur ouverture BD" << sqlitedb.lastError().text();
+        return;
+    }
+
+    QSqlQuery query(sqlitedb);
+    query.prepare("UPDATE bon_de_livraison SET date = :date_bl WHERE id_livraison = :id_bl");
+    query.bindValue(":id_bl", id_bl);
+    query.bindValue(":date_bl", nouvelle_date.toString("dd-MM-yyyy")); // Format adapté pour SQLite
+
+    if (query.exec()) {
+        CustomMessageBox::information(this, "Succès", "Date modifiée avec succès.");
+    } else {
+        CustomMessageBox::critical(this, "Erreur", "Échec de la modification : " + query.lastError().text());
+    }
+}
 
 
 void App::afficherVente(){
@@ -537,7 +603,7 @@ void App::afficherProduit(){
         return;
     }
     QSqlQuery query(sqlitedb);
-    query.prepare("SELECT p.id_produit, p.abreviation, p.nom, p.prix_unitaire, f.nom, p.unite, p.categorie FROM produits p "
+    query.prepare("SELECT p.id_produit, p.abreviation, p.nom, p.prix_unitaire, p.prix_detail, p.prix_remise, f.nom, p.unite, p.categorie FROM produits p "
                   "INNER JOIN fournisseur f ON p.fournisseur_id = f.id_fournisseur");
     if(!query.exec()){
         msgBox.showError("","Erreur lors de la récupération des données");
@@ -555,8 +621,10 @@ void App::afficherProduit(){
         QString nom = query.value(2).toString();
         QString fournisseur = query.value(3).toString();
         QString prix_unitaire = query.value(4).toString();
-        QString unite = query.value(5).toString();
-        QString categorie = query.value(6).toString();
+        QString prix_detail = query.value(5).toString();
+        QString prix_remise = query.value(6).toString();
+        QString unite = query.value(7).toString();
+        QString categorie = query.value(8).toString();
         //int quantite = query.value(7).toInt();
 
         ui->tableStock->setItem(row, 0, new QTableWidgetItem(id_produits));
@@ -564,8 +632,10 @@ void App::afficherProduit(){
         ui->tableStock->setItem(row, 2, new QTableWidgetItem(nom));
         ui->tableStock->setItem(row, 3, new QTableWidgetItem(fournisseur));
         ui->tableStock->setItem(row, 4, new QTableWidgetItem(prix_unitaire));
-        ui->tableStock->setItem(row, 5, new QTableWidgetItem(unite));
-        ui->tableStock->setItem(row, 6, new QTableWidgetItem(categorie));
+        ui->tableStock->setItem(row, 5, new QTableWidgetItem(prix_detail));
+        ui->tableStock->setItem(row, 6, new QTableWidgetItem(prix_remise));
+        ui->tableStock->setItem(row, 7, new QTableWidgetItem(unite));
+        ui->tableStock->setItem(row, 8, new QTableWidgetItem(categorie));
         //ui->tableStock->setItem(row, 7, new QTableWidgetItem(QString::number(quantite)));
 
         row++;
@@ -605,9 +675,11 @@ void App::gererModificationCellule(QTableWidgetItem *item) {
         case 1: colonne = "abreviation"; break;
         case 2: colonne = "nom"; break;
         case 3: colonne = "prix_unitaire"; break;
-        case 4: colonne = "fournisseur_id"; break;
-        case 5: colonne = "unite"; break;
-        case 6: colonne = "categorie"; break;
+        case 4: colonne = "prix_detail"; break;
+        case 5: colonne = "prix_remise"; break;
+        case 6: colonne = "fournisseur_id"; break;
+        case 8: colonne = "unite"; break;
+        case 9: colonne = "categorie"; break;
         }
 
         QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
@@ -715,6 +787,8 @@ void App::supprimerVente(){
 
         // Afficher un message de succès
         CustomMessageBox().showInformation("Succès", "L'élément a été supprimé avec succès.");
+        afficherVente();
+        chiffreDaffaire();
     }
 
 }

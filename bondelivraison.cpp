@@ -50,38 +50,47 @@ BonDeLivraison::BonDeLivraison(QWidget *parent)
 void BonDeLivraison::afficherInformationBl() {
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if (!sqlitedb.isOpen()) {
-        qDebug() << "Erreur ouverture BD:" << sqlitedb.lastError().text();
+        qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
         return;
     }
 
-    // Products
+    // Récupération des produits
     QSqlQuery queryProduits(sqlitedb);
-    queryProduits.prepare("SELECT id_produit, nom, prix_unitaire FROM produits");
+    queryProduits.prepare("SELECT id_produit, nom, prix_unitaire, prix_detail, prix_remise FROM produits");
     if (!queryProduits.exec()) {
-        qDebug() << "Erreur récupération produits:" << queryProduits.lastError().text();
+        qDebug() << "Erreur lors de la récupération des données du produit" << queryProduits.lastError();
         return;
     }
 
     ui->comboProduit->clear();
-    ui->comboProduit->addItem(""); // Initial empty item
+    ui->comboProduit->addItem("");
     while (queryProduits.next()) {
         int id = queryProduits.value(0).toInt();
         QString nom = queryProduits.value(1).toString();
-        double prix = queryProduits.value(2).toDouble();
+        double prix_unitaire = queryProduits.value(2).toDouble();
+        double prix_detail = queryProduits.value(3).toDouble();
+        double prix_remise = queryProduits.value(4).toDouble();
         ui->comboProduit->addItem(nom, id);
-        mapPrixProduits[id] = prix;
+
+        // Correctly create and store the PrixProduit struct
+        PrixProduit prix;
+        prix.prix_unitaire = prix_unitaire;
+        prix.prix_detail = prix_detail;
+        prix.prix_remise = prix_remise;
+        mapPrixProduits[id] = prix; // Store the struct
     }
 
-    // Clients
+
+    // Récupération des clients
     QSqlQuery queryClients(sqlitedb);
     queryClients.prepare("SELECT id_client, nom FROM clients");
     if (!queryClients.exec()) {
-        qDebug() << "Erreur récupération clients:" << queryClients.lastError().text();
+        qDebug() << "Erreur lors de la récupération des données du client" << queryClients.lastError();
         return;
     }
 
     ui->comboClient->clear();
-    ui->comboClient->addItem(""); // Initial empty item
+    ui->comboClient->addItem("");
     while (queryClients.next()) {
         int id = queryClients.value(0).toInt();
         QString nom = queryClients.value(1).toString();
@@ -96,25 +105,17 @@ void BonDeLivraison::ajouterPanierBl() {
         qDebug() << "Erreur lors de l'ouverture de la base données" << sqlitedb.rollback();
         return;
     }
-
-    QSqlQuery queryStock(sqlitedb);
     QString date = ui->dateDeLivraison->date().toString("dd-MM-yyyy");  // Date choisie
+    QSqlQuery queryStock(sqlitedb);
     QString client = ui->comboClient->currentText();
     QString produit = ui->comboProduit->currentText();
     int quantite = ui->spinBoxQuantite->value();
 
-    // Vérifier que les champs ne sont pas vides ou invalides
-    if (client.isEmpty() || produit.isEmpty() || quantite <= 0) {
-        msgBox.showWarning("Erreur", "Veuillez remplir tous les champs avant d'ajouter !");
-        return;
-    }
-
-    // Récupérer l'ID du produit sélectionné
+    // Récupérer l'ID du produit actuellement sélectionné
     int idProduit = ui->comboProduit->currentData().toInt();
     int quantiteStock = -1;
     queryStock.prepare("SELECT quantite FROM stock WHERE produit_id = :produit_id");
     queryStock.bindValue(":produit_id", idProduit);
-
     if (queryStock.exec() && queryStock.next()) {
         quantiteStock = queryStock.value(0).toInt();
     } else {
@@ -122,17 +123,21 @@ void BonDeLivraison::ajouterPanierBl() {
         return;
     }
 
-    // Vérifier si le stock est suffisant
     if (quantiteStock <= 0 || quantiteStock < quantite) {
-        msgBox.showWarning("", "Votre stock de " + produit + " est insuffisant, stock actuel : " +
-                                   QString::number(quantiteStock) + " Quantité demandée : " + QString::number(quantite));
+        msgBox.showWarning("", "Votre stock de " + produit + " est insuffisant, stock actuel : " + QString::number(quantiteStock) + " Quantité demandé : " + QString::number(quantite));
         return;
     }
 
-    // Récupérer le prix unitaire du produit
-    double prixUnitaire = mapPrixProduits.contains(idProduit) ? mapPrixProduits[idProduit] : 0.0;
-    double totalProduit = prixUnitaire * quantite;
+    if (client.isEmpty() || produit.isEmpty() || quantite <= 0) {
+        msgBox.showWarning("Erreur", "Veuillez remplir tous les champs avant d'ajouter !");
+        return;
+    }
 
+    // ***KEY CHANGE: Get the selected price from the combo box***
+    double prixSelectionne = ui->comboBoxPrix->currentData().toDouble();
+
+    // Calculer le total pour ce produit (USE THE SELECTED PRICE)
+    double totalProduit = prixSelectionne * quantite;
     // Ajouter la date uniquement la première fois
     if (ui->listWidget->count() == 0) {
         ui->listWidget->addItem("📅 Date de livraison : " + date);
@@ -140,11 +145,12 @@ void BonDeLivraison::ajouterPanierBl() {
     }
 
     // Ajouter les informations du produit
-    QString ligne = QString("🛒 Client: %1 | Produit: %2 | Quantité: %3 | Prix Total: %4 MGA")
+    QString ligne = QString("🛒 Client: %1 | Produit: %2 | Quantité: %3 | Prix Unitaire: %5 MGA| Prix Total: %4 MGA")
                         .arg(client)
                         .arg(produit)
                         .arg(quantite)
-                        .arg(QString::number(totalProduit, 'f', 2));
+                        .arg(QString::number(totalProduit, 'f', 2))
+                        .arg(QString::number(prixSelectionne, 'f', 2));
 
     ui->listWidget->addItem(ligne);
 
@@ -154,8 +160,8 @@ void BonDeLivraison::ajouterPanierBl() {
     for(int i = 0; i< ui->listWidget->count(); i++){
         QString ligne = ui->listWidget->item(i)->text();
         QStringList elements = ligne.split("|");
-        if(elements.size()==4){
-            double prixTotal = elements[3].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
+        if(elements.size()==5){
+            double prixTotal = elements[4].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
             prixTotalTotal += prixTotal;
             ui->labelTotal->setText(QString::number(prixTotalTotal)+" MGA");
         }
@@ -178,8 +184,8 @@ void BonDeLivraison::enleverPanierBl() {
     for(int i = 0; i < ui->listWidget->count(); i++) {
         QString ligne = ui->listWidget->item(i)->text();
         QStringList elements = ligne.split("|");
-        if (elements.size() == 4) {
-            double prixTotal = elements[3].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
+        if (elements.size() == 5) {
+            double prixTotal = elements[4].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
             prixTotalTotal += prixTotal;
         }
     }
@@ -190,17 +196,19 @@ void BonDeLivraison::enleverPanierBl() {
 
 
 void BonDeLivraison::mettreAJourPrixBl(int index) {
-    // Récupérer l'identifiant du produit à partir de l'élément sélectionné
     int idProduit = ui->comboProduit->itemData(index).toInt();
-
-    // Vérifier si l'identifiant existe dans le QMap
     if (mapPrixProduits.contains(idProduit)) {
-        // Mettre à jour le champ de prix
-        double prix = mapPrixProduits[idProduit];
-        ui->lineEditPrix->setText(QString::number(prix, 'f', 2)); // Affichage formaté avec 2 décimales
+        PrixProduit prices = mapPrixProduits[idProduit]; // Get the struct
+
+        ui->comboBoxPrix->clear();
+
+        // Use the struct members correctly
+        ui->comboBoxPrix->addItem(QString::number(prices.prix_unitaire, 'f', 2), prices.prix_unitaire);
+        ui->comboBoxPrix->addItem(QString::number(prices.prix_detail, 'f', 2), prices.prix_detail);
+        ui->comboBoxPrix->addItem(QString::number(prices.prix_remise, 'f', 2), prices.prix_remise);
+
     } else {
-        // Si aucun produit n'est sélectionné, effacer le champ de prix
-        ui->lineEditPrix->clear();
+        ui->comboBoxPrix->clear();
     }
 }
 
@@ -229,26 +237,17 @@ void BonDeLivraison::remettreAZeroBl(int index)
 
 void BonDeLivraison::mettreAJourTotalBl()
 {
-    // Récupérer la quantité depuis le QSpinBox
     int quantite = ui->spinBoxQuantite->value();
-
-    // Récupérer l'ID du produit actuellement sélectionné dans le QComboBox
     int idProduit = ui->comboProduit->currentData().toInt();
 
-    // Vérifier si un produit est sélectionné et si la quantité est valide
     if (idProduit == 0 || quantite <= 0) {
-        ui->lineEditTotal->setText("0.00"); // Réinitialiser à zéro si aucun produit n'est sélectionné ou quantité non valide
+        ui->lineEditTotal->setText("0.00");
         return;
     }
 
-    // Récupérer le prix unitaire correspondant à l'ID
-    double prixUnitaire = mapPrixProduits.value(idProduit, 0.0);
-
-    // Calculer le total pour le produit sélectionné
-    double totalProduit = prixUnitaire * quantite;
-
-    // Mettre à jour le champ Total avec le total du produit sélectionné
-    ui->lineEditTotal->setText(QString::number(totalProduit, 'f', 2)); // Affichage avec 2 décimales
+    double prixSelectionne = ui->comboBoxPrix->currentData().toDouble();
+    double totalProduit = prixSelectionne * quantite;
+    ui->lineEditTotal->setText(QString::number(totalProduit, 'f', 2));
 }
 
 
@@ -257,7 +256,7 @@ void BonDeLivraison::clearForm(){
     ui->comboClient->setCurrentIndex(0);
     ui->comboProduit->setCurrentIndex(0);
     ui->spinBoxQuantite->clear();
-    ui->lineEditPrix->clear();
+    ui->comboBoxPrix->setCurrentIndex(0);
     ui->lineEditTotal->clear();
     ui->listWidget->clear();
     ui->labelTotal->setText("0");
@@ -277,7 +276,7 @@ void BonDeLivraison::ajouterNouvelleBl() {
     if (!sqlitedb.open()) {
         qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
     }
-
+    int id_facture = ui->spinBox->value();
     QString contenuFacture;
     contenuFacture = QString("<!DOCTYPE html>"
                              "<html>"
@@ -332,7 +331,8 @@ void BonDeLivraison::ajouterNouvelleBl() {
             QString nomClient = elements[0].remove("🛒 Client: ").trimmed();
             QString nomProduit = elements[1].remove("Produit: ").trimmed();
             int quantite = elements[2].remove("Quantité: ").trimmed().toInt();
-            double prixTotal = elements[3].remove("Prix Total:").remove("MGA").trimmed().toDouble();
+            double prixUnitaire = elements[3].remove("Prix Unitaire: ").remove("MGA").trimmed().toDouble(); // Get unit price from listWidget
+            double prixTotal = elements[4].remove("Prix Total: ").remove("MGA").trimmed().toDouble(); // Get t
 
             // Requêtes SQL
             QSqlQuery queryProduit(sqlitedb);
@@ -348,19 +348,19 @@ void BonDeLivraison::ajouterNouvelleBl() {
             int clientId = queryClient.value(0).toInt();
 
             // Rechercher l'ID du produit
-            queryProduit.prepare("SELECT id_produit, prix_unitaire FROM produits WHERE nom = ?");
+            queryProduit.prepare("SELECT id_produit FROM produits WHERE nom = ?"); // Only get the ID
             queryProduit.addBindValue(nomProduit);
             if (!queryProduit.exec() || !queryProduit.next()) {
                 qDebug() << "Erreur lors de la recherche du produit : " << queryProduit.lastError().text();
                 continue;
             }
             int produitId = queryProduit.value(0).toInt();
-            double prixUnitaire = queryProduit.value(1).toDouble();
+
 
             // Insertion dans ligne_vente
             QSqlQuery queryInsertion(sqlitedb);
-            queryInsertion.prepare("INSERT INTO bon_de_livraison (client_id, produit_id, quantite, date, statut, prix_total_a_payer) "
-                                   "VALUES (?, ?, ?, ?, ?, ?)");
+            queryInsertion.prepare("INSERT INTO bon_de_livraison (client_id, produit_id, quantite, date, statut, prix_vente,prix_total_a_payer) "
+                                   "VALUES (?, ?, ?, ?, ?, ?, ?)");
             queryInsertion.addBindValue(clientId);
             queryInsertion.addBindValue(produitId);
             queryInsertion.addBindValue(quantite);
@@ -368,6 +368,7 @@ void BonDeLivraison::ajouterNouvelleBl() {
             // Date de la vente
             QString statut = "Non Payé";
             queryInsertion.addBindValue(statut);
+            queryInsertion.addBindValue(prixUnitaire);
             queryInsertion.addBindValue(prixTotal);
             if (!queryInsertion.exec()) {
                 qDebug() << "Erreur lors de l'insertion dans ligne_vente : " << queryInsertion.lastError().text();

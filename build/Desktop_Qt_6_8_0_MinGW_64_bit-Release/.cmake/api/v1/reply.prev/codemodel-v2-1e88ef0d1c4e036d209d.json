@@ -7,7 +7,7 @@
 				{
 					"build" : ".",
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-.-Release-23d4c74983ddcd4ade41.json",
+					"jsonFile" : "directory-.-Release-67a7a0213b74c4886c2e.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.16"
@@ -44,7 +44,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "tsena::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-tsena-Release-fcc410c244e257eaa56c.json",
+					"jsonFile" : "target-tsena-Release-44d059ec4b32d67153f8.json",
 					"name" : "tsena",
 					"projectIndex" : 0
 				},

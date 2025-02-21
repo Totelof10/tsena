@@ -14,8 +14,9 @@ AjoutVente::AjoutVente(QWidget *parent)
     connect(ui->btnVider, &QPushButton::clicked, this, &AjoutVente::viderPanier);
     connect(ui->comboProduit, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &AjoutVente::mettreAJourPrix);
-    connect(ui->spinBoxQuantite, QOverload<int>::of(&QSpinBox::valueChanged),
-            this, &AjoutVente::mettreAJourTotal);
+    connect(ui->comboProduit, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AjoutVente::mettreAJourTotal);
+    connect(ui->spinBoxQuantite, QOverload<int>::of(&QSpinBox::valueChanged), this, &AjoutVente::mettreAJourTotal);
+    connect(ui->comboBoxPrix, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &AjoutVente::mettreAJourTotal);
     connect(ui->comboProduit, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &AjoutVente::remettreAZero);
     connect(ui->btnValider, &QPushButton::clicked, this, &AjoutVente::ajouterNouvelleVente);
@@ -55,7 +56,7 @@ void AjoutVente::afficherInformation(){
 
     // Récupération des produits
     QSqlQuery queryProduits(sqlitedb);
-    queryProduits.prepare("SELECT id_produit, nom, prix_unitaire FROM produits");
+    queryProduits.prepare("SELECT id_produit, nom, prix_unitaire, prix_detail, prix_remise FROM produits");
     if (!queryProduits.exec()) {
         qDebug() << "Erreur lors de la récupération des données du produit" << queryProduits.lastError();
         return;
@@ -67,9 +68,18 @@ void AjoutVente::afficherInformation(){
         int id = queryProduits.value(0).toInt();
         QString nom = queryProduits.value(1).toString();
         double prix_unitaire = queryProduits.value(2).toDouble();
+        double prix_detail = queryProduits.value(3).toDouble();
+        double prix_remise = queryProduits.value(4).toDouble();
         ui->comboProduit->addItem(nom, id);
-        mapPrixProduits[id] = prix_unitaire;
+
+        // Correctly create and store the PrixProduit struct
+        PrixProduit prix;
+        prix.prix_unitaire = prix_unitaire;
+        prix.prix_detail = prix_detail;
+        prix.prix_remise = prix_remise;
+        mapPrixProduits[id] = prix; // Store the struct
     }
+
 
     // Récupération des clients
     QSqlQuery queryClients(sqlitedb);
@@ -91,64 +101,62 @@ void AjoutVente::afficherInformation(){
 void AjoutVente::ajouterPanier() {
     CustomMessageBox msgBox;
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
-    if(!sqlitedb.isOpen()){
-        qDebug()<<"Erreur lors de l'ouverture de la base données"<<sqlitedb.rollback();
+    if (!sqlitedb.isOpen()) {
+        qDebug() << "Erreur lors de l'ouverture de la base données" << sqlitedb.rollback();
     }
 
     QSqlQuery queryStock(sqlitedb);
     QString client = ui->comboClient->currentText();
     QString produit = ui->comboProduit->currentText();
     int quantite = ui->spinBoxQuantite->value();
-    // Récupérer l'ID du produit actuellement sélectionné dans le QComboBox
+
+    // Récupérer l'ID du produit actuellement sélectionné
     int idProduit = ui->comboProduit->currentData().toInt();
     int quantiteStock = -1;
     queryStock.prepare("SELECT quantite FROM stock WHERE produit_id = :produit_id");
     queryStock.bindValue(":produit_id", idProduit);
     if (queryStock.exec() && queryStock.next()) {
-        quantiteStock = queryStock.value(0).toInt();  // Supposons que "quantite" est la première colonne.
+        quantiteStock = queryStock.value(0).toInt();
     } else {
         qDebug() << "Erreur lors de la récupération des données :" << queryStock.lastError();
         return;
     }
 
-    if(quantiteStock <= 0 || quantiteStock < quantite){
-        msgBox.showWarning("","Votre stock de "+produit+" est insuffisant, stock actuel : " +QString::number(quantiteStock)+ " Quantité demandé : "+QString::number(quantite));
+    if (quantiteStock <= 0 || quantiteStock < quantite) {
+        msgBox.showWarning("", "Votre stock de " + produit + " est insuffisant, stock actuel : " + QString::number(quantiteStock) + " Quantité demandé : " + QString::number(quantite));
         return;
     }
 
-
-    // Vérifier que les champs ne sont pas vides ou invalides
     if (client.isEmpty() || produit.isEmpty() || quantite <= 0) {
         msgBox.showWarning("Erreur", "Veuillez remplir tous les champs avant d'ajouter !");
         return;
     }
 
-    // Récupérer le prix unitaire du produit
-    double prixUnitaire = 0.0;
-    if (mapPrixProduits.contains(idProduit)) {
-        prixUnitaire = mapPrixProduits[idProduit];
-    }
+    // ***KEY CHANGE: Get the selected price from the combo box***
+    double prixSelectionne = ui->comboBoxPrix->currentData().toDouble();
 
-    // Calculer le total pour ce produit
-    double totalProduit = prixUnitaire * quantite;
+    // Calculer le total pour ce produit (USE THE SELECTED PRICE)
+    double totalProduit = prixSelectionne * quantite;
 
-    // Ajouter les données au listWidget
-    QString ligne = QString("Client: %1 | Produit: %2 | Quantité: %3 | Prix Total: %4 MGA")
+    // Ajouter les données au listWidget (USE THE SELECTED PRICE)
+    QString ligne = QString("Client: %1 | Produit: %2 | Quantité: %3 | Prix Unitaire: %5 MGA | Prix Total: %4 MGA")
                         .arg(client)
                         .arg(produit)
                         .arg(quantite)
-                        .arg(QString::number(totalProduit, 'f', 2));
+                        .arg(QString::number(totalProduit, 'f', 2))
+                        .arg(QString::number(prixSelectionne, 'f', 2));                    // Use totalProduit (calculated with prixSelectionne)
+
     ui->listWidget->addItem(ligne);
+
     // Mettre à jour le champ total du panier
-    ui->lineEditTotal->setText(QString::number(totalProduit, 'f', 2)); // Total avec 2 décimales
     double prixTotalTotal = 0.0;
-    for(int i = 0; i< ui->listWidget->count(); i++){
+    for (int i = 0; i < ui->listWidget->count(); i++) {
         QString ligne = ui->listWidget->item(i)->text();
         QStringList elements = ligne.split("|");
-        if(elements.size()==4){
-            double prixTotal = elements[3].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
+        if (elements.size() == 5) {
+            double prixTotal = elements[4].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
             prixTotalTotal += prixTotal;
-            ui->labelTotal->setText(QString::number(prixTotalTotal)+" MGA");
+            ui->labelTotal->setText(QString::number(prixTotalTotal) + " MGA");
         }
     }
 }
@@ -170,8 +178,8 @@ void AjoutVente::enleverPanier() {
     for(int i = 0; i < ui->listWidget->count(); i++) {
         QString ligne = ui->listWidget->item(i)->text();
         QStringList elements = ligne.split("|");
-        if (elements.size() == 4) {
-            double prixTotal = elements[3].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
+        if (elements.size() == 5) {
+            double prixTotal = elements[4].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
             prixTotalTotal += prixTotal;
         }
     }
@@ -182,17 +190,19 @@ void AjoutVente::enleverPanier() {
 
 
 void AjoutVente::mettreAJourPrix(int index) {
-    // Récupérer l'identifiant du produit à partir de l'élément sélectionné
     int idProduit = ui->comboProduit->itemData(index).toInt();
-
-    // Vérifier si l'identifiant existe dans le QMap
     if (mapPrixProduits.contains(idProduit)) {
-        // Mettre à jour le champ de prix
-        double prix = mapPrixProduits[idProduit];
-        ui->lineEditPrix->setText(QString::number(prix, 'f', 2)); // Affichage formaté avec 2 décimales
+        PrixProduit prices = mapPrixProduits[idProduit]; // Get the struct
+
+        ui->comboBoxPrix->clear();
+
+        // Use the struct members correctly
+        ui->comboBoxPrix->addItem(QString::number(prices.prix_unitaire, 'f', 2), prices.prix_unitaire);
+        ui->comboBoxPrix->addItem(QString::number(prices.prix_detail, 'f', 2), prices.prix_detail);
+        ui->comboBoxPrix->addItem(QString::number(prices.prix_remise, 'f', 2), prices.prix_remise);
+
     } else {
-        // Si aucun produit n'est sélectionné, effacer le champ de prix
-        ui->lineEditPrix->clear();
+        ui->comboBoxPrix->clear();
     }
 }
 
@@ -219,28 +229,18 @@ void AjoutVente::remettreAZero(int index)
     ui->lineEditTotal->setText("0.00");
 }
 
-void AjoutVente::mettreAJourTotal()
-{
-    // Récupérer la quantité depuis le QSpinBox
+void AjoutVente::mettreAJourTotal() {
     int quantite = ui->spinBoxQuantite->value();
-
-    // Récupérer l'ID du produit actuellement sélectionné dans le QComboBox
     int idProduit = ui->comboProduit->currentData().toInt();
 
-    // Vérifier si un produit est sélectionné et si la quantité est valide
     if (idProduit == 0 || quantite <= 0) {
-        ui->lineEditTotal->setText("0.00"); // Réinitialiser à zéro si aucun produit n'est sélectionné ou quantité non valide
+        ui->lineEditTotal->setText("0.00");
         return;
     }
 
-    // Récupérer le prix unitaire correspondant à l'ID
-    double prixUnitaire = mapPrixProduits.value(idProduit, 0.0);
-
-    // Calculer le total pour le produit sélectionné
-    double totalProduit = prixUnitaire * quantite;
-
-    // Mettre à jour le champ Total avec le total du produit sélectionné
-    ui->lineEditTotal->setText(QString::number(totalProduit, 'f', 2)); // Affichage avec 2 décimales
+    double prixSelectionne = ui->comboBoxPrix->currentData().toDouble();
+    double totalProduit = prixSelectionne * quantite;
+    ui->lineEditTotal->setText(QString::number(totalProduit, 'f', 2));
 }
 
 
@@ -249,7 +249,7 @@ void AjoutVente::clearForm(){
     ui->comboClient->setCurrentIndex(0);
     ui->comboProduit->setCurrentIndex(0);
     ui->spinBoxQuantite->clear();
-    ui->lineEditPrix->clear();
+    ui->comboBoxPrix->setCurrentIndex(0);
     ui->lineEditTotal->clear();
     ui->listWidget->clear();
     ui->labelTotal->setText("0");
@@ -329,12 +329,12 @@ void AjoutVente::ajouterNouvelleVente() {
         QString currentDateTime = QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss");
 
         // Parcourir les éléments
-        if (elements.size() == 4) {
-            // Extraire les valeurs
+        if (elements.size() == 5) { // Now 5 elements: Client, Product, Quantity, Unit Price, Total Price
             QString nomClient = elements[0].remove("Client: ").trimmed();
             QString nomProduit = elements[1].remove("Produit: ").trimmed();
             int quantite = elements[2].remove("Quantité: ").trimmed().toInt();
-            double prixTotal = elements[3].remove("Prix Total: ").remove("MGA").trimmed().toDouble();
+            double prixUnitaire = elements[3].remove("Prix Unitaire: ").remove("MGA").trimmed().toDouble(); // Get unit price from listWidget
+            double prixTotal = elements[4].remove("Prix Total: ").remove("MGA").trimmed().toDouble(); // Get total price from listWidget
 
             // Requêtes SQL
             QSqlQuery queryProduit(sqlitedb);
@@ -354,15 +354,15 @@ void AjoutVente::ajouterNouvelleVente() {
             int clientId = queryClient.value(0).toInt();
 
             // Rechercher l'ID du produit
-            queryProduit.prepare("SELECT id_produit, prix_unitaire FROM produits WHERE nom = ?");
+            queryProduit.prepare("SELECT id_produit FROM produits WHERE nom = ?"); // Only get the ID
             queryProduit.addBindValue(nomProduit);
             if (!queryProduit.exec() || !queryProduit.next()) {
                 qDebug() << "Erreur lors de la recherche du produit : " << queryProduit.lastError().text();
                 continue;
             }
             int produitId = queryProduit.value(0).toInt();
-            double prixUnitaire = queryProduit.value(1).toDouble();
 
+            //Get the selected price:
             // Rechercher l'ID du stock
             queryStock.prepare("SELECT id_stock, quantite FROM stock WHERE produit_id = :produit_id");
             queryStock.bindValue(":produit_id", produitId);
@@ -375,11 +375,12 @@ void AjoutVente::ajouterNouvelleVente() {
 
             // Insertion dans ligne_vente
             QSqlQuery queryInsertion(sqlitedb);
-            queryInsertion.prepare("INSERT INTO ligne_vente (produit_id, client_id, quantite, prix_total, date_vente) "
-                                   "VALUES (?, ?, ?, ?, ?)");
+            queryInsertion.prepare("INSERT INTO ligne_vente (produit_id, client_id, quantite, prix_vente, prix_total, date_vente) "
+                                   "VALUES (?, ?, ?, ?, ?, ?)");
             queryInsertion.addBindValue(produitId);
             queryInsertion.addBindValue(clientId);
             queryInsertion.addBindValue(quantite);
+            queryInsertion.addBindValue(prixUnitaire);
             queryInsertion.addBindValue(prixTotal);
             queryInsertion.addBindValue(currentDate); // Date de la vente
 
@@ -429,14 +430,13 @@ void AjoutVente::ajouterNouvelleVente() {
             contenuFacture += QString("<tr>"
                                       "<td>%1</td>"
                                       "<td>%2</td>"
-                                      "<td>%3 MGA</td>"
-                                      "<td>%4 MGA</td>"
-                                      "</tr>"
-                                      )
+                                      "<td>%3 MGA</td>" // Use prixUnitaire from listWidget
+                                      "<td>%4 MGA</td>" // Use prixTotal from listWidget
+                                      "</tr>")
                                   .arg(nomProduit)
                                   .arg(quantite)
-                                  .arg(prixUnitaire)
-                                  .arg(prixTotal);
+                                  .arg(prixUnitaire) // Use prixUnitaire from listWidget
+                                  .arg(prixTotal); // Use prixTotal from listWidget
         } else {
             qDebug() << "La ligne ne contient pas 4 éléments valides.";
         }

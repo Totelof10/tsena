@@ -721,6 +721,7 @@ C:/Users/rtoha/Documents/tsena/ajoutfournisseur.h
  mdp:C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/wchar.h
  mdp:C:/Users/rtoha/Documents/tsena/ajoutfournisseur.h
  mdp:C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/moc_predefs.h
+C:/Users/rtoha/Documents/tsena/databasemanager.h
 C:/Users/rtoha/Documents/tsena/ajoutvente.cpp
  uic:ui_ajoutvente.h
 C:/Users/rtoha/Documents/tsena/ajoutnouveauproduits.h
@@ -1088,7 +1089,6 @@ C:/Users/rtoha/Documents/tsena/ajoutnouveauproduits.h
  mdp:C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/wchar.h
  mdp:C:/Users/rtoha/Documents/tsena/ajoutnouveauproduits.h
  mdp:C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/moc_predefs.h
-C:/Users/rtoha/Documents/tsena/databasemanager.h
 C:/Users/rtoha/Documents/tsena/ajoutvente.h
  mmc:Q_OBJECT
  mdp:C:/Qt/6.8.0/mingw_64/include/QtCore/QDate
@@ -1693,6 +1693,9 @@ C:/Users/rtoha/Documents/tsena/app.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qrgb.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qrgba64.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qshortcut.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtextcursor.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtextdocument.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtextformat.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtextoption.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtgui-config.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qtguiexports.h
@@ -1702,6 +1705,7 @@ C:/Users/rtoha/Documents/tsena/app.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs_win.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QFileDialog
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QInputDialog
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QMainWindow
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QTableWidgetItem
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QWidget
@@ -1713,6 +1717,8 @@ C:/Users/rtoha/Documents/tsena/app.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qdialog.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qfiledialog.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qframe.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qinputdialog.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qlineedit.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qmainwindow.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qrubberband.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qsizepolicy.h
@@ -2330,6 +2336,8 @@ C:/Users/rtoha/Documents/tsena/custommessagebox.h
  mdp:C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/wchar.h
  mdp:C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/moc_predefs.h
  mdp:C:/Users/rtoha/Documents/tsena/custommessagebox.h
+C:/Users/rtoha/Documents/tsena/financecompta.cpp
+ uic:ui_financecompta.h
 C:/Users/rtoha/Documents/tsena/bondelivraison.h
  mmc:Q_OBJECT
  mdp:C:/Qt/6.8.0/mingw_64/include/QtCore/QDate
@@ -2773,8 +2781,6 @@ C:/Users/rtoha/Documents/tsena/bondelivraison.h
  mdp:C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/wctype.h
  mdp:C:/Users/rtoha/Documents/tsena/bondelivraison.h
  mdp:C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/moc_predefs.h
-C:/Users/rtoha/Documents/tsena/financecompta.cpp
- uic:ui_financecompta.h
 C:/Users/rtoha/Documents/tsena/etatstock.h
  mmc:Q_OBJECT
  mdp:C:/Qt/6.8.0/mingw_64/include/QtCore/QDateTime
