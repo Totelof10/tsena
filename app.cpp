@@ -29,7 +29,7 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     , m_mainWindow(mainWindow)
 {
     ui->setupUi(this);
-    databasePath = "C:/db_test/toavina_yaourt.db";
+    databasePath = "C:/db_test/tsena_base.db";
     QFileInfo fileInfo(databasePath);
     ui->labelWorkspace->setText(fileInfo.fileName());
     attributionAcces();
@@ -37,9 +37,9 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     afficherVente();
     chiffreDaffaire();
     afficherBonDeLivraison();
+    ui->treeVente->header()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->treeBl->header()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableStock->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->tableVente->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->tableBonDeLivraison->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->stackedWidget->setCurrentWidget(ui->page_vente);
     connect(ui->btnPageVente, &QPushButton::clicked,this, &App::handleVenteFacturation);
     connect(ui->btnPageStock, &QPushButton::clicked,this, &App::handleStockReaprovisionnement);
@@ -76,6 +76,8 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     connect(ui->btnOperation, &QPushButton::clicked, this, &App::tableDesOperations);
     connect(ui->btnTiers, &QPushButton::clicked, this, &App::affichageTiers);
     connect(ui->btnReporterDateBl, &QPushButton::clicked, this, &App::reporterDateBl);
+    connect(ui->btnSupprimerBonDeLivraison, &QPushButton::clicked, this, &App::supprimerBonDeLivraison);
+    //connect(ui->btnModifierPrix, &QPushButton::clicked, this, &App::modifierPrixProduit);
 }
 
 void App::tableDesOperations(){
@@ -156,12 +158,12 @@ void App::attributionAcces() {
     if (m_currentUserStatus == "Vendeur") {
         ui->btnPageStock->setDisabled(true);
         //ui->btnPageFinance->setDisabled(true);
-        ui->btnModifierVente->setDisabled(true);
+        //ui->btnModifierVente->setDisabled(true);
         ui->btnSupprimerVente->setDisabled(true);
     } else {
         ui->btnPageStock->setDisabled(false);
         //ui->btnPageFinance->setDisabled(false);
-        ui->btnModifierVente->setDisabled(false);
+        //ui->btnModifierVente->setDisabled(false);
         ui->btnSupprimerVente->setDisabled(false);
     }
 }
@@ -252,68 +254,107 @@ void App::ancienNouveauClientBonDeLivraison(){
     }
 }
 
-void App::afficherBonDeLivraison(){
+void App::afficherBonDeLivraison() {
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
-    if(!sqlitedb.isOpen()){
-        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+    if (!sqlitedb.isOpen()) {
+        qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
         return;
     }
+
     QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_livraison, c.nom, p.nom, quantite, date, statut, prix_total_a_payer, prix_vente FROM bon_de_livraison b "
+    queryAffichage.prepare("SELECT id_livraison, c.nom, date, p.nom, quantite, statut, prix_total_a_payer, prix_vente FROM bon_de_livraison b "
                            "INNER JOIN produits p ON id_produit = produit_id "
                            "INNER JOIN clients c ON id_client = client_id");
-    if(!queryAffichage.exec()){
-        qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
+    if (!queryAffichage.exec()) {
+        qDebug() << "Erreur lors de la récupération des données" << queryAffichage.lastError();
         return;
     }
-    ui->tableBonDeLivraison->setRowCount(0);
-    int row = 0;
-    while(queryAffichage.next()){
-        ui->tableBonDeLivraison->insertRow(row);
+
+    ui->treeBl->clear(); // Vider l'ancien contenu
+    ui->treeBl->setHeaderLabels({"Client", "Date", "Statut", "Produit", "Quantité", "Total à payer (MGA)", "Prix de vente (MGA)"}); // Entêtes principales
+
+    QMap<QString, QTreeWidgetItem*> clientsMap; // Map pour stocker les clients/dates
+    QMap<QString, double> totalParClientDate; // Map pour stocker le total par client et date
+
+    while (queryAffichage.next()) {
         QString id_livraison = queryAffichage.value(0).toString();
         QString nom_client = queryAffichage.value(1).toString();
-        QString nom_produit = queryAffichage.value(2).toString();
-        int quantite = queryAffichage.value(3).toInt();
-        QString date = queryAffichage.value(4).toString();
+        QString date_livraison = queryAffichage.value(2).toString();
+        QString produit = queryAffichage.value(3).toString();
+        int quantite = queryAffichage.value(4).toInt();
         QString statut = queryAffichage.value(5).toString();
-        double prix_total = queryAffichage.value(6).toDouble();
+        double prix_total_a_payer = queryAffichage.value(6).toDouble();
         double prix_vente = queryAffichage.value(7).toDouble();
 
-        ui->tableBonDeLivraison->setItem(row, 0, new QTableWidgetItem(id_livraison));
-        ui->tableBonDeLivraison->setItem(row, 1, new QTableWidgetItem(nom_client));
-        ui->tableBonDeLivraison->setItem(row, 2, new QTableWidgetItem(nom_produit));
-        ui->tableBonDeLivraison->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
-        ui->tableBonDeLivraison->setItem(row, 4, new QTableWidgetItem(date));
-        ui->tableBonDeLivraison->setItem(row, 5, new QTableWidgetItem(statut));
-        ui->tableBonDeLivraison->setItem(row, 6, new QTableWidgetItem(QString::number(prix_total)));
-        ui->tableBonDeLivraison->setItem(row, 7, new QTableWidgetItem(QString::number(prix_vente)));
+        QString key = nom_client + " | " + date_livraison; // Clé unique (client + date)
 
+        // Vérifier si le client/date a déjà une entrée
+        if (!clientsMap.contains(key)) {
+            QTreeWidgetItem *clientItem = new QTreeWidgetItem(ui->treeBl);
+            clientItem->setText(0, nom_client);
+            clientItem->setText(1, date_livraison);
+            clientItem->setText(2, ""); // Le statut sera mis à jour si nécessaire
+            clientItem->setText(5, "0.0 MGA"); // Initialiser le total à payer pour ce groupe
+            clientsMap[key] = clientItem;
+            totalParClientDate[key] = 0.0;
+        }
 
-        row++;
+        // Ajouter les détails du bon de livraison sous le client
+        QTreeWidgetItem *blItem = new QTreeWidgetItem();
+        blItem->setText(0, "➡ BL N°" + id_livraison);
+        blItem->setText(3, produit);
+        blItem->setText(4, QString::number(quantite));
+        blItem->setText(2, statut);
+        blItem->setText(5, QString::number(prix_total_a_payer) + " MGA");
+        blItem->setText(6, QString::number(prix_vente) + " MGA");
+        clientsMap[key]->addChild(blItem);
+
+        // Mettre à jour le statut du parent si nécessaire
+        clientsMap[key]->setText(2, statut); // Afficher le statut du dernier BL pour ce client/date
+
+        // Accumuler le total pour ce client et cette date
+        totalParClientDate[key] += prix_total_a_payer;
     }
+
+    // Mettre à jour le total à payer pour chaque groupe parent
+    for (auto it = totalParClientDate.begin(); it != totalParClientDate.end(); ++it) {
+        if (clientsMap.contains(it.key())) {
+            clientsMap[it.key()]->setText(5, QString::number(it.value()) + " MGA"); // Afficher le total dans la colonne "Total à payer" du parent
+        }
+    }
+
+    //ui->treeBl->expandAll(); // Ne pas afficher les détails au départ
+    ui->treeBl->collapseAll();
 }
-
-void App::supprimerBonDeLivraison(){
-    // Récupérer la ligne sélectionnée
-    int row = ui->tableBonDeLivraison->currentRow();
-    if (row < 0) {
-        CustomMessageBox().showError("Erreur", "Veuillez sélectionner une ligne à supprimer.");
+void App::supprimerBonDeLivraison() {
+    // Récupérer l'élément sélectionné
+    QList<QTreeWidgetItem*> selectedItems = ui->treeBl->selectedItems();
+    if (selectedItems.isEmpty()) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner un bon de livraison à supprimer.");
         return;
     }
 
-    // Récupérer l'ID du produit (colonne 0)
-    QTableWidgetItem *celluleId = ui->tableBonDeLivraison->item(row, 0);
-    if (!celluleId) {
-        CustomMessageBox().showError("Erreur", "Impossible de trouver l'ID du produit.");
+    QTreeWidgetItem* selectedItem = selectedItems.first();
+
+    // Vérifier si l'élément sélectionné est un enfant (détail du bon de livraison)
+    if (!selectedItem->parent()) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner un détail de bon de livraison à supprimer.");
         return;
     }
 
-    QString idLivraison = celluleId->text();
+    QString itemText = selectedItem->text(0);
+    if (!itemText.startsWith("➡ BL N°")) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner un détail de bon de livraison valide.");
+        return;
+    }
+
+    QString idLivraisonStr = itemText.mid(QString("➡ BL N°").length());
+    int idLivraison = idLivraisonStr.toInt();
 
     // Message de confirmation
     CustomMessageBox msgBox;
     msgBox.setWindowTitle("Confirmation");
-    msgBox.setText("Êtes-vous sûr de vouloir supprimer cet élément ?");
+    msgBox.setText("Êtes-vous sûr de vouloir supprimer ce bon de livraison ?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
     int ret = msgBox.exec();
@@ -331,185 +372,249 @@ void App::supprimerBonDeLivraison(){
             return;
         }
 
-        // Supprimer la ligne du tableau
-        ui->tableBonDeLivraison->removeRow(row);
+        // Supprimer l'élément du treeView
+        QTreeWidgetItem* parent = selectedItem->parent();
+        if (parent) {
+            parent->removeChild(selectedItem);
+            // Si le parent n'a plus d'enfants, vous pouvez choisir de le supprimer aussi (optionnel)
+            // if (parent->childCount() == 0) {
+            //     QTreeWidgetItem* grandParent = parent->parent();
+            //     if (grandParent) {
+            //         grandParent->removeChild(parent);
+            //     } else {
+            //         ui->treeBl->takeTopLevelItem(ui->treeBl->indexOfTopLevelItem(parent));
+            //     }
+            // }
+        }
 
         // Afficher un message de succès
-        CustomMessageBox().showInformation("Succès", "L'élément a été supprimé avec succès.");
+        CustomMessageBox().showInformation("Succès", "Le bon de livraison a été supprimé avec succès.");
     }
 }
 
-void App::livrePaye(){
-    int row = ui->tableBonDeLivraison->currentRow();
-    if(row < 0){
-        CustomMessageBox().showError("Erreur", "Veuillez sélectionner une ligne à modifier.");
+void App::livrePaye() {
+    QList<QTreeWidgetItem*> selectedItems = ui->treeBl->selectedItems();
+    if (selectedItems.isEmpty()) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner au moins un bon de livraison ou un groupe à modifier.");
         return;
     }
 
-    QTableWidgetItem *celluleStatut = ui->tableBonDeLivraison->item(row, 5);
-    if(!celluleStatut){
-        CustomMessageBox().showError("Erreur", "Impossible de trouver le statut de la livraison.");
+    QSet<QTreeWidgetItem*> itemsToProcess;
+    for (QTreeWidgetItem* item : selectedItems) {
+        if (item->parent()) {
+            itemsToProcess.insert(item); // Ajouter les enfants sélectionnés
+        } else {
+            // Si un parent est sélectionné, ajouter tous ses enfants à la liste de traitement
+            for (int i = 0; i < item->childCount(); ++i) {
+                itemsToProcess.insert(item->child(i));
+            }
+        }
+    }
+
+    if (itemsToProcess.isEmpty()) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner au moins un bon de livraison à marquer comme payé.");
         return;
     }
 
-    QString statut = celluleStatut->text();
-    if(statut == "Payé"){
-        CustomMessageBox().showError("Erreur", "La livraison est déjà payée.");
-        return;
-    }
-
-    QTableWidgetItem *itemIdLivraison = ui->tableBonDeLivraison->item(row, 0);
-    QTableWidgetItem *itemQuantite = ui->tableBonDeLivraison->item(row, 3);
-    QTableWidgetItem *itemNom = ui->tableBonDeLivraison->item(row, 2);
-
-    if(!itemIdLivraison || !itemQuantite || !itemNom){
-        CustomMessageBox().showError("Erreur", "Une cellule du tableau est invalide.");
-        return;
-    }
     CustomMessageBox msgBox;
     msgBox.setWindowTitle("Confirmation");
-    msgBox.setText("Souhaitez-vous valider cette transaction comme 'Payée' ?");
+    msgBox.setText(itemsToProcess.size() > 1 ?
+                       "Souhaitez-vous valider ces " + QString::number(itemsToProcess.size()) + " bons de livraison comme 'Payés' ?" :
+                       "Souhaitez-vous valider ce bon de livraison comme 'Payé' ?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
     int ret = msgBox.exec();
 
-    if (ret == QMessageBox::Yes) {
-
-    QString idLivraison = itemIdLivraison->text();
-    int quantite = itemQuantite->text().toInt();
-    QString nom = itemNom->text();
+    if (ret != QMessageBox::Yes) {
+        return;
+    }
 
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
-
-    // Démarrer une transaction
     if (!sqlitedb.transaction()) {
         qDebug() << "Erreur lors du début de la transaction :" << sqlitedb.lastError();
         CustomMessageBox().showError("Erreur", "Impossible de démarrer la transaction.");
         return;
     }
 
-    // 1. Mise à jour du statut dans `bon_de_livraison`
-    QSqlQuery query(sqlitedb);
-    query.prepare("UPDATE bon_de_livraison SET statut = 'Payé' WHERE id_livraison = :id");
-    query.bindValue(":id", idLivraison);
-    if(!query.exec()){
-        qDebug() << "Erreur mise à jour bon_de_livraison :" << query.lastError();
-        sqlitedb.rollback();
-        CustomMessageBox().showError("Erreur", "Échec de la mise à jour de la base de données.");
-        return;
+    for (QTreeWidgetItem* blItem : itemsToProcess) {
+        QString itemText = blItem->text(0);
+        if (!itemText.startsWith("➡ BL N°")) {
+            continue; // Ignorer si l'élément sélectionné n'est pas un détail de bon de livraison
+        }
+
+        QString idLivraisonStr = itemText.mid(QString("➡ BL N°").length());
+        int idLivraison = idLivraisonStr.toInt();
+
+        QString nomProduit = blItem->text(3); // Index corrigé pour "Produit"
+        int quantite = blItem->text(4).toInt(); // Index corrigé pour "Quantité"
+        QString statutActuel = blItem->text(2); // Index corrigé pour "Statut"
+        QString prixTotalStr = blItem->text(5); // Index corrigé pour "Total à payer (MGA)"
+        prixTotalStr.chop(QString(" MGA").length());
+        double prixTotal = prixTotalStr.toDouble();
+        QString prixVenteStr = blItem->text(6); // Index corrigé pour "Prix de vente (MGA)"
+        prixVenteStr.chop(QString(" MGA").length());
+        double prixVente = prixVenteStr.toDouble();
+
+        if (statutActuel == "Payé") {
+            continue; // Ignore les lignes déjà payées
+        }
+
+        // Récupérer la date de livraison et le nom du client du parent
+        QTreeWidgetItem* parentItem = blItem->parent();
+        if (!parentItem) continue;
+        QString dateLivraison = parentItem->text(1);
+        QString nomClient = parentItem->text(0);
+
+        // Récupération de l'ID du produit
+        QSqlQuery queryProduitId(sqlitedb);
+        queryProduitId.prepare("SELECT produit_id FROM bon_de_livraison WHERE id_livraison = :id");
+        queryProduitId.bindValue(":id", idLivraison);
+        if (!queryProduitId.exec() || !queryProduitId.next()) {
+            sqlitedb.rollback();
+            CustomMessageBox().showError("Erreur", "Impossible de récupérer l'ID du produit pour le BL N°" + QString::number(idLivraison));
+            return;
+        }
+        int idProduit = queryProduitId.value(0).toInt();
+
+        // Vérification du statut (redondant mais pour la sécurité)
+        QSqlQuery queryStatut(sqlitedb);
+        queryStatut.prepare("SELECT statut FROM bon_de_livraison WHERE id_livraison = :id");
+        queryStatut.bindValue(":id", idLivraison);
+        if (!queryStatut.exec() || !queryStatut.next()) {
+            sqlitedb.rollback();
+            CustomMessageBox().showError("Erreur", "Impossible de vérifier le statut du BL N°" + QString::number(idLivraison));
+            return;
+        }
+        if (queryStatut.value(0).toString() == "Payé") {
+            continue; // Ignore si déjà payé
+        }
+
+        // Mise à jour du statut du bon de livraison
+        QSqlQuery queryUpdateBl(sqlitedb);
+        queryUpdateBl.prepare("UPDATE bon_de_livraison SET statut = 'Payé' WHERE id_livraison = :id");
+        queryUpdateBl.bindValue(":id", idLivraison);
+        if (!queryUpdateBl.exec()) {
+            sqlitedb.rollback();
+            CustomMessageBox().showError("Erreur", "Échec de la mise à jour du statut du BL N°" + QString::number(idLivraison));
+            return;
+        }
+
+        // Gestion du stock
+        QSqlQuery queryStock(sqlitedb);
+        queryStock.prepare("SELECT id_stock, quantite FROM stock WHERE produit_id = :id");
+        queryStock.bindValue(":id", idProduit);
+        if (!queryStock.exec() || !queryStock.next()) {
+            sqlitedb.rollback();
+            CustomMessageBox().showError("Erreur", "Impossible de récupérer les informations de stock pour le produit.");
+            return;
+        }
+        int idStock = queryStock.value(0).toInt();
+        int quantiteStock = queryStock.value(1).toInt();
+
+        if (quantite > quantiteStock) {
+            sqlitedb.rollback();
+            CustomMessageBox().showError("Erreur", "Stock insuffisant pour le produit '" + nomProduit + "'.");
+            return;
+        }
+
+        QSqlQuery queryUpdateStock(sqlitedb);
+        queryUpdateStock.prepare("UPDATE stock SET quantite = quantite - :quantite WHERE produit_id = :id");
+        queryUpdateStock.bindValue(":quantite", quantite);
+        queryUpdateStock.bindValue(":id", idProduit);
+        if (!queryUpdateStock.exec()) {
+            sqlitedb.rollback();
+            CustomMessageBox().showError("Erreur", "Échec de la mise à jour du stock pour le produit '" + nomProduit + "'.");
+            return;
+        }
+
+        // Enregistrement du mouvement de stock
+        QSqlQuery queryMouvement(sqlitedb);
+        queryMouvement.prepare("INSERT INTO mouvements_de_stock (stock_id, nom, quantite, type_mouvement, date_mouvement, vente) "
+                               "VALUES (:stock_id, :nom, :quantite, 'Sortie Livraison', :date_mouvement, :vente)");
+        queryMouvement.bindValue(":stock_id", idStock);
+        queryMouvement.bindValue(":nom", nomProduit);
+        queryMouvement.bindValue(":quantite", quantite);
+        queryMouvement.bindValue(":date_mouvement", dateLivraison);
+        queryMouvement.bindValue(":vente", QString("Livraison du %1 pour %2").arg(dateLivraison).arg(nomClient));
+        if (!queryMouvement.exec()) {
+            sqlitedb.rollback();
+            CustomMessageBox().showError("Erreur", "Échec de l'enregistrement des mouvements de stock pour le produit '" + nomProduit + "'.");
+            return;
+        }
+
+        // Enregistrement de la vente
+        QSqlQuery queryInsertion(sqlitedb);
+        queryInsertion.prepare("INSERT INTO ligne_vente (client_id, produit_id, quantite, date_vente, prix_total, num_bon_livraison, prix_vente) "
+                               "SELECT client_id, produit_id, :quantite, :date, :prix_total, id_livraison, :prix_vente FROM bon_de_livraison WHERE id_livraison = :id");
+        queryInsertion.bindValue(":id", idLivraison);
+        queryInsertion.bindValue(":quantite", quantite);
+        queryInsertion.bindValue(":date", dateLivraison);
+        queryInsertion.bindValue(":prix_total", prixTotal);
+        queryInsertion.bindValue(":prix_vente", prixVente);
+        if (!queryInsertion.exec()) {
+            sqlitedb.rollback();
+            CustomMessageBox().showError("Erreur", "Échec de l'enregistrement de la vente pour le BL N°" + QString::number(idLivraison));
+            return;
+        }
+
+        // Enregistrement de l'opération
+        QSqlQuery queryOperation(sqlitedb);
+        queryOperation.prepare("INSERT INTO operation (mouvement_id, stock_id, nom_produit, stock_depart, quantite_entree, quantite_sortie, stock_actuel, date_operation) "
+                               "VALUES (:mouvement_id, :stock_id, :nom_produit, :stock_depart, 0, :quantite_sortie, :stock_actuel, :date_operation)");
+        queryOperation.bindValue(":mouvement_id", queryMouvement.lastInsertId());
+        queryOperation.bindValue(":stock_id", idStock);
+        queryOperation.bindValue(":nom_produit", nomProduit);
+        queryOperation.bindValue(":stock_depart", quantiteStock);
+        queryOperation.bindValue(":quantite_sortie", quantite);
+        queryOperation.bindValue(":stock_actuel", quantiteStock - quantite);
+        queryOperation.bindValue(":date_operation", dateLivraison);
+        queryOperation.exec();
+
+        // Mise à jour de l'interface
+        blItem->setText(3, "Payé");
     }
 
-    // 2. Récupérer l'ID du produit
-    QSqlQuery queryStock(sqlitedb);
-    queryStock.prepare("SELECT produit_id FROM bon_de_livraison WHERE id_livraison = :id");
-    queryStock.bindValue(":id", idLivraison);
-    if(!queryStock.exec() || !queryStock.next()){
-        qDebug() << "Erreur récupération produit_id :" << queryStock.lastError();
-        sqlitedb.rollback();
-        CustomMessageBox().showError("Erreur", "Impossible de récupérer l'ID du produit.");
-        return;
-    }
-    int idProduit = queryStock.value(0).toInt();
-
-    // 3. Mettre à jour le stock
-    QSqlQuery queryUpdate(sqlitedb);
-    queryUpdate.prepare("UPDATE stock SET quantite = quantite - :quantite WHERE produit_id = :id");
-    queryUpdate.bindValue(":quantite", quantite);
-    queryUpdate.bindValue(":id", idProduit);
-    if(!queryUpdate.exec()){
-        qDebug() << "Erreur mise à jour stock :" << queryUpdate.lastError();
-        sqlitedb.rollback();
-        CustomMessageBox().showError("Erreur", "Échec de la mise à jour du stock.");
-        return;
-    }
-
-    // 4. Récupérer l'ID du stock
-    QSqlQuery queryIdStock(sqlitedb);
-    queryIdStock.prepare("SELECT id_stock, quantite FROM stock WHERE produit_id = :id");
-    queryIdStock.bindValue(":id", idProduit);
-    if(!queryIdStock.exec() || !queryIdStock.next()){
-        qDebug() << "Erreur récupération id_stock :" << queryIdStock.lastError();
-        sqlitedb.rollback();
-        CustomMessageBox().showError("Erreur", "Impossible de récupérer l'ID du stock.");
-        return;
-    }
-    int idStock = queryIdStock.value(0).toInt();
-    int quantiteStock = queryIdStock.value(1).toInt();
-
-    // 5. Insérer dans `mouvements_de_stock`
-    QSqlQuery queryMouvement(sqlitedb);
-    queryMouvement.prepare("INSERT INTO mouvements_de_stock (stock_id, nom, quantite, type_mouvement, date_mouvement, vente) "
-                           "VALUES (:stock_id, :nom, :quantite, :type_mouvement, :date_mouvement, :vente)");
-    queryMouvement.bindValue(":stock_id", idStock);
-    queryMouvement.bindValue(":nom", nom);
-    queryMouvement.bindValue(":quantite", quantite);
-    queryMouvement.bindValue(":type_mouvement", "Sortie Livraison");
-    queryMouvement.bindValue(":date_mouvement", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
-    queryMouvement.bindValue(":vente", QString("Livraison du %1 pour %2").arg(QDateTime::currentDateTime().toString("dd-MM-yyyy")).arg(ui->tableBonDeLivraison->item(row, 1)->text()));
-    if(!queryMouvement.exec()){
-        qDebug() << "Erreur insertion mouvements_de_stock :" << queryMouvement.lastError();
-        sqlitedb.rollback();
-        CustomMessageBox().showError("Erreur", "Échec de l'enregistrement des mouvements de stock.");
-        return;
-    }
-
-    // 6. Insérer dans `ligne_vente`
-    QSqlQuery queryInsertion(sqlitedb);
-    queryInsertion.prepare("INSERT INTO ligne_vente (client_id, produit_id, quantite, date_vente, prix_total, num_bon_livraison, prix_vente) "
-                           "SELECT client_id, produit_id, quantite, date, prix_total_a_payer, id_livraison, prix_vente FROM bon_de_livraison WHERE id_livraison = :id");
-    queryInsertion.bindValue(":id", idLivraison);
-    if(!queryInsertion.exec()){
-        qDebug() << "Erreur insertion ligne_vente :" << queryInsertion.lastError();
-        sqlitedb.rollback();
-        CustomMessageBox().showError("Erreur", "Échec de l'insertion des données dans la vente.");
-        return;
-    }
-    QSqlQuery queryOperation(sqlitedb);
-    queryOperation.prepare("INSERT INTO operation (mouvement_id, stock_id, nom_produit, stock_depart, quantite_entree, quantite_sortie, stock_actuel, date_operation) "
-                           "VALUES (:mouvement_id, :stock_id, :nom_produit, :stock_depart, :quantite_entree, :quantite_sortie, :stock_actuel, :date_operation)");
-    queryOperation.bindValue(":mouvement_id", queryMouvement.lastInsertId());
-    queryOperation.bindValue(":stock_id", idStock);
-    queryOperation.bindValue(":nom_produit", ui->tableBonDeLivraison->item(row, 2)->text());
-    queryOperation.bindValue(":stock_depart", quantiteStock);
-    queryOperation.bindValue(":quantite_sortie", quantite);
-    queryOperation.bindValue(":quantite_entree", 0);
-    queryOperation.bindValue(":stock_actuel", quantiteStock - quantite);
-    queryOperation.bindValue(":date_operation", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
-    if (!queryOperation.exec()) {
-        qDebug() << "Erreur lors de l'insertion des données" << queryOperation.lastError();
-    }
-
-    // Validation de la transaction
     if (!sqlitedb.commit()) {
-        qDebug() << "Erreur commit transaction :" << sqlitedb.lastError();
         sqlitedb.rollback();
         CustomMessageBox().showError("Erreur", "Impossible de valider la transaction.");
         return;
     }
 
-    // Mise à jour de l'interface utilisateur
-    celluleStatut->setText("Payé");
-    CustomMessageBox().showInformation("Succès", "La livraison a été marquée comme payée.");
-
+    CustomMessageBox().showInformation("Succès", "Les bons de livraison sélectionnés ont été marqués comme payés.");
     afficherVente();
     chiffreDaffaire();
-    }else{
-        return;
-    }
+    afficherBonDeLivraison();
 }
 
 
 
 void App::reporterDateBl() {
-    int row = ui->tableBonDeLivraison->currentRow();
-    if (row < 0) {
-        CustomMessageBox::warning(this, "Modification", "Veuillez sélectionner un BL à modifier.");
+    QList<QTreeWidgetItem*> selectedItems = ui->treeBl->selectedItems();
+    if (selectedItems.isEmpty()) {
+        CustomMessageBox::warning(this, "Modification", "Veuillez sélectionner un bon de livraison à modifier.");
         return;
     }
 
-    QString id_bl = ui->tableBonDeLivraison->item(row, 0)->text();
-    QString date_bl = ui->tableBonDeLivraison->item(row, 4)->text();
-    QDate dateActuelle = QDate::fromString(date_bl, "dd/MM/yyyy");
+    QTreeWidgetItem* selectedItem = selectedItems.first(); // Prendre le premier élément sélectionné
+
+    // Vérifier si l'élément sélectionné est un enfant (détail du bon de livraison)
+    if (!selectedItem->parent()) {
+        CustomMessageBox::warning(this, "Modification", "Veuillez sélectionner un détail de bon de livraison à modifier.");
+        return;
+    }
+
+    QString itemText = selectedItem->text(0);
+    if (!itemText.startsWith("➡ BL N°")) {
+        CustomMessageBox::warning(this, "Modification", "Veuillez sélectionner un détail de bon de livraison valide.");
+        return;
+    }
+
+    QString id_bl_str = itemText.mid(QString("➡ BL N°").length());
+    int id_bl = id_bl_str.toInt();
+
+    QTreeWidgetItem* parentItem = selectedItem->parent();
+    QString date_bl_str = parentItem->text(1);
+    QDate dateActuelle = QDate::fromString(date_bl_str, "yyyy-MM-dd"); // Assumer le format de date dans l'arbre
 
     // 📌 Création de la boîte de dialogue avec un QDateEdit
     QDialog dialog(this);
@@ -530,9 +635,12 @@ void App::reporterDateBl() {
     if (dialog.exec() == QDialog::Rejected) return;
 
     QDate nouvelle_date = dateEdit.date();
+    QString nouvelle_date_str_display = nouvelle_date.toString("yyyy-MM-dd"); // Format d'affichage dans l'arbre
 
-    // 📌 Mettre à jour la table avec la nouvelle date
-    ui->tableBonDeLivraison->item(row, 4)->setText(nouvelle_date.toString("dd/MM/yyyy"));
+    // 📌 Mettre à jour la date dans l'élément parent du treeView
+    if (parentItem) {
+        parentItem->setText(1, nouvelle_date_str_display);
+    }
 
     // 📌 Mise à jour dans la base de données
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
@@ -544,7 +652,7 @@ void App::reporterDateBl() {
     QSqlQuery query(sqlitedb);
     query.prepare("UPDATE bon_de_livraison SET date = :date_bl WHERE id_livraison = :id_bl");
     query.bindValue(":id_bl", id_bl);
-    query.bindValue(":date_bl", nouvelle_date.toString("dd-MM-yyyy")); // Format adapté pour SQLite
+    query.bindValue(":date_bl", nouvelle_date.toString("yyyy-MM-dd")); // Format adapté pour SQLite
 
     if (query.exec()) {
         CustomMessageBox::information(this, "Succès", "Date modifiée avec succès.");
@@ -554,46 +662,77 @@ void App::reporterDateBl() {
 }
 
 
-void App::afficherVente(){
+void App::afficherVente() {
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
-    if(!sqlitedb.isOpen()){
-        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+    if (!sqlitedb.isOpen()) {
+        qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
         return;
     }
+
     QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, prix_total, date_vente, num_bon_livraison FROM ligne_vente l "
+    queryAffichage.prepare("SELECT id_vente, c.nom, date_vente, p.nom, quantite, (prix_total / quantite) AS prix_unitaire, prix_total "
+                           "FROM ligne_vente l "
                            "INNER JOIN produits p ON id_produit = produit_id "
-                           "INNER JOIN clients c ON id_client = client_id "
-                           );
-    if(!queryAffichage.exec()){
-        qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
+                           "INNER JOIN clients c ON id_client = client_id");
+
+    if (!queryAffichage.exec()) {
+        qDebug() << "Erreur lors de la récupération des données" << queryAffichage.lastError();
         return;
     }
-    ui->tableVente->setRowCount(0);
-    int row = 0;
-    while(queryAffichage.next()){
-        ui->tableVente->insertRow(row);
+
+    ui->treeVente->clear(); // Vider l'ancien contenu
+    ui->treeVente->setHeaderLabels({"Client", "Date", "Quantite" ,"Prix unitaire", "Prix total", "Total(MGA)"}); // Entêtes principales
+
+    QMap<QString, QTreeWidgetItem*> clientsMap; // Map pour stocker les clients/dates
+    QMap<QString, double> totalParClientDate; // Stocker les totaux par client et date
+
+    while (queryAffichage.next()) {
         QString id_vente = queryAffichage.value(0).toString();
-        QString nom_produit = queryAffichage.value(1).toString();
-        QString nom_client = queryAffichage.value(2).toString();
-        int quantite = queryAffichage.value(3).toInt();
-        double prix_total = queryAffichage.value(4).toDouble();
-        QString date_vente = queryAffichage.value(5).toString();
-        QString num_bon_livraison = queryAffichage.value(6).toString();
+        QString nom_client = queryAffichage.value(1).toString();
+        QString date_vente = queryAffichage.value(2).toString();
+        QString produit = queryAffichage.value(3).toString();
+        int quantite = queryAffichage.value(4).toInt();
+        double prix_unitaire = queryAffichage.value(5).toDouble();
+        double prix_total = queryAffichage.value(6).toDouble();
 
-        ui->tableVente->setItem(row, 0, new QTableWidgetItem(id_vente));
-        ui->tableVente->setItem(row, 1, new QTableWidgetItem(nom_produit));
-        ui->tableVente->setItem(row, 2, new QTableWidgetItem(nom_client));
-        ui->tableVente->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
-        ui->tableVente->setItem(row, 4, new QTableWidgetItem(QString::number(prix_total)+" MGA"));
-        ui->tableVente->setItem(row, 5, new QTableWidgetItem(date_vente));
-        ui->tableVente->setItem(row, 6, new QTableWidgetItem(num_bon_livraison));
+        QString key = nom_client + " | " + date_vente; // Clé unique (client + date)
 
-        row++;
+        // Vérifier si le client/date a déjà une entrée
+        if (!clientsMap.contains(key)) {
+            QTreeWidgetItem *clientItem = new QTreeWidgetItem(ui->treeVente);
+            clientItem->setText(0, nom_client);
+            clientItem->setText(1, date_vente);
+            clientItem->setText(2, ""); // Quantité pour le parent (laisser vide ou mettre un indicateur)
+            clientItem->setText(3, ""); // Prix unitaire pour le parent
+            clientItem->setText(4, ""); // Prix total pour le parent
+            clientItem->setText(5, "0.0 MGA"); // Initialiser le total
 
+            clientsMap[key] = clientItem;
+            totalParClientDate[key] = 0.0;
+        }
+
+        // Ajouter les détails de l'achat sous le client
+        QTreeWidgetItem *achatItem = new QTreeWidgetItem();
+        achatItem->setText(0, "➡ " + id_vente);
+        achatItem->setText(1, produit);
+        achatItem->setText(2, QString::number(quantite));
+        achatItem->setText(3, QString::number(prix_unitaire) + " MGA");
+        achatItem->setText(4, QString::number(prix_total) + " MGA");
+        clientsMap[key]->addChild(achatItem);
+
+        // Mise à jour du total d'achat pour ce client/date
+        totalParClientDate[key] += prix_total;
     }
 
+    // Mettre à jour les totaux dans l'affichage principal
+    for (auto it = totalParClientDate.begin(); it != totalParClientDate.end(); ++it) {
+        clientsMap[it.key()]->setText(5, QString::number(it.value()) + " MGA"); // Utiliser l'index correct (5)
+    }
+
+    ui->treeVente->collapseAll(); // Ne pas afficher les détails au départ
 }
+
+
 
 void App::afficherProduit(){
     CustomMessageBox msgBox;
@@ -745,23 +884,37 @@ void App::supprimerLigne() {
     }
 }
 
-void App::supprimerVente(){
-    int row = ui->tableVente->currentRow();
-    if (row < 0) {
-        CustomMessageBox().showError("Erreur", "Veuillez sélectionner une ligne à supprimer.");
+void App::supprimerVente() {
+    QTreeWidgetItem *selectedItem = ui->treeVente->currentItem();
+    if (!selectedItem) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner une vente à supprimer.");
         return;
     }
 
-    // Récupérer l'ID du produit (colonne 0)
-    QTableWidgetItem *celluleId = ui->tableVente->item(row, 0);
-    if (!celluleId) {
-        CustomMessageBox().showError("Erreur", "Impossible de trouver l'ID du vente.");
+    QString idToDelete;
+    QTreeWidgetItem *itemToRemove = selectedItem;
+    QTreeWidgetItem *parentItem = selectedItem->parent();
+
+    // Récupérer l'ID de l'élément sélectionné (colonne 0)
+    QString selectedItemId = selectedItem->text(0);
+
+    if (parentItem) {
+        // Cas où un enfant (détail de la vente) est sélectionné
+        if (selectedItemId.startsWith("➡ ")) {
+            idToDelete = selectedItemId.mid(2); // Extraire l'ID après "➡ "
+        } else {
+            CustomMessageBox().showError("Erreur", "Impossible de trouver l'ID de la vente à supprimer.");
+            return;
+        }
+    } else {
+        // Cas où l'élément parent (client et date) est sélectionné - Gérer si nécessaire
+        CustomMessageBox().showWarning("Avertissement", "La suppression d'une vente groupée n'est pas encore entièrement prise en charge. Veuillez sélectionner un détail de vente à supprimer.");
         return;
+        // Si vous souhaitez supprimer toute la vente (parent et enfants), vous devrez récupérer tous les id_vente des enfants
+        // et les supprimer un par un, puis supprimer le parent.
     }
 
-    QString idVente = celluleId->text();
-
-    // Message de confirmation
+    // Demande de confirmation
     CustomMessageBox msgBox;
     msgBox.setWindowTitle("Confirmation");
     msgBox.setText("Êtes-vous sûr de vouloir supprimer cet élément ?");
@@ -774,7 +927,7 @@ void App::supprimerVente(){
         QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
         QSqlQuery query(sqlitedb);
         query.prepare("DELETE FROM ligne_vente WHERE id_vente = :id");
-        query.bindValue(":id", idVente);
+        query.bindValue(":id", idToDelete);
 
         if (!query.exec()) {
             qDebug() << "Erreur lors de la suppression de la base de données :" << query.lastError();
@@ -782,16 +935,36 @@ void App::supprimerVente(){
             return;
         }
 
-        // Supprimer la ligne du tableau
-        ui->tableVente->removeRow(row);
+        // Supprimer l'élément de l'arbre
+        if (parentItem) {
+            parentItem->removeChild(itemToRemove);
+
+            // Mise à jour du total du parent
+            double newTotal = 0.0;
+            for (int i = 0; i < parentItem->childCount(); ++i) {
+                QString prixTotalStr = parentItem->child(i)->text(4);
+                prixTotalStr.chop(4); // Supprimer " MGA"
+                newTotal += prixTotalStr.toDouble();
+            }
+            parentItem->setText(3, QString::number(newTotal) + " MGA");
+
+            delete itemToRemove; // Libérer la mémoire après suppression
+        } else {
+            // Si pour une raison quelconque un élément de premier niveau est sélectionné et que l'ID est valide
+            // (ce cas devrait être géré par l'avertissement ci-dessus), vous pouvez le supprimer ici.
+            int index = ui->treeVente->indexOfTopLevelItem(itemToRemove);
+            if (index != -1) {
+                ui->treeVente->takeTopLevelItem(index);
+                delete itemToRemove;
+            }
+        }
 
         // Afficher un message de succès
         CustomMessageBox().showInformation("Succès", "L'élément a été supprimé avec succès.");
-        afficherVente();
-        chiffreDaffaire();
+        chiffreDaffaire(); // Mettre à jour le chiffre d'affaires
     }
-
 }
+
 
 void App::chiffreDaffaire(){
     CustomMessageBox msgBox;
@@ -820,321 +993,338 @@ void App::chiffreDaffaire(){
 }
 
 void App::imprimerVente(){
-    // Selection de plusieurs lignes
-    QModelIndexList selection = ui->tableVente->selectionModel()->selectedRows();
-    if(selection.isEmpty()){
-        CustomMessageBox().showError("Erreur", "Veuillez sélectionner une ou plusieurs lignes à imprimer.");
-        return;
-    }
-    //Récupérer les lignes sélectionnées
-    QStringList listeIdVente;
-    foreach(const QModelIndex &index, selection){
-        listeIdVente.append(ui->tableVente->item(index.row(), 0)->text());
-    }
-    //Récuperer le nom du client, le nom du produit, la quantité, le prix unitaire, le prix total et la date de vente dans le tableau
-    QString contenuVente;
-    contenuVente = QString("<!DOCTYPE html>"
-                           "<html>"
-                           "<head>"
-                           "<meta charset='UTF-8'>"
-                           "<style>"
-                           "table {"
-                           "  width: 100%;"
-                           "  border-collapse: collapse;"
-                           "  margin-top: 20px; "
-                           "} "
-                           "th, td {"
-                           "  border: 1px solid black; "
-                           "  padding: 10px; "
-                           "  text-align: center; "
-                           "} "
-                           "th {"
-                           "  background-color: #f2f2f2; "
-                           "  font-weight: bold; "
-                           "} "
-                           "</style>"
-                           "</head>"
-                           "<body>"
-                           "<p><strong>RAHENINTSOA ALASORA</strong></p>"
-                           "<p><strong>Nif : </strong></p>"
-                           "<p><strong>STAT : </strong></p>"
-                           "<p><strong>Adresse : </strong>ALASORA Commune en Face de Sopromer</p>"
-                           "<p><strong>Contact : </strong>0347636886</p>"
-                           "<div style='text-align: center; font-size: 20px;'>"
-                           "<h2>FACTURE</h2>"
-                           "</div>"
-                           "<table>"
-                           "<thead>"
-                           "<tr>"
-                           "<th>Client</th>"
-                           "<th>Produit</th>"
-                           "<th>Quantité</th>"
-                           "<th>Prix Unitaire (MGA)</th>"
-                           "<th>Prix Total (MGA)</th>"
-                           "<th>Date de Vente</th>"
-                           "</tr>"
-                           "</thead>"
-                           "<tbody>");
-    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
-    QSqlQuery query(sqlitedb);
-    // Préparer la requête UNE SEULE FOIS avant la boucle
-    query.prepare("SELECT c.nom, p.nom, quantite, p.prix_unitaire, prix_total, date_vente FROM ligne_vente l "
-                  "INNER JOIN produits p ON id_produit = produit_id "
-                  "INNER JOIN clients c ON id_client = client_id "
-                  "WHERE id_vente = :id");
 
-    for (const QString &idVente : listeIdVente) {
-        query.bindValue(":id", idVente);
-
-        if (!query.exec()) {
-            qDebug() << "Erreur SQL:" << query.lastError();
-            return;
-        }
-
-        while (query.next()) {
-            QString nomClient = query.value(0).toString();
-            QString nomProduit = query.value(1).toString();
-            int quantite = query.value(2).toInt();
-            double prixUnitaire = query.value(3).toDouble();
-            double prixTotal = query.value(4).toDouble();
-            QString dateVente = query.value(5).toString();
-
-            contenuVente += QString("<tr>"
-                                    "<td>%1</td>"
-                                    "<td>%2</td>"
-                                    "<td>%3</td>"
-                                    "<td>%4 MGA</td>"
-                                    "<td>%5 MGA</td>"
-                                    "<td>%6</td>"
-                                    "</tr>"
-                                    )
-                                .arg(nomClient)
-                                .arg(nomProduit)
-                                .arg(quantite)
-                                .arg(prixUnitaire)
-                                .arg(prixTotal)
-                                .arg(dateVente);
-        }
-    }
-
-    // Ajouter le reste du HTML après la boucle
-    contenuVente += "</tbody>"
-                    "</table>"
-                    "</body>"
-                    "</html>";
-
-    QTextDocument document;
-    document.setHtml(contenuVente);
-
-    // Aperçu avant impression
-    QPrinter previewPrinter(QPrinter::PrinterResolution);
-    previewPrinter.setOutputFormat(QPrinter::PdfFormat);
-    previewPrinter.setOutputFileName("facture.pdf");
-
-    QPrintPreviewDialog previewDialog(&previewPrinter, this);
-    connect(&previewDialog, &QPrintPreviewDialog::paintRequested, [&document](QPrinter *printer) {
-        document.print(printer);
-    });
-    previewDialog.exec();
-
-    // Impression réelle
-    QPrinter printPrinter(QPrinter::HighResolution);
-    QPrintDialog printDialog(&printPrinter, this);
-
-    if (printDialog.exec() == QDialog::Accepted) {
-        document.print(&printPrinter);
-    }
 }
 
-void App::rechercheBl(){
+void App::rechercheBl() {
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
-    if(!sqlitedb.isOpen()){
-        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+    if (!sqlitedb.isOpen()) {
+        qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
         return;
     }
-    QString recherche = ui->lineEditRechercheBl->text();
+    QString recherche = ui->lineEditRechercheBl->text().trimmed(); // Récupérer le texte de recherche et supprimer les espaces inutiles
     QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_livraison, c.nom, p.nom, quantite, date, statut, prix_total_a_payer FROM bon_de_livraison b "
-                           "INNER JOIN produits p ON id_produit = produit_id "
-                           "INNER JOIN clients c ON id_client = client_id WHERE p.nom LIKE :recherche");
-    queryAffichage.bindValue(":recherche", "%"+recherche+"%");
-    if(!queryAffichage.exec()){
-        qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
-        return;
-    }
-    ui->tableBonDeLivraison->setRowCount(0);
-    int row = 0;
-    while(queryAffichage.next()){
-        ui->tableBonDeLivraison->insertRow(row);
-        QString id_livraison = queryAffichage.value(0).toString();
-        QString nom_client = queryAffichage.value(1).toString();
-        QString nom_produit = queryAffichage.value(2).toString();
-        int quantite = queryAffichage.value(3).toInt();
-        QString date = queryAffichage.value(4).toString();
-        QString statut = queryAffichage.value(5).toString();
-        double prix_total = queryAffichage.value(6).toDouble();
-
-        ui->tableBonDeLivraison->setItem(row, 0, new QTableWidgetItem(id_livraison));
-        ui->tableBonDeLivraison->setItem(row, 1, new QTableWidgetItem(nom_client));
-        ui->tableBonDeLivraison->setItem(row, 2, new QTableWidgetItem(nom_produit));
-        ui->tableBonDeLivraison->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
-        ui->tableBonDeLivraison->setItem(row, 4, new QTableWidgetItem(date));
-        ui->tableBonDeLivraison->setItem(row, 5, new QTableWidgetItem(statut));
-        ui->tableBonDeLivraison->setItem(row, 6, new QTableWidgetItem(QString::number(prix_total)));
-
-        row++;
-    }
-}
-
-void App::recherche(){
-    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
-    if(!sqlitedb.isOpen()){
-        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
-        return;
-    }
-    QString recherche = ui->lineEditRecherche->text();
-    QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, prix_total, date_vente FROM ligne_vente l "
-                           "INNER JOIN produits p ON id_produit = produit_id "
-                           "INNER JOIN clients c ON id_client = client_id WHERE p.nom LIKE :recherche");
-    queryAffichage.bindValue(":recherche", "%"+recherche+"%");
-    if(!queryAffichage.exec()){
-        qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
-        return;
-    }
-    ui->tableVente->setRowCount(0);
-    int row = 0;
-    while(queryAffichage.next()){
-        ui->tableVente->insertRow(row);
-        QString id_vente = queryAffichage.value(0).toString();
-        QString nom_produit = queryAffichage.value(1).toString();
-        QString nom_client = queryAffichage.value(2).toString();
-        int quantite = queryAffichage.value(3).toInt();
-        double prix_total = queryAffichage.value(4).toDouble();
-        QString date_vente = queryAffichage.value(5).toString();
-
-        ui->tableVente->setItem(row, 0, new QTableWidgetItem(id_vente));
-        ui->tableVente->setItem(row, 1, new QTableWidgetItem(nom_produit));
-        ui->tableVente->setItem(row, 2, new QTableWidgetItem(nom_client));
-        ui->tableVente->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
-        ui->tableVente->setItem(row, 4, new QTableWidgetItem(QString::number(prix_total)+" MGA"));
-        ui->tableVente->setItem(row, 5, new QTableWidgetItem(date_vente));
-        row++;
-
-    }
-    //afficher dans labelCA le prix total des ventes filtrées
-    QSqlQuery query(sqlitedb);
-    query.prepare("SELECT SUM(prix_total) FROM ligne_vente l "
-                  "INNER JOIN produits p ON id_produit = produit_id "
-                  "INNER JOIN clients c ON id_client = client_id WHERE p.nom LIKE :recherche");
-    query.bindValue(":recherche", "%"+recherche+"%");
-    if(!query.exec()){
-        qDebug()<<query.lastError();
-        return;
-    }
-    if(query.next()){
-        QString somme = query.value(0).toString();
-        ui->labelCA->setText(somme+" MGA");
-    }
-}
-
-void App::filtrageDate(){
-    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
-    if(!sqlitedb.isOpen()){
-        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
-        return;
-    }
-    QString dateDebut = ui->dateDebut->date().toString("dd-MM-yyyy");
-    QString dateFin = ui->dateFin->date().toString("dd-MM-yyyy");
-    QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_vente, p.nom, c.nom, quantite, prix_total, date_vente, num_bon_livraison FROM ligne_vente l "
+    queryAffichage.prepare("SELECT id_livraison, c.nom, date, p.nom, quantite, statut, prix_total_a_payer, prix_vente FROM bon_de_livraison b "
                            "INNER JOIN produits p ON id_produit = produit_id "
                            "INNER JOIN clients c ON id_client = client_id "
-                           "WHERE date_vente BETWEEN :dateDebut AND :dateFin");
+                           "WHERE p.nom LIKE :recherche OR c.nom LIKE :recherche OR statut LIKE :recherche OR date LIKE :recherche ORDER BY date DESC"); // Ajouter la recherche par date et trier par date
+    queryAffichage.bindValue(":recherche", "%" + recherche + "%");
+
+    if (!queryAffichage.exec()) {
+        qDebug() << "Erreur lors de la récupération des données" << queryAffichage.lastError();
+        return;
+    }
+
+    ui->treeBl->clear(); // Vider l'ancien contenu
+    ui->treeBl->setHeaderLabels({"Client", "Date", "Statut", "Produit", "Quantité", "Total à payer (MGA)", "Prix de vente (MGA)"}); // Définir tous les en-têtes ici
+
+    QMap<QString, QTreeWidgetItem*> clientsMap; // Map pour stocker les clients/dates
+    QMap<QString, double> totalParClientDate; // Map pour stocker le total par client et date
+
+    while (queryAffichage.next()) {
+        QString id_livraison = queryAffichage.value(0).toString();
+        QString nom_client = queryAffichage.value(1).toString();
+        QString date_livraison = queryAffichage.value(2).toString();
+        QString produit = queryAffichage.value(3).toString();
+        int quantite = queryAffichage.value(4).toInt();
+        QString statut = queryAffichage.value(5).toString();
+        double prix_total_a_payer = queryAffichage.value(6).toDouble();
+        double prix_vente = queryAffichage.value(7).toDouble();
+
+        QString key = nom_client + " | " + date_livraison; // Clé unique (client + date)
+
+        // Vérifier si le client/date a déjà une entrée
+        if (!clientsMap.contains(key)) {
+            QTreeWidgetItem *clientItem = new QTreeWidgetItem(ui->treeBl);
+            clientItem->setText(0, nom_client);
+            clientItem->setText(1, date_livraison);
+            clientItem->setText(2, ""); // Le statut sera mis à jour si nécessaire
+            clientItem->setText(5, "0.0 MGA"); // Initialiser le total à payer pour ce groupe
+            clientsMap[key] = clientItem;
+            totalParClientDate[key] = 0.0;
+        }
+
+        // Ajouter les détails du bon de livraison sous le client
+        QTreeWidgetItem *blItem = new QTreeWidgetItem();
+        blItem->setText(0, "➡ BL N°" + id_livraison);
+        blItem->setText(3, produit);
+        blItem->setText(4, QString::number(quantite));
+        blItem->setText(2, statut);
+        blItem->setText(5, QString::number(prix_total_a_payer) + " MGA");
+        blItem->setText(6, QString::number(prix_vente) + " MGA");
+        clientsMap[key]->addChild(blItem);
+
+        // Mettre à jour le statut du parent si nécessaire
+        clientsMap[key]->setText(2, statut); // Afficher le statut du dernier BL pour ce client/date
+
+        // Accumuler le total pour ce client et cette date
+        totalParClientDate[key] += prix_total_a_payer;
+    }
+
+    // Mettre à jour le total à payer pour chaque groupe parent
+    for (auto it = totalParClientDate.begin(); it != totalParClientDate.end(); ++it) {
+        if (clientsMap.contains(it.key())) {
+            clientsMap[it.key()]->setText(5, QString::number(it.value()) + " MGA"); // Afficher le total dans la colonne "Total à payer" du parent
+        }
+    }
+
+    ui->treeBl->expandAll(); // Afficher les détails par défaut après la recherche
+}
+
+void App::recherche() {
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if (!sqlitedb.isOpen()) {
+        qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
+        return;
+    }
+    QString recherche = ui->lineEditRecherche->text().trimmed(); // Récupérer le texte de recherche et supprimer les espaces inutiles
+    QSqlQuery queryAffichage(sqlitedb);
+    queryAffichage.prepare("SELECT id_vente, c.nom, date_vente, p.nom, quantite, (prix_total / quantite) AS prix_unitaire, prix_total "
+                           "FROM ligne_vente l "
+                           "INNER JOIN produits p ON id_produit = produit_id "
+                           "INNER JOIN clients c ON id_client = client_id "
+                           "WHERE p.nom LIKE :recherche OR p.categorie LIKE :recherche OR c.nom LIKE :recherche OR date_vente LIKE :recherche"); // Ajouter la recherche par date
+    queryAffichage.bindValue(":recherche", "%" + recherche + "%");
+
+    if (!queryAffichage.exec()) {
+        qDebug() << "Erreur lors de la récupération des données" << queryAffichage.lastError();
+        return;
+    }
+
+    ui->treeVente->clear(); // Vider l'ancien contenu
+    ui->treeVente->setHeaderLabels({"Client", "Date", "Quantite" ,"Prix unitaire", "Prix total", "Total(MGA)"}); // Entêtes principales
+
+    QMap<QString, QTreeWidgetItem*> clientsMap; // Map pour stocker les clients/dates
+    QMap<QString, double> totalParClientDate; // Stocker les totaux par client et date
+
+    while (queryAffichage.next()) {
+        QString id_vente = queryAffichage.value(0).toString();
+        QString nom_client = queryAffichage.value(1).toString();
+        QString date_vente = queryAffichage.value(2).toString();
+        QString produit = queryAffichage.value(3).toString();
+        int quantite = queryAffichage.value(4).toInt();
+        double prix_unitaire = queryAffichage.value(5).toDouble();
+        double prix_total = queryAffichage.value(6).toDouble();
+
+        QString key = nom_client + " | " + date_vente; // Clé unique (client + date)
+
+        // Vérifier si le client/date a déjà une entrée
+        if (!clientsMap.contains(key)) {
+            QTreeWidgetItem *clientItem = new QTreeWidgetItem(ui->treeVente);
+            clientItem->setText(0, nom_client);
+            clientItem->setText(1, date_vente);
+            clientItem->setText(2, ""); // Quantité pour le parent (laisser vide ou mettre un indicateur)
+            clientItem->setText(3, ""); // Prix unitaire pour le parent
+            clientItem->setText(4, ""); // Prix total pour le parent
+            clientItem->setText(5, "0.0 MGA"); // Initialiser le total
+
+            clientsMap[key] = clientItem;
+            totalParClientDate[key] = 0.0;
+        }
+
+        // Ajouter les détails de l'achat sous le client
+        QTreeWidgetItem *achatItem = new QTreeWidgetItem();
+        achatItem->setText(0, "➡ " + id_vente);
+        achatItem->setText(1, produit);
+        achatItem->setText(2, QString::number(quantite));
+        achatItem->setText(3, QString::number(prix_unitaire) + " MGA");
+        achatItem->setText(4, QString::number(prix_total) + " MGA");
+        clientsMap[key]->addChild(achatItem);
+
+        // Mise à jour du total d'achat pour ce client/date
+        totalParClientDate[key] += prix_total;
+    }
+
+    // Mettre à jour les totaux dans l'affichage principal
+    for (auto it = totalParClientDate.begin(); it != totalParClientDate.end(); ++it) {
+        clientsMap[it.key()]->setText(5, QString::number(it.value()) + " MGA"); // Utiliser l'index correct (5)
+    }
+
+    ui->treeVente->expandAll(); // Afficher les détails par défaut après la recherche
+
+    // Calculer et afficher le chiffre d'affaires des ventes filtrées
+    QSqlQuery queryCA(sqlitedb);
+    queryCA.prepare("SELECT SUM(prix_total) FROM ligne_vente l "
+                    "INNER JOIN produits p ON id_produit = produit_id "
+                    "INNER JOIN clients c ON id_client = client_id "
+                    "WHERE p.nom LIKE :recherche OR p.categorie LIKE :recherche OR c.nom LIKE :recherche OR date_vente LIKE :recherche");
+    queryCA.bindValue(":recherche", "%" + recherche + "%");
+    if (!queryCA.exec()) {
+        qDebug() << "Erreur lors du calcul du CA filtré" << queryCA.lastError();
+        return;
+    }
+    if (queryCA.next()) {
+        QString somme = queryCA.value(0).toString();
+        ui->labelCA->setText(somme + " MGA");
+    } else {
+        ui->labelCA->setText("0.0 MGA"); // Si aucune vente filtrée
+    }
+}
+
+void App::filtrageDate() {
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if (!sqlitedb.isOpen()) {
+        qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
+        return;
+    }
+    QString dateDebut = ui->dateDebut->date().toString("yyyy-MM-dd"); // Format de date compatible avec SQLite
+    QString dateFin = ui->dateFin->date().toString("yyyy-MM-dd");   // Format de date compatible avec SQLite
+    QSqlQuery queryAffichage(sqlitedb);
+    queryAffichage.prepare("SELECT id_vente, c.nom, date_vente, p.nom, quantite, (prix_total / quantite) AS prix_unitaire, prix_total "
+                           "FROM ligne_vente l "
+                           "INNER JOIN produits p ON id_produit = produit_id "
+                           "INNER JOIN clients c ON id_client = client_id "
+                           "WHERE date(date_vente) BETWEEN date(:dateDebut) AND date(:dateFin)"); // Utiliser la fonction date() pour la comparaison
     queryAffichage.bindValue(":dateDebut", dateDebut);
     queryAffichage.bindValue(":dateFin", dateFin);
-    if(!queryAffichage.exec()){
-        qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
+
+    if (!queryAffichage.exec()) {
+        qDebug() << "Erreur lors de la récupération des données" << queryAffichage.lastError();
         return;
     }
-    ui->tableVente->setRowCount(0);
-    int row = 0;
-    while(queryAffichage.next()){
-        ui->tableVente->insertRow(row);
+
+    ui->treeVente->clear(); // Vider l'ancien contenu
+    ui->treeVente->setHeaderLabels({"Client", "Date", "Quantite" ,"Prix unitaire", "Prix total", "Total(MGA)"}); // Entêtes principales
+
+    QMap<QString, QTreeWidgetItem*> clientsMap; // Map pour stocker les clients/dates
+    QMap<QString, double> totalParClientDate; // Stocker les totaux par client et date
+
+    while (queryAffichage.next()) {
         QString id_vente = queryAffichage.value(0).toString();
-        QString nom_produit = queryAffichage.value(1).toString();
-        QString nom_client = queryAffichage.value(2).toString();
-        int quantite = queryAffichage.value(3).toInt();
-        double prix_total = queryAffichage.value(4).toDouble();
-        QString date_vente = queryAffichage.value(5).toString();
-        QString bl_id = queryAffichage.value(6).toString();
+        QString nom_client = queryAffichage.value(1).toString();
+        QString date_vente = queryAffichage.value(2).toString();
+        QString produit = queryAffichage.value(3).toString();
+        int quantite = queryAffichage.value(4).toInt();
+        double prix_unitaire = queryAffichage.value(5).toDouble();
+        double prix_total = queryAffichage.value(6).toDouble();
 
-        ui->tableVente->setItem(row, 0, new QTableWidgetItem(id_vente));
-        ui->tableVente->setItem(row, 1, new QTableWidgetItem(nom_produit));
-        ui->tableVente->setItem(row, 2, new QTableWidgetItem(nom_client));
-        ui->tableVente->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
-        ui->tableVente->setItem(row, 4, new QTableWidgetItem(QString::number(prix_total)+" MGA"));
-        ui->tableVente->setItem(row, 5, new QTableWidgetItem(date_vente));
-        ui->tableVente->setItem(row, 6, new QTableWidgetItem(bl_id));
-        row++;
+        QString key = nom_client + " | " + date_vente; // Clé unique (client + date)
 
+        // Vérifier si le client/date a déjà une entrée
+        if (!clientsMap.contains(key)) {
+            QTreeWidgetItem *clientItem = new QTreeWidgetItem(ui->treeVente);
+            clientItem->setText(0, nom_client);
+            clientItem->setText(1, date_vente);
+            clientItem->setText(2, ""); // Quantité pour le parent (laisser vide ou mettre un indicateur)
+            clientItem->setText(3, ""); // Prix unitaire pour le parent
+            clientItem->setText(4, ""); // Prix total pour le parent
+            clientItem->setText(5, "0.0 MGA"); // Initialiser le total
+
+            clientsMap[key] = clientItem;
+            totalParClientDate[key] = 0.0;
+        }
+
+        // Ajouter les détails de l'achat sous le client
+        QTreeWidgetItem *achatItem = new QTreeWidgetItem();
+        achatItem->setText(0, "➡ " + id_vente);
+        achatItem->setText(1, produit);
+        achatItem->setText(2, QString::number(quantite));
+        achatItem->setText(3, QString::number(prix_unitaire) + " MGA");
+        achatItem->setText(4, QString::number(prix_total) + " MGA");
+        clientsMap[key]->addChild(achatItem);
+
+        // Mise à jour du total d'achat pour ce client/date
+        totalParClientDate[key] += prix_total;
     }
-    //afficher dans labelCA le prix total des ventes filtrées
-    QSqlQuery query(sqlitedb);
-    query.prepare("SELECT SUM(prix_total) FROM ligne_vente WHERE date_vente BETWEEN :dateDebut AND :dateFin");
-    query.bindValue(":dateDebut", dateDebut);
-    query.bindValue(":dateFin", dateFin);
-    if(!query.exec()){
-        qDebug()<<query.lastError();
+
+    // Mettre à jour les totaux dans l'affichage principal
+    for (auto it = totalParClientDate.begin(); it != totalParClientDate.end(); ++it) {
+        clientsMap[it.key()]->setText(5, QString::number(it.value()) + " MGA"); // Utiliser l'index correct (5)
+    }
+    ui->treeVente->expandAll(); // Afficher les détails par défaut après le filtrage
+
+    // Calculer et afficher le chiffre d'affaires des ventes filtrées par date
+    QSqlQuery queryCA(sqlitedb);
+    queryCA.prepare("SELECT SUM(prix_total) FROM ligne_vente "
+                    "WHERE date(date_vente) BETWEEN date(:dateDebut) AND date(:dateFin)");
+    queryCA.bindValue(":dateDebut", dateDebut);
+    queryCA.bindValue(":dateFin", dateFin);
+    if (!queryCA.exec()) {
+        qDebug() << "Erreur lors du calcul du CA filtré par date" << queryCA.lastError();
         return;
     }
-    if(query.next()){
-        QString somme = query.value(0).toString();
-        ui->labelCA->setText(somme+" MGA");
+    if (queryCA.next()) {
+        QString somme = queryCA.value(0).toString();
+        ui->labelCA->setText(somme + " MGA");
+    } else {
+        ui->labelCA->setText("0.0 MGA"); // Si aucune vente filtrée par date
     }
 }
 
-void App::filtrageDateBonDeLivraison(){
+void App::filtrageDateBonDeLivraison() {
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
-    if(!sqlitedb.isOpen()){
-        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
+    if (!sqlitedb.isOpen()) {
+        qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
         return;
     }
-    QString dateDebutBl = ui->dateDebutBl->date().toString("dd-MM-yyyy");
-    QString dateFinBl = ui->dateFinBl->date().toString("dd-MM-yyyy");
+    QString dateDebutBl = ui->dateDebutBl->date().toString("yyyy-MM-dd"); // Format de date compatible avec SQLite
+    QString dateFinBl = ui->dateFinBl->date().toString("yyyy-MM-dd");    // Format de date compatible avec SQLite
     QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_livraison, c.nom, p.nom, quantite, date, statut, prix_total_a_payer FROM bon_de_livraison b "
+    queryAffichage.prepare("SELECT id_livraison, c.nom, date, p.nom, quantite, statut, prix_total_a_payer, prix_vente FROM bon_de_livraison b "
                            "INNER JOIN produits p ON id_produit = produit_id "
                            "INNER JOIN clients c ON id_client = client_id "
-                           "WHERE date BETWEEN :dateDebutBl AND :dateFinBl");
+                           "WHERE date(date) BETWEEN date(:dateDebutBl) AND date(:dateFinBl) ORDER BY date DESC"); // Utiliser la fonction date() pour la comparaison et trier par date
     queryAffichage.bindValue(":dateDebutBl", dateDebutBl);
     queryAffichage.bindValue(":dateFinBl", dateFinBl);
-    if(!queryAffichage.exec()){
-        qDebug()<<"Erreur lors de la récupération des données"<<queryAffichage.lastError();
+    if (!queryAffichage.exec()) {
+        qDebug() << "Erreur lors de la récupération des données" << queryAffichage.lastError();
         return;
     }
-    ui->tableBonDeLivraison->setRowCount(0);
-    int row = 0;
-    while(queryAffichage.next()){
-        ui->tableBonDeLivraison->insertRow(row);
+
+    ui->treeBl->clear(); // Vider l'ancien contenu
+    ui->treeBl->setHeaderLabels({"Client", "Date", "Statut", "Produit", "Quantité", "Total à payer (MGA)", "Prix de vente (MGA)"}); // Définir tous les en-têtes ici
+
+    QMap<QString, QTreeWidgetItem*> clientsMap; // Map pour stocker les clients/dates
+    QMap<QString, double> totalParClientDate; // Map pour stocker le total par client et date
+
+    while (queryAffichage.next()) {
         QString id_livraison = queryAffichage.value(0).toString();
         QString nom_client = queryAffichage.value(1).toString();
-        QString nom_produit = queryAffichage.value(2).toString();
-        int quantite = queryAffichage.value(3).toInt();
-        QString date = queryAffichage.value(4).toString();
+        QString date_livraison = queryAffichage.value(2).toString();
+        QString produit = queryAffichage.value(3).toString();
+        int quantite = queryAffichage.value(4).toInt();
         QString statut = queryAffichage.value(5).toString();
-        double prix_total = queryAffichage.value(6).toDouble();
+        double prix_total_a_payer = queryAffichage.value(6).toDouble();
+        double prix_vente = queryAffichage.value(7).toDouble();
 
-        ui->tableBonDeLivraison->setItem(row, 0, new QTableWidgetItem(id_livraison));
-        ui->tableBonDeLivraison->setItem(row, 1, new QTableWidgetItem(nom_client));
-        ui->tableBonDeLivraison->setItem(row, 2, new QTableWidgetItem(nom_produit));
-        ui->tableBonDeLivraison->setItem(row, 3, new QTableWidgetItem(QString::number(quantite)));
-        ui->tableBonDeLivraison->setItem(row, 4, new QTableWidgetItem(date));
-        ui->tableBonDeLivraison->setItem(row, 5, new QTableWidgetItem(statut));
-        ui->tableBonDeLivraison->setItem(row, 6, new QTableWidgetItem(QString::number(prix_total)));
+        QString key = nom_client + " | " + date_livraison; // Clé unique (client + date)
 
-        row++;
+        // Vérifier si le client/date a déjà une entrée
+        if (!clientsMap.contains(key)) {
+            QTreeWidgetItem *clientItem = new QTreeWidgetItem(ui->treeBl);
+            clientItem->setText(0, nom_client);
+            clientItem->setText(1, date_livraison);
+            clientItem->setText(2, ""); // Le statut sera mis à jour si nécessaire
+            clientItem->setText(5, "0.0 MGA"); // Initialiser le total à payer pour ce groupe
+            clientsMap[key] = clientItem;
+            totalParClientDate[key] = 0.0;
+        }
+
+        // Ajouter les détails du bon de livraison sous le client
+        QTreeWidgetItem *blItem = new QTreeWidgetItem();
+        blItem->setText(0, "➡ BL N°" + id_livraison);
+        blItem->setText(3, produit);
+        blItem->setText(4, QString::number(quantite));
+        blItem->setText(2, statut);
+        blItem->setText(5, QString::number(prix_total_a_payer) + " MGA");
+        blItem->setText(6, QString::number(prix_vente) + " MGA");
+        clientsMap[key]->addChild(blItem);
+
+        // Mettre à jour le statut du parent si nécessaire
+        clientsMap[key]->setText(2, statut); // Afficher le statut du dernier BL pour ce client/date
+
+        // Accumuler le total pour ce client et cette date
+        totalParClientDate[key] += prix_total_a_payer;
     }
+
+    // Mettre à jour le total à payer pour chaque groupe parent
+    for (auto it = totalParClientDate.begin(); it != totalParClientDate.end(); ++it) {
+        if (clientsMap.contains(it.key())) {
+            clientsMap[it.key()]->setText(5, QString::number(it.value()) + " MGA"); // Afficher le total dans la colonne "Total à payer" du parent
+        }
+    }
+
+    ui->treeBl->expandAll(); // Afficher les détails par défaut après le filtrage
 }
 
 void App::reinitialiserAffichage(){
@@ -1151,6 +1341,52 @@ void App::reinitialiserBl(){
     ui->dateFinBl->setDate(dateActuelle);
     afficherBonDeLivraison();
 }
+
+/*void App::modifierPrixProduit(){
+    int row = ui->tableStock->currentRow();
+    if(row < 0){
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner un produit à modifier.");
+        return;
+    }
+    QString id_produit = ui->tableStock->item(row, 0)->text();
+    QString nom_produit = ui->tableStock->item(row, 2)->text();
+    QString prix_unitaire = ui->tableStock->item(row, 3)->text();
+    QString prix_detail = ui->tableStock->item(row, 4)->text();
+    QString prix_remise = ui->tableStock->item(row, 5)->text();
+    // 📌 Création de la boîte de dialogue avec un QFormLayout
+    bool ok;
+    nom_produit = QInputDialog::getText(this, "Nom du produit", "Nom du produit", QLineEdit::Normal, nom_produit, &ok);
+    if (!ok || nom_produit.isEmpty()) return;
+    prix_unitaire = QInputDialog::getText(this, "Prix unitaire", "Prix unitaire", QLineEdit::Normal, prix_unitaire, &ok);
+    if (!ok || prix_unitaire.isEmpty()) return;
+    prix_detail = QInputDialog::getText(this, "Prix de détail", "Prix de détail", QLineEdit::Normal, prix_detail, &ok);
+    if (!ok || prix_detail.isEmpty()) return;
+    prix_remise = QInputDialog::getText(this, "Prix de remise", "Prix de remise", QLineEdit::Normal, prix_remise, &ok);
+    if (!ok || prix_remise.isEmpty()) return;
+
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if(!sqlitedb.isOpen()){
+        CustomMessageBox().showError("Erreur", "Impossible d'ouvrir la base de données.");
+        return;
+    }
+    QSqlQuery query(sqlitedb);
+    query.prepare("UPDATE produits SET nom = :nom_produit, prix_unitaire = :prix_unitaire, prix_detail = :prix_detail, prix_remise = :prix_remise WHERE id_produit = :id_produit");
+    query.bindValue(":nom_produit", nom_produit);
+    query.bindValue(":prix_unitaire", prix_unitaire);
+    query.bindValue(":prix_detail", prix_detail);
+    query.bindValue(":prix_remise", prix_remise);
+
+    if(!query.exec()){
+        CustomMessageBox().showError("Erreur", "Impossible de modifier le produit.");
+        return;
+    }
+    ui->tableStock->setItem(row, 2, new QTableWidgetItem(nom_produit));
+    ui->tableStock->setItem(row, 3, new QTableWidgetItem(prix_unitaire));
+    ui->tableStock->setItem(row, 4, new QTableWidgetItem(prix_detail));
+    ui->tableStock->setItem(row, 5, new QTableWidgetItem(prix_remise));
+    CustomMessageBox().showInformation("Succès", "Produit modifié avec succès.");
+    afficherProduit();
+}*/
 
 void App::etatStock(){
     EtatStock *stock = new EtatStock(nullptr);

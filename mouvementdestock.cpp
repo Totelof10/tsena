@@ -14,6 +14,8 @@ MouvementDeStock::MouvementDeStock(QWidget *parent)
     connect(ui->btnImprimerMouvement, &QPushButton::clicked, this, &MouvementDeStock::imprimerMouvement);
     connect(ui->btnFiltrageMouvement, &QPushButton::clicked, this, &MouvementDeStock::filtrageDateMouvement);
     connect(ui->btnReinitialiserAffichageMouvement, &QPushButton::clicked, this, &MouvementDeStock::reinitialiserAffichage);
+    setWindowModality(Qt::ApplicationModal);
+
 }
 
 void MouvementDeStock::afficherMouvement(){

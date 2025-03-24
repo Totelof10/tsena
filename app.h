@@ -9,7 +9,8 @@
 #include <QShortcut>
 #include <QFileDialog>
 #include <QInputDialog>
-
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
 namespace Ui {
 class App;
 }
@@ -64,6 +65,7 @@ private slots:
     void tableDesOperations();
     void affichageTiers();
     void reporterDateBl();
+    //void modifierPrixProduit();
 signals:
     void deconnexion();
 private:

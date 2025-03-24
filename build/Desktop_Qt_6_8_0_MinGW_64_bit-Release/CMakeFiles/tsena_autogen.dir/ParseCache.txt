@@ -1708,6 +1708,8 @@ C:/Users/rtoha/Documents/tsena/app.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QInputDialog
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QMainWindow
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QTableWidgetItem
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QTreeWidget
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QTreeWidgetItem
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/QWidget
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qabstractitemdelegate.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qabstractitemview.h
@@ -1729,6 +1731,9 @@ C:/Users/rtoha/Documents/tsena/app.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtableview.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtablewidget.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtabwidget.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtreeview.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtreewidget.h
+ mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtreewidgetitemiterator.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtwidgets-config.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtwidgetsexports.h
  mdp:C:/Qt/6.8.0/mingw_64/include/QtWidgets/qtwidgetsglobal.h

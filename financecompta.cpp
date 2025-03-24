@@ -13,6 +13,7 @@ FinanceCompta::FinanceCompta(QWidget *parent)
     connect(ui->lineEdit, &QLineEdit::textChanged, this, &FinanceCompta::recherche);
     connect(ui->btnFiltrer, &QPushButton::clicked, this, &FinanceCompta::filtrerParDate);
     connect(ui->btnReinitialiser, &QPushButton::clicked, this, &FinanceCompta::reinitialiser);
+    setWindowModality(Qt::ApplicationModal);
 }
 
 void FinanceCompta::affichageDesVentes(){

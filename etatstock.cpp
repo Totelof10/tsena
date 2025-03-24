@@ -10,6 +10,7 @@ EtatStock::EtatStock(QWidget *parent)
     ui->setupUi(this);
     affichageEtatStock();
     ui->btnAjouterQuantite->setEnabled(false);
+    setWindowModality(Qt::ApplicationModal);
     ui->tableEtatStock->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     connect(ui->tableEtatStock, &QTableWidget::itemSelectionChanged, this, [this]() {
         ui->btnAjouterQuantite->setEnabled(ui->tableEtatStock->currentRow() >= 0);
@@ -20,6 +21,7 @@ EtatStock::EtatStock(QWidget *parent)
     connect (ui->lineEditRecherche, &QLineEdit::textChanged, this, &EtatStock::recherche);
     connect(ui->btnImprimerStock, &QPushButton::clicked, this, &EtatStock::imprimerStock);
     connect(ui->btnRafraichir, &QPushButton::clicked, this, &EtatStock::rafraichir);
+    connect(ui->btnRetirer, &QPushButton::clicked, this, &EtatStock::retirerQuantite);
 
 
 }
@@ -166,6 +168,107 @@ void EtatStock::ajouterQuantite() {
         }
     });
 }
+
+void EtatStock::retirerQuantite() {
+    int row = ui->tableEtatStock->currentRow();
+    if (row < 0) return; // Vérification : aucune ligne sélectionnée
+
+    // Récupérer la cellule de la quantité actuelle (colonne 2)
+    QTableWidgetItem *celluleQuantiteInitiale = ui->tableEtatStock->item(row, 2);
+    if (!celluleQuantiteInitiale || celluleQuantiteInitiale->text().isEmpty()) {
+        qDebug() << "La cellule de quantité initiale est vide ou inexistante.";
+        return;
+    }
+
+    // Récupérer la valeur actuelle du stock
+    int quantiteInitiale = celluleQuantiteInitiale->text().toInt();
+
+    // Créer une nouvelle cellule pour la quantité à retirer (colonne 4)
+    QTableWidgetItem *celluleQuantiteRetiree = ui->tableEtatStock->item(row, 5);
+    if (!celluleQuantiteRetiree) {
+        celluleQuantiteRetiree = new QTableWidgetItem();
+        ui->tableEtatStock->setItem(row, 5, celluleQuantiteRetiree);
+    }
+
+    // Activer le mode édition pour la cellule
+    ui->tableEtatStock->editItem(celluleQuantiteRetiree);
+
+    // Connexion pour traiter les modifications de la cellule
+    connect(ui->tableEtatStock, &QTableWidget::itemChanged, this, [this, row, quantiteInitiale, celluleQuantiteInitiale](QTableWidgetItem *item) {
+        if (item->row() == row && item->column() == 5) {
+            bool ok;
+            int valeurRetiree = item->text().toInt(&ok); // Conversion en entier
+            if (!ok || valeurRetiree <= 0 || valeurRetiree > quantiteInitiale) {
+                // Réinitialiser si l'entrée est invalide ou dépasse le stock disponible
+                item->setText("");
+                return;
+            }
+
+            // Confirmation via CustomMessageBox
+            CustomMessageBox msgBox;
+            msgBox.setWindowTitle("Confirmation");
+            msgBox.setText("Souhaitez-vous retirer cette quantité ?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::No);
+            int ret = msgBox.exec();
+
+            if (ret == QMessageBox::Yes) {
+                // Mettre à jour la base de données
+                QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+                QSqlQuery query(sqlitedb);
+                query.prepare("UPDATE stock SET quantite = quantite - :valeurRetiree , date_du_dernier_entree = :date_du_dernier_entree WHERE id_stock = :id");
+                query.bindValue(":valeurRetiree", valeurRetiree);
+                query.bindValue(":id", ui->tableEtatStock->item(row, 0)->text());
+                query.bindValue(":date_du_dernier_entree", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
+                if (!query.exec()) {
+                    qDebug() << "Erreur lors de la mise à jour de la quantité :" << query.lastError();
+                    CustomMessageBox().showError("Erreur", "Échec de la mise à jour de la base de données.");
+                    item->setText(""); // Réinitialiser la cellule en cas d'erreur
+                } else {
+                    // Mise à jour réussie : modifier la valeur affichée
+                    celluleQuantiteInitiale->setText(QString::number(quantiteInitiale - valeurRetiree));
+                    item->setText(""); // Vider la cellule après validation
+
+                    // Insérer dans la table mouvements_de_stock
+                    QSqlQuery queryMouvement(sqlitedb);
+                    queryMouvement.prepare("INSERT INTO mouvements_de_stock (stock_id, nom, quantite, type_mouvement, date_mouvement) "
+                                           "VALUES (:stock_id, :nom, :quantite, :type_mouvement, :date_mouvement)");
+                    queryMouvement.bindValue(":stock_id", ui->tableEtatStock->item(row, 0)->text());
+                    queryMouvement.bindValue(":nom", ui->tableEtatStock->item(row, 1)->text());
+                    queryMouvement.bindValue(":type_mouvement", QStringLiteral("Sortie Retrait"));
+                    queryMouvement.bindValue(":quantite", valeurRetiree);
+                    queryMouvement.bindValue(":date_mouvement", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
+                    if (!queryMouvement.exec()) {
+                        qDebug() << "Erreur lors de l'insertion des données mouvements" << queryMouvement.lastError();
+                    }
+
+                    // Insérer dans la table operation
+                    QSqlQuery queryOperation(sqlitedb);
+                    queryOperation.prepare("INSERT INTO operation (mouvement_id, stock_id, nom_produit, stock_depart, quantite_entree, quantite_sortie, stock_actuel, date_operation) "
+                                           "VALUES (:mouvement_id, :stock_id, :nom_produit, :stock_depart, :quantite_entree, :quantite_sortie, :stock_actuel, :date_operation)");
+                    queryOperation.bindValue(":mouvement_id", queryMouvement.lastInsertId());
+                    queryOperation.bindValue(":stock_id", ui->tableEtatStock->item(row, 0)->text());
+                    queryOperation.bindValue(":nom_produit", ui->tableEtatStock->item(row, 1)->text());
+                    queryOperation.bindValue(":stock_depart", quantiteInitiale);
+                    queryOperation.bindValue(":quantite_entree", 0);
+                    queryOperation.bindValue(":quantite_sortie", valeurRetiree);
+                    queryOperation.bindValue(":stock_actuel", quantiteInitiale - valeurRetiree);
+                    queryOperation.bindValue(":date_operation", QDateTime::currentDateTime().toString("dd-MM-yyyy"));
+                    if (!queryOperation.exec()) {
+                        qDebug() << "Erreur lors de l'insertion des données opérations" << queryOperation.lastError();
+                    }
+                }
+            } else {
+                // Annuler et vider la cellule
+                item->setText("");
+            }
+
+            // Déconnecter ce signal pour éviter des boucles infinies
+            disconnect(ui->tableEtatStock, &QTableWidget::itemChanged, nullptr, nullptr);
+        }
+    });
+}
+
 
 void EtatStock::recherche(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();

@@ -148,6 +148,22 @@ QPushButton:hover{
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="btnRetirer">
+           <property name="styleSheet">
+            <string notr="true">QPushButton{
+	image: url(:/Downloads/CartoBMW/img/retirer.png);
+	border:none;
+}
+QPushButton:hover{
+	image:url(:/Downloads/CartoBMW/img/moins (1).png);
+}</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>

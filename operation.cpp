@@ -10,6 +10,7 @@ Operation::Operation(QWidget *parent)
     ui->setupUi(this);
     nomProduitDansComboBox();
     ui->tableOperation->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    setWindowModality(Qt::ApplicationModal);
     // Connexion pour afficher les opérations filtrées
     connect(ui->comboProduit, &QComboBox::currentIndexChanged, this, &Operation::affichageOperationParFiltrageComboBox);
 

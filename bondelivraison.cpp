@@ -9,6 +9,8 @@ BonDeLivraison::BonDeLivraison(QWidget *parent)
 {
     ui->setupUi(this);
     afficherInformationBl();
+    ui->dateDeLivraison->setDate(QDate::currentDate());
+    setWindowModality(Qt::ApplicationModal);
     connect(ui->btnAdd, &QPushButton::clicked, this, &BonDeLivraison::ajouterPanierBl);
     connect(ui->btnDelete, &QPushButton::clicked, this, &BonDeLivraison::enleverPanierBl);
     connect(ui->btnVider, &QPushButton::clicked, this, &BonDeLivraison::viderPanierBl);
@@ -120,11 +122,6 @@ void BonDeLivraison::ajouterPanierBl() {
         quantiteStock = queryStock.value(0).toInt();
     } else {
         qDebug() << "Erreur lors de la récupération des données :" << queryStock.lastError();
-        return;
-    }
-
-    if (quantiteStock <= 0 || quantiteStock < quantite) {
-        msgBox.showWarning("", "Votre stock de " + produit + " est insuffisant, stock actuel : " + QString::number(quantiteStock) + " Quantité demandé : " + QString::number(quantite));
         return;
     }
 

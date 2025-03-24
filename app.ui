@@ -364,84 +364,7 @@ QPushButton:hover{
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
-              <widget class="QTableWidget" name="tableVente">
-               <property name="styleSheet">
-                <string notr="true">background-color: white;</string>
-               </property>
-               <attribute name="horizontalHeaderStretchLastSection">
-                <bool>false</bool>
-               </attribute>
-               <column>
-                <property name="text">
-                 <string>Identifiant</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <bold>true</bold>
-                 </font>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>Nom produit</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <bold>true</bold>
-                 </font>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>Client</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <bold>true</bold>
-                 </font>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>Quantité</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <bold>true</bold>
-                 </font>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>CA</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <bold>true</bold>
-                 </font>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>Date</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <bold>true</bold>
-                 </font>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>Numéro du bon de livraison</string>
-                </property>
-                <property name="font">
-                 <font>
-                  <bold>true</bold>
-                 </font>
-                </property>
-               </column>
-              </widget>
+              <widget class="QTreeWidget" name="treeVente"/>
              </item>
              <item>
               <widget class="QFrame" name="frame_2">
@@ -476,25 +399,6 @@ QPushButton:hover{
 }
 QPushButton:hover{
 	image:url(:/Downloads/CartoBMW/img/ajouter-le-contact.png);
-}</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="btnModifierVente">
-                  <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton{
-	image: url(:/Downloads/CartoBMW/img/crayon.png);
-	border:none;
-}
-QPushButton:hover{
-	image: url(:/Downloads/CartoBMW/img/crayon (1).png);
 }</string>
                   </property>
                   <property name="text">
@@ -822,22 +726,6 @@ QPushButton:hover{
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="btnAjouterPrix">
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton{
-	image: url(:/Downloads/CartoBMW/img/euro.png);
-	border:none;
-}
-QPushButton:hover{
-	image:url(:/Downloads/CartoBMW/img/euro (1).png);
-}</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
                  <widget class="QPushButton" name="btnSupprimerStock">
                   <property name="cursor">
                    <cursorShape>PointingHandCursor</cursorShape>
@@ -1157,6 +1045,9 @@ QPushButton:hover{
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
+              <widget class="QTreeWidget" name="treeBl"/>
+             </item>
+             <item>
               <widget class="QFrame" name="frame_11">
                <property name="frameShape">
                 <enum>QFrame::Shape::StyledPanel</enum>
@@ -1164,95 +1055,7 @@ QPushButton:hover{
                <property name="frameShadow">
                 <enum>QFrame::Shadow::Raised</enum>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_8">
-                <item>
-                 <widget class="QTableWidget" name="tableBonDeLivraison">
-                  <property name="styleSheet">
-                   <string notr="true">background-color: white;</string>
-                  </property>
-                  <column>
-                   <property name="text">
-                    <string>Identifiant</string>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Nom du client</string>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Nom du produit</string>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Quantite</string>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Date de livraison</string>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Statut du bon de livraison</string>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Prix total à payer</string>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                  </column>
-                  <column>
-                   <property name="text">
-                    <string>Prix de vente</string>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                  </column>
-                 </widget>
-                </item>
-               </layout>
+               <layout class="QVBoxLayout" name="verticalLayout_8"/>
               </widget>
              </item>
              <item>

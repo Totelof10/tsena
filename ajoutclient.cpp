@@ -10,6 +10,8 @@ AjoutClient::AjoutClient(QWidget *parent)
     ui->setupUi(this);
     connect(ui->btnAjouter, &QPushButton::clicked, this, &AjoutClient::ajouterNouveauClient);
     connect(ui->btnAnnuler, &QPushButton::clicked, this, &AjoutClient::annuler);
+    //empècher plusieurs ouvertures de la fenêtre
+    setWindowModality(Qt::ApplicationModal);
 }
 
 void AjoutClient::ajouterNouveauClient(){

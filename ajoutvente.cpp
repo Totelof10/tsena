@@ -9,6 +9,8 @@ AjoutVente::AjoutVente(QWidget *parent)
 {
     ui->setupUi(this);
     afficherInformation();
+    setWindowModality(Qt::ApplicationModal);
+    ui->dateEdit->setDate(QDate::currentDate());
     connect(ui->btnAdd, &QPushButton::clicked, this, &AjoutVente::ajouterPanier);
     connect(ui->btnDelete, &QPushButton::clicked, this, &AjoutVente::enleverPanier);
     connect(ui->btnVider, &QPushButton::clicked, this, &AjoutVente::viderPanier);
@@ -263,7 +265,7 @@ void AjoutVente::ajouterNouvelleVente() {
     texte = new QTextEdit();
     QString totalPayer = ui->labelTotal->text();
     QString client_id = ui->comboClient->currentData().toString();
-    QString dateActuelle = QDate::currentDate().toString("dd-MM-yyyy");
+    QString dateActuelle = ui->dateEdit->date().toString("dd-MM-yyyy");
     QString nom_client = ui->comboClient->currentText();
     CustomMessageBox msgBox;
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
@@ -324,10 +326,6 @@ void AjoutVente::ajouterNouvelleVente() {
 
         QStringList elements = ligne.split("|");
 
-        // Récupération de la date et de l'heure actuelle
-        QString currentDate = QDate::currentDate().toString("dd-MM-yyyy");
-        QString currentDateTime = QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss");
-
         // Parcourir les éléments
         if (elements.size() == 5) { // Now 5 elements: Client, Product, Quantity, Unit Price, Total Price
             QString nomClient = elements[0].remove("Client: ").trimmed();
@@ -342,7 +340,6 @@ void AjoutVente::ajouterNouvelleVente() {
             QSqlQuery queryUpdateQuantite(sqlitedb);
             QSqlQuery queryMouvement(sqlitedb);
             QSqlQuery queryStock(sqlitedb);
-            QSqlQuery operation(sqlitedb);
 
             // Rechercher l'ID du client
             queryClient.prepare("SELECT id_client FROM clients WHERE nom = ?");
@@ -382,7 +379,7 @@ void AjoutVente::ajouterNouvelleVente() {
             queryInsertion.addBindValue(quantite);
             queryInsertion.addBindValue(prixUnitaire);
             queryInsertion.addBindValue(prixTotal);
-            queryInsertion.addBindValue(currentDate); // Date de la vente
+            queryInsertion.addBindValue(dateActuelle); // Date de la vente
 
             if (!queryInsertion.exec()) {
                 qDebug() << "Erreur lors de l'insertion dans ligne_vente : " << queryInsertion.lastError().text();
@@ -405,7 +402,7 @@ void AjoutVente::ajouterNouvelleVente() {
             queryMouvement.bindValue(":nom", nomProduit);
             queryMouvement.bindValue(":quantite", quantite);
             queryMouvement.bindValue(":type_mouvement", "Sortie Vente");
-            queryMouvement.bindValue(":date_mouvement", currentDateTime);
+            queryMouvement.bindValue(":date_mouvement", dateActuelle);
             queryMouvement.bindValue(":vente", QString("Achat de %1").arg(nomClient));
             if (!queryMouvement.exec()) {
                 qDebug() << "Erreur lors de l'insertion dans mouvements_de_stock : " << queryMouvement.lastError().text();
@@ -421,7 +418,7 @@ void AjoutVente::ajouterNouvelleVente() {
             queryOperation.bindValue(":quantite_sortie", quantite);
             queryOperation.bindValue(":quantite_entree", 0);
             queryOperation.bindValue(":stock_actuel", quantiteStock - quantite);
-            queryOperation.bindValue(":date_operation", currentDateTime);
+            queryOperation.bindValue(":date_operation", dateActuelle);
             if (!queryOperation.exec()) {
                 qDebug() << "Erreur lors de l'insertion des données" << queryOperation.lastError();
             }

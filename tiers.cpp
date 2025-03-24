@@ -21,6 +21,8 @@ Tiers::Tiers(QWidget *parent)
     connect(ui->btnSupprimerFournisseur, &QPushButton::clicked, this, &Tiers::supprimerFournisseur);
     connect(ui->btnAjoutClient, &QPushButton::clicked, this, &Tiers::ajouterClient);
     connect(ui->btnAjoutFournisseur, &QPushButton::clicked, this, &Tiers::ajouterFournisseur);
+    setWindowModality(Qt::ApplicationModal);
+
 }
 
 void Tiers::comboAffichage(){

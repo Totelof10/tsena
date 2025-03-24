@@ -11,6 +11,8 @@ AjoutNouveauProduits::AjoutNouveauProduits(QWidget *parent)
     afficherFournisseur();
     connect(ui->btnAjouter, &QPushButton::clicked, this, &AjoutNouveauProduits::ajouterLeProduit);
     connect(ui->btnAnnuler, &QPushButton::clicked, this, &AjoutNouveauProduits::fermerFenetre);
+    //seul ouverture de la fenetre
+    setWindowModality(Qt::ApplicationModal);
 }
 
 void AjoutNouveauProduits::afficherFournisseur(){
