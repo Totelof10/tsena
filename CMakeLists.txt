@@ -39,6 +39,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         bondelivraison.h bondelivraison.cpp bondelivraison.ui
         operation.h operation.cpp operation.ui
         tiers.h tiers.cpp tiers.ui
+        animatedhidableframe.h animatedhidableframe.cpp
+        historique.h historique.cpp historique.ui
 
 
 
@@ -47,6 +49,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
 
     )
+    # Ajoutez cette ligne après qt_add_executable
+    target_include_directories(tsena PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET tsena APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)

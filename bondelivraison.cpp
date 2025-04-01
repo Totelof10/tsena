@@ -345,19 +345,20 @@ void BonDeLivraison::ajouterNouvelleBl() {
             int clientId = queryClient.value(0).toInt();
 
             // Rechercher l'ID du produit
-            queryProduit.prepare("SELECT id_produit FROM produits WHERE nom = ?"); // Only get the ID
+            queryProduit.prepare("SELECT id_produit, prix_base FROM produits WHERE nom = ?"); // Only get the ID
             queryProduit.addBindValue(nomProduit);
             if (!queryProduit.exec() || !queryProduit.next()) {
                 qDebug() << "Erreur lors de la recherche du produit : " << queryProduit.lastError().text();
                 continue;
             }
             int produitId = queryProduit.value(0).toInt();
+            double prix_base = queryProduit.value(1).toDouble();
 
 
             // Insertion dans ligne_vente
             QSqlQuery queryInsertion(sqlitedb);
-            queryInsertion.prepare("INSERT INTO bon_de_livraison (client_id, produit_id, quantite, date, statut, prix_vente,prix_total_a_payer) "
-                                   "VALUES (?, ?, ?, ?, ?, ?, ?)");
+            queryInsertion.prepare("INSERT INTO bon_de_livraison (client_id, produit_id, quantite, date, statut, prix_vente,prix_total_a_payer, benefice) "
+                                   "VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             queryInsertion.addBindValue(clientId);
             queryInsertion.addBindValue(produitId);
             queryInsertion.addBindValue(quantite);
@@ -367,6 +368,7 @@ void BonDeLivraison::ajouterNouvelleBl() {
             queryInsertion.addBindValue(statut);
             queryInsertion.addBindValue(prixUnitaire);
             queryInsertion.addBindValue(prixTotal);
+            queryInsertion.addBindValue((prixUnitaire - prix_base)*quantite);
             if (!queryInsertion.exec()) {
                 qDebug() << "Erreur lors de l'insertion dans ligne_vente : " << queryInsertion.lastError().text();
                 continue;

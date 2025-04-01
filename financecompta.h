@@ -2,6 +2,7 @@
 #define FINANCECOMPTA_H
 
 #include <QWidget>
+#include <QInputDialog>
 
 namespace Ui {
 class FinanceCompta;
@@ -17,10 +18,12 @@ public:
 
 private slots:
     void affichageDesVentes();
+    void affichageDesCharges();
     void recherche();
     void filtrerParDate();
     void reinitialiser();
-
+    void ajouterUneCharge();
+    void calcul();
 private:
     Ui::FinanceCompta *ui;
 };

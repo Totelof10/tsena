@@ -1,6 +1,8 @@
 #ifndef APP_H
 #define APP_H
 
+#include "animatedhidableframe.h"
+
 #include <QWidget>
 #include <QDebug>
 #include "mainwindow.h" // Inclure MainWindow.h
@@ -27,6 +29,8 @@ private:
     QShortcut *saveShortcut;
     QShortcut *loadShortcut;
     QString databasePath;
+    AnimatedHidableFrame *animatedNavbar;
+
 
 public:
     App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget *parent = nullptr); // Constructeur modifié
@@ -65,7 +69,9 @@ private slots:
     void tableDesOperations();
     void affichageTiers();
     void reporterDateBl();
-    //void modifierPrixProduit();
+    void afficherHistorique();
+    void mettreDansHistorique();
+
 signals:
     void deconnexion();
 private:

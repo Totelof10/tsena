@@ -23,7 +23,8 @@
 			"include",
 			"find_package",
 			"find_dependency",
-			"_qt_internal_find_qt_dependencies"
+			"_qt_internal_find_qt_dependencies",
+			"target_include_directories"
 		],
 		"files" : 
 		[
@@ -77,13 +78,13 @@
 			{
 				"command" : 4,
 				"file" : 1,
-				"line" : 85,
+				"line" : 88,
 				"parent" : 0
 			},
 			{
 				"command" : 5,
 				"file" : 1,
-				"line" : 68,
+				"line" : 71,
 				"parent" : 0
 			},
 			{
@@ -287,6 +288,12 @@
 				"file" : 15,
 				"line" : 61,
 				"parent" : 43
+			},
+			{
+				"command" : 11,
+				"file" : 1,
+				"line" : 52,
+				"parent" : 0
 			}
 		]
 	},
@@ -365,6 +372,10 @@
 					"path" : "C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include"
 				},
 				{
+					"backtrace" : 45,
+					"path" : "C:/Users/rtoha/Documents/tsena"
+				},
+				{
 					"backtrace" : 14,
 					"isSystem" : true,
 					"path" : "C:/Qt/6.8.0/mingw_64/include/QtCore"
@@ -428,7 +439,8 @@
 				39,
 				42,
 				45,
-				60
+				48,
+				62
 			]
 		}
 	],
@@ -585,7 +597,8 @@
 				39,
 				42,
 				45,
-				60
+				48,
+				62
 			]
 		},
 		{
@@ -607,7 +620,6 @@
 				41,
 				44,
 				47,
-				48,
 				49,
 				50,
 				51,
@@ -617,7 +629,9 @@
 				55,
 				56,
 				57,
-				58
+				58,
+				59,
+				60
 			]
 		},
 		{
@@ -637,7 +651,7 @@
 				40,
 				43,
 				46,
-				59
+				61
 			]
 		},
 		{
@@ -654,8 +668,8 @@
 			"name" : "CMake Rules",
 			"sourceIndexes" : 
 			[
-				61,
-				62
+				63,
+				64
 			]
 		}
 	],
@@ -912,6 +926,17 @@
 			"backtrace" : 4,
 			"path" : "tiers.ui",
 			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 4,
+			"path" : "animatedhidableframe.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 4,
+			"compileGroupIndex" : 0,
+			"path" : "animatedhidableframe.cpp",
+			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 0,

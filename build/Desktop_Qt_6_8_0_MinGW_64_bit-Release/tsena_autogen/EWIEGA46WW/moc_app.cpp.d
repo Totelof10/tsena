@@ -1,11 +1,14 @@
 C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/EWIEGA46WW/moc_app.cpp: C:/Users/rtoha/Documents/tsena/app.h \
   C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/moc_predefs.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/QDebug \
+  C:/Qt/6.8.0/mingw_64/include/QtCore/QMap \
+  C:/Qt/6.8.0/mingw_64/include/QtCore/QPropertyAnimation \
   C:/Qt/6.8.0/mingw_64/include/QtCore/q20functional.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/q20iterator.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/q20memory.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/q20type_traits.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/q23utility.h \
+  C:/Qt/6.8.0/mingw_64/include/QtCore/qabstractanimation.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qabstractitemmodel.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qalgorithms.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qanystringview.h \
@@ -39,6 +42,7 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena
   C:/Qt/6.8.0/mingw_64/include/QtCore/qdebug.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qdir.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qdirlisting.h \
+  C:/Qt/6.8.0/mingw_64/include/QtCore/qeasingcurve.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qendian.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qexceptionhandling.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qfile.h \
@@ -81,6 +85,7 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena
   C:/Qt/6.8.0/mingw_64/include/QtCore/qpair.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qpoint.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qprocessordetection.h \
+  C:/Qt/6.8.0/mingw_64/include/QtCore/qpropertyanimation.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qrect.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qrefcount.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qregularexpression.h \
@@ -131,6 +136,7 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena
   C:/Qt/6.8.0/mingw_64/include/QtCore/qurl.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qutf8stringview.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qvariant.h \
+  C:/Qt/6.8.0/mingw_64/include/QtCore/qvariantanimation.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qvarlengtharray.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qversiontagging.h \
   C:/Qt/6.8.0/mingw_64/include/QtCore/qxptype_traits.h \
@@ -171,12 +177,16 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena
   C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs.h \
   C:/Qt/6.8.0/mingw_64/include/QtGui/qwindowdefs_win.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QFileDialog \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/QFrame \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/QGraphicsOpacityEffect \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QInputDialog \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QMainWindow \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/QPushButton \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QTableWidgetItem \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QTreeWidget \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QTreeWidgetItem \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/QWidget \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/qabstractbutton.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qabstractitemdelegate.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qabstractitemview.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qabstractscrollarea.h \
@@ -185,9 +195,11 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qdialog.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qfiledialog.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qframe.h \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/qgraphicseffect.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qinputdialog.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qlineedit.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qmainwindow.h \
+  C:/Qt/6.8.0/mingw_64/include/QtWidgets/qpushbutton.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qrubberband.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qsizepolicy.h \
   C:/Qt/6.8.0/mingw_64/include/QtWidgets/qslider.h \
@@ -440,4 +452,5 @@ C:/Users/rtoha/Documents/tsena/build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena
   C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/vadefs.h \
   C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/wchar.h \
   C:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/wctype.h \
+  C:/Users/rtoha/Documents/tsena/animatedhidableframe.h \
   C:/Users/rtoha/Documents/tsena/mainwindow.h

@@ -12,6 +12,7 @@
 #include "bondelivraison.h"
 #include "operation.h"
 #include "tiers.h"
+#include "historique.h"
 
 #include <QDialog>
 #include <QVBoxLayout>
@@ -29,9 +30,21 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     , m_mainWindow(mainWindow)
 {
     ui->setupUi(this);
-    databasePath = "C:/db_test/tsena_base.db";
+    databasePath = "C:/db_test/test.db";
     QFileInfo fileInfo(databasePath);
+    animatedNavbar = ui->animatedNavbar;
+    QPushButton* venteButton = ui->btnPageVente;
+    QPushButton* stockButton = ui->btnPageStock;
+    QPushButton* bonButton = ui->btnPageBon;
+    QPushButton* tiersButton = ui->btnTiers;
+    if(animatedNavbar){
+        animatedNavbar->setupButtons(venteButton, stockButton, bonButton, tiersButton);
+    }
     ui->labelWorkspace->setText(fileInfo.fileName());
+    ui->dateDebut->setDate(QDate::currentDate());
+    ui->dateFin->setDate(QDate::currentDate());
+    ui->dateDebutBl->setDate(QDate::currentDate());
+    ui->dateFinBl->setDate(QDate::currentDate());
     attributionAcces();
     afficherProduit();
     afficherVente();
@@ -77,12 +90,18 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     connect(ui->btnTiers, &QPushButton::clicked, this, &App::affichageTiers);
     connect(ui->btnReporterDateBl, &QPushButton::clicked, this, &App::reporterDateBl);
     connect(ui->btnSupprimerBonDeLivraison, &QPushButton::clicked, this, &App::supprimerBonDeLivraison);
-    //connect(ui->btnModifierPrix, &QPushButton::clicked, this, &App::modifierPrixProduit);
+    connect(ui->btnHistorique, &QPushButton::clicked, this, &App::afficherHistorique);
+    connect(ui->btnMettreDansHistorique, &QPushButton::clicked, this, &App::mettreDansHistorique);
 }
 
 void App::tableDesOperations(){
     Operation *operation = new Operation();
     operation->show();
+}
+
+void App::afficherHistorique(){
+    Historique *historique = new Historique();
+    historique->show();
 }
 
 void App::handleBonDeLivraison(){
@@ -264,7 +283,8 @@ void App::afficherBonDeLivraison() {
     QSqlQuery queryAffichage(sqlitedb);
     queryAffichage.prepare("SELECT id_livraison, c.nom, date, p.nom, quantite, statut, prix_total_a_payer, prix_vente FROM bon_de_livraison b "
                            "INNER JOIN produits p ON id_produit = produit_id "
-                           "INNER JOIN clients c ON id_client = client_id");
+                           "INNER JOIN clients c ON id_client = client_id "
+                           "ORDER BY substr(date, 7, 4) || '-' || substr(date, 4, 2) || '-' || substr(date, 1, 2) DESC");
     if (!queryAffichage.exec()) {
         qDebug() << "Erreur lors de la récupération des données" << queryAffichage.lastError();
         return;
@@ -467,7 +487,9 @@ void App::livrePaye() {
 
         // Récupération de l'ID du produit
         QSqlQuery queryProduitId(sqlitedb);
-        queryProduitId.prepare("SELECT produit_id FROM bon_de_livraison WHERE id_livraison = :id");
+        queryProduitId.prepare("SELECT produit_id, p.prix_base FROM bon_de_livraison "
+                               "INNER JOIN produits p ON id_produit = produit_id "
+                               "WHERE id_livraison = :id");
         queryProduitId.bindValue(":id", idLivraison);
         if (!queryProduitId.exec() || !queryProduitId.next()) {
             sqlitedb.rollback();
@@ -475,6 +497,7 @@ void App::livrePaye() {
             return;
         }
         int idProduit = queryProduitId.value(0).toInt();
+        double prix_base = queryProduitId.value(1).toDouble();
 
         // Vérification du statut (redondant mais pour la sécurité)
         QSqlQuery queryStatut(sqlitedb);
@@ -544,13 +567,14 @@ void App::livrePaye() {
 
         // Enregistrement de la vente
         QSqlQuery queryInsertion(sqlitedb);
-        queryInsertion.prepare("INSERT INTO ligne_vente (client_id, produit_id, quantite, date_vente, prix_total, num_bon_livraison, prix_vente) "
-                               "SELECT client_id, produit_id, :quantite, :date, :prix_total, id_livraison, :prix_vente FROM bon_de_livraison WHERE id_livraison = :id");
+        queryInsertion.prepare("INSERT INTO ligne_vente (client_id, produit_id, quantite, date_vente, prix_total, num_bon_livraison, prix_vente, benefice) "
+                               "SELECT client_id, produit_id, :quantite, :date, :prix_total, id_livraison, :prix_vente, :benefice FROM bon_de_livraison WHERE id_livraison = :id");
         queryInsertion.bindValue(":id", idLivraison);
         queryInsertion.bindValue(":quantite", quantite);
         queryInsertion.bindValue(":date", dateLivraison);
         queryInsertion.bindValue(":prix_total", prixTotal);
         queryInsertion.bindValue(":prix_vente", prixVente);
+        queryInsertion.bindValue(":benefice", (prixVente - prix_base)*quantite);
         if (!queryInsertion.exec()) {
             sqlitedb.rollback();
             CustomMessageBox().showError("Erreur", "Échec de l'enregistrement de la vente pour le BL N°" + QString::number(idLivraison));
@@ -614,7 +638,7 @@ void App::reporterDateBl() {
 
     QTreeWidgetItem* parentItem = selectedItem->parent();
     QString date_bl_str = parentItem->text(1);
-    QDate dateActuelle = QDate::fromString(date_bl_str, "yyyy-MM-dd"); // Assumer le format de date dans l'arbre
+    QDate dateActuelle = QDate::fromString(date_bl_str, "dd-MM-yyyy"); // Assumer le format de date dans l'arbre
 
     // 📌 Création de la boîte de dialogue avec un QDateEdit
     QDialog dialog(this);
@@ -635,7 +659,7 @@ void App::reporterDateBl() {
     if (dialog.exec() == QDialog::Rejected) return;
 
     QDate nouvelle_date = dateEdit.date();
-    QString nouvelle_date_str_display = nouvelle_date.toString("yyyy-MM-dd"); // Format d'affichage dans l'arbre
+    QString nouvelle_date_str_display = nouvelle_date.toString("dd-MM-yyyy"); // Format d'affichage dans l'arbre
 
     // 📌 Mettre à jour la date dans l'élément parent du treeView
     if (parentItem) {
@@ -652,7 +676,7 @@ void App::reporterDateBl() {
     QSqlQuery query(sqlitedb);
     query.prepare("UPDATE bon_de_livraison SET date = :date_bl WHERE id_livraison = :id_bl");
     query.bindValue(":id_bl", id_bl);
-    query.bindValue(":date_bl", nouvelle_date.toString("yyyy-MM-dd")); // Format adapté pour SQLite
+    query.bindValue(":date_bl", nouvelle_date.toString("dd-MM-yyyy")); // Format adapté pour SQLite
 
     if (query.exec()) {
         CustomMessageBox::information(this, "Succès", "Date modifiée avec succès.");
@@ -670,10 +694,14 @@ void App::afficherVente() {
     }
 
     QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_vente, c.nom, date_vente, p.nom, quantite, (prix_total / quantite) AS prix_unitaire, prix_total "
-                           "FROM ligne_vente l "
-                           "INNER JOIN produits p ON id_produit = produit_id "
-                           "INNER JOIN clients c ON id_client = client_id");
+    queryAffichage.prepare(
+        "SELECT id_vente, c.nom, date_vente, p.nom, quantite, (prix_total / quantite) AS prix_unitaire, prix_total "
+        "FROM ligne_vente l "
+        "INNER JOIN produits p ON id_produit = produit_id "
+        "INNER JOIN clients c ON id_client = client_id "
+        "ORDER BY substr(date_vente, 7, 4) || '-' || substr(date_vente, 4, 2) || '-' || substr(date_vente, 1, 2) DESC"
+        );
+
 
     if (!queryAffichage.exec()) {
         qDebug() << "Erreur lors de la récupération des données" << queryAffichage.lastError();
@@ -971,11 +999,6 @@ void App::chiffreDaffaire(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     QSqlQuery query(sqlitedb);
     query.prepare("SELECT SUM(prix_total) FROM ligne_vente");
-    if(!query.exec()){
-        qDebug()<<query.lastError();
-        msgBox.showError("Erreur", "Erreur de calcul "+query.lastError().text());
-        return;
-    }
     if (!query.exec()) {
         qDebug() << query.lastError();
         msgBox.showError("Erreur", "Erreur de calcul: " + query.lastError().text());
@@ -1167,14 +1190,16 @@ void App::filtrageDate() {
         qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
         return;
     }
-    QString dateDebut = ui->dateDebut->date().toString("yyyy-MM-dd"); // Format de date compatible avec SQLite
-    QString dateFin = ui->dateFin->date().toString("yyyy-MM-dd");   // Format de date compatible avec SQLite
+    QString dateDebut = ui->dateDebut->date().toString("dd-MM-yyyy"); // Format de date compatible avec SQLite
+    QString dateFin = ui->dateFin->date().toString("dd-MM-yyyy");   // Format de date compatible avec SQLite
     QSqlQuery queryAffichage(sqlitedb);
     queryAffichage.prepare("SELECT id_vente, c.nom, date_vente, p.nom, quantite, (prix_total / quantite) AS prix_unitaire, prix_total "
                            "FROM ligne_vente l "
                            "INNER JOIN produits p ON id_produit = produit_id "
                            "INNER JOIN clients c ON id_client = client_id "
-                           "WHERE date(date_vente) BETWEEN date(:dateDebut) AND date(:dateFin)"); // Utiliser la fonction date() pour la comparaison
+                           "WHERE (substr(date_vente, 7, 4) || '-' || substr(date_vente, 4, 2) || '-' || substr(date_vente, 1, 2)) "
+                           "BETWEEN (substr(:dateDebut, 7, 4) || '-' || substr(:dateDebut, 4, 2) || '-' || substr(:dateDebut, 1, 2)) "
+                           "AND (substr(:dateFin, 7, 4) || '-' || substr(:dateFin, 4, 2) || '-' || substr(:dateFin, 1, 2))"); // Utiliser la fonction date() pour la comparaison
     queryAffichage.bindValue(":dateDebut", dateDebut);
     queryAffichage.bindValue(":dateFin", dateFin);
 
@@ -1236,7 +1261,9 @@ void App::filtrageDate() {
     // Calculer et afficher le chiffre d'affaires des ventes filtrées par date
     QSqlQuery queryCA(sqlitedb);
     queryCA.prepare("SELECT SUM(prix_total) FROM ligne_vente "
-                    "WHERE date(date_vente) BETWEEN date(:dateDebut) AND date(:dateFin)");
+                    "WHERE (substr(date_vente, 7, 4) || '-' || substr(date_vente, 4, 2) || '-' || substr(date_vente, 1, 2)) "
+                    "BETWEEN (substr(:dateDebut, 7, 4) || '-' || substr(:dateDebut, 4, 2) || '-' || substr(:dateDebut, 1, 2)) "
+                    "AND (substr(:dateFin, 7, 4) || '-' || substr(:dateFin, 4, 2) || '-' || substr(:dateFin, 1, 2))");
     queryCA.bindValue(":dateDebut", dateDebut);
     queryCA.bindValue(":dateFin", dateFin);
     if (!queryCA.exec()) {
@@ -1257,15 +1284,23 @@ void App::filtrageDateBonDeLivraison() {
         qDebug() << "Erreur lors de l'ouverture de la base de données" << sqlitedb.rollback();
         return;
     }
-    QString dateDebutBl = ui->dateDebutBl->date().toString("yyyy-MM-dd"); // Format de date compatible avec SQLite
-    QString dateFinBl = ui->dateFinBl->date().toString("yyyy-MM-dd");    // Format de date compatible avec SQLite
+    QString dateDebutBl = ui->dateDebutBl->date().toString("dd-MM-yyyy");  // Garde le format dd-MM-yyyy
+    QString dateFinBl = ui->dateFinBl->date().toString("dd-MM-yyyy");      // Garde le format dd-MM-yyyy
+
     QSqlQuery queryAffichage(sqlitedb);
-    queryAffichage.prepare("SELECT id_livraison, c.nom, date, p.nom, quantite, statut, prix_total_a_payer, prix_vente FROM bon_de_livraison b "
-                           "INNER JOIN produits p ON id_produit = produit_id "
-                           "INNER JOIN clients c ON id_client = client_id "
-                           "WHERE date(date) BETWEEN date(:dateDebutBl) AND date(:dateFinBl) ORDER BY date DESC"); // Utiliser la fonction date() pour la comparaison et trier par date
+    queryAffichage.prepare(
+        "SELECT id_livraison, c.nom, date, p.nom, quantite, statut, prix_total_a_payer, prix_vente "
+        "FROM bon_de_livraison b "
+        "INNER JOIN produits p ON id_produit = produit_id "
+        "INNER JOIN clients c ON id_client = client_id "
+        "WHERE (substr(date, 7, 4) || '-' || substr(date, 4, 2) || '-' || substr(date, 1, 2)) "
+        "BETWEEN (substr(:dateDebutBl, 7, 4) || '-' || substr(:dateDebutBl, 4, 2) || '-' || substr(:dateDebutBl, 1, 2)) "
+        "AND (substr(:dateFinBl, 7, 4) || '-' || substr(:dateFinBl, 4, 2) || '-' || substr(:dateFinBl, 1, 2))"
+        );
+
     queryAffichage.bindValue(":dateDebutBl", dateDebutBl);
     queryAffichage.bindValue(":dateFinBl", dateFinBl);
+
     if (!queryAffichage.exec()) {
         qDebug() << "Erreur lors de la récupération des données" << queryAffichage.lastError();
         return;
@@ -1341,52 +1376,92 @@ void App::reinitialiserBl(){
     ui->dateFinBl->setDate(dateActuelle);
     afficherBonDeLivraison();
 }
-
-/*void App::modifierPrixProduit(){
-    int row = ui->tableStock->currentRow();
-    if(row < 0){
-        CustomMessageBox().showError("Erreur", "Veuillez sélectionner un produit à modifier.");
-        return;
-    }
-    QString id_produit = ui->tableStock->item(row, 0)->text();
-    QString nom_produit = ui->tableStock->item(row, 2)->text();
-    QString prix_unitaire = ui->tableStock->item(row, 3)->text();
-    QString prix_detail = ui->tableStock->item(row, 4)->text();
-    QString prix_remise = ui->tableStock->item(row, 5)->text();
-    // 📌 Création de la boîte de dialogue avec un QFormLayout
-    bool ok;
-    nom_produit = QInputDialog::getText(this, "Nom du produit", "Nom du produit", QLineEdit::Normal, nom_produit, &ok);
-    if (!ok || nom_produit.isEmpty()) return;
-    prix_unitaire = QInputDialog::getText(this, "Prix unitaire", "Prix unitaire", QLineEdit::Normal, prix_unitaire, &ok);
-    if (!ok || prix_unitaire.isEmpty()) return;
-    prix_detail = QInputDialog::getText(this, "Prix de détail", "Prix de détail", QLineEdit::Normal, prix_detail, &ok);
-    if (!ok || prix_detail.isEmpty()) return;
-    prix_remise = QInputDialog::getText(this, "Prix de remise", "Prix de remise", QLineEdit::Normal, prix_remise, &ok);
-    if (!ok || prix_remise.isEmpty()) return;
-
+void App::mettreDansHistorique(){
     QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
     if(!sqlitedb.isOpen()){
-        CustomMessageBox().showError("Erreur", "Impossible d'ouvrir la base de données.");
+        qDebug()<<"Erreur lors de l'ouverture de la base de données"<<sqlitedb.rollback();
         return;
     }
-    QSqlQuery query(sqlitedb);
-    query.prepare("UPDATE produits SET nom = :nom_produit, prix_unitaire = :prix_unitaire, prix_detail = :prix_detail, prix_remise = :prix_remise WHERE id_produit = :id_produit");
-    query.bindValue(":nom_produit", nom_produit);
-    query.bindValue(":prix_unitaire", prix_unitaire);
-    query.bindValue(":prix_detail", prix_detail);
-    query.bindValue(":prix_remise", prix_remise);
+    CustomMessageBox msgBox;
+    msgBox.setWindowTitle("Confirmation");
+    msgBox.setText("Voulez-vous vraiment mettre les ventes et charges dans l'historique? ATTENTION : Cette action "
+                   "est irréversible");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    int ret = msgBox.exec();
 
-    if(!query.exec()){
-        CustomMessageBox().showError("Erreur", "Impossible de modifier le produit.");
-        return;
+    if (ret == QMessageBox::Yes){
+        QSqlQuery query(sqlitedb);
+        query.prepare("SELECT id_vente, p.nom, date_vente, quantite, prix_total, benefice from ligne_vente l "
+                      "INNER JOIN produits p ON id_produit = produit_id");
+        if(!query.exec()){
+            qDebug()<<"Erreur lors de la récupération des données pour l'ajout dans historique"
+                        "!"<<query.lastError();
+            return;
+        }
+        while(query.next()){
+            QString  nom = query.value(1).toString();
+            QString date = query.value(2).toString();
+            int quantite = query.value(3).toInt();
+            double prix_total = query.value(4).toDouble();
+            double benefice = query.value(5).toDouble();
+
+            QSqlQuery queryInsertion(sqlitedb);
+            queryInsertion.prepare("INSERT INTO historique(date_vente, nom_produit, quantite, ca, benefice) "
+                                   "VALUES(:date, :nom, :quantite, :prix_total, :benefice)");
+            queryInsertion.bindValue(":date", date);
+            queryInsertion.bindValue(":nom", nom);
+            queryInsertion.bindValue(":quantite", quantite);
+            queryInsertion.bindValue(":prix_total", prix_total);
+            queryInsertion.bindValue(":benefice", benefice);
+            if(!queryInsertion.exec()){
+                qDebug()<<"Erreur lors de l'insertion de l'historique"<<queryInsertion.lastError();
+                return;
+            }
+        }
+        QSqlQuery queryDelete(sqlitedb);
+        //supprimer tous les lignes dans ligne_vente
+        queryDelete.prepare("DELETE FROM ligne_vente");
+        if(!queryDelete.exec()){
+            qDebug()<<"Erreur lors de la suppression des ventes"<<queryDelete.lastError();
+            return;
+        }
+        QSqlQuery queryHistoriqueCharge(sqlitedb);
+        queryHistoriqueCharge.prepare("SELECT description, personne, valeur, date FROM charge");
+        if(!queryHistoriqueCharge.exec()){
+            qDebug()<<"Erreur lors de récupération des charges pour l'historique"<<queryHistoriqueCharge.lastError();
+            return;
+        }
+        while(queryHistoriqueCharge.next()){
+            QString description = queryHistoriqueCharge.value(0).toString();
+            QString personne = queryHistoriqueCharge.value(1).toString();
+            double valeur = queryHistoriqueCharge.value(2).toDouble();
+            QString date = queryHistoriqueCharge.value(3).toString();
+
+            QSqlQuery queryInsertionCharge(sqlitedb);
+            queryInsertionCharge.prepare("INSERT INTO historique_charge(description, personne, valeur, date) "
+                                         "VALUES (:description, :personne, :valeur, :date)");
+            queryInsertionCharge.bindValue(":description", description);
+            queryInsertionCharge.bindValue(":personne", personne);
+            queryInsertionCharge.bindValue(":valeur", valeur);
+            queryInsertionCharge.bindValue(":date", date);
+            if(!queryInsertionCharge.exec()){
+                qDebug()<<"Erreur lors de l'insertion des données dans historique_charge"<<queryInsertionCharge.lastError();
+            }
+        }
+        QSqlQuery deleteCharge(sqlitedb);
+        deleteCharge.prepare("DELETE FROM charge");
+        if(!deleteCharge.exec()){
+            qDebug()<<"Erreur lors de la suppression des charges"<<deleteCharge.lastError();
+            return;
+        }
+        CustomMessageBox msgBox;
+        msgBox.showInformation("Succes", "Ajout des historiques réussi");
+        afficherVente();
     }
-    ui->tableStock->setItem(row, 2, new QTableWidgetItem(nom_produit));
-    ui->tableStock->setItem(row, 3, new QTableWidgetItem(prix_unitaire));
-    ui->tableStock->setItem(row, 4, new QTableWidgetItem(prix_detail));
-    ui->tableStock->setItem(row, 5, new QTableWidgetItem(prix_remise));
-    CustomMessageBox().showInformation("Succès", "Produit modifié avec succès.");
-    afficherProduit();
-}*/
+
+
+}
 
 void App::etatStock(){
     EtatStock *stock = new EtatStock(nullptr);

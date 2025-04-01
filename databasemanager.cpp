@@ -3,7 +3,7 @@
 QSqlDatabase& DatabaseManager::getDatabase() {
     static QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "unique_connection_name");
     if (!db.isOpen()) {
-        db.setDatabaseName("C:/db_test/tsena_base.db");
+        db.setDatabaseName("C:/db_test/test.db");
         if (!db.open()) {
             qDebug() << "Erreur : Impossible d'ouvrir la base de données";
         }

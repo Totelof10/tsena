@@ -34,18 +34,20 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QFrame" name="frame">
+    <widget class="AnimatedHidableFrame" name="animatedNavbar">
      <property name="styleSheet">
       <string notr="true">QFrame{
 	background-color:#4A628A;
 }
 QPushButton{
 	border: 1px solid #4A628A;
+	border-radius: 3px;
 	background-color: #4A628A;
 	color: white;
 }
 QPushButton:hover{
-	background-color: #B9E5E8;
+	
+	background-color: rgb(85, 100, 108);
 }
 QPushButton:focus{
 	background-color: #7AB2D3
@@ -74,26 +76,17 @@ QPushButton:focus{
        <number>9</number>
       </property>
       <item>
-       <widget class="QLabel" name="label">
-        <property name="font">
-         <font>
-          <family>Times New Roman</family>
-          <pointsize>13</pointsize>
-          <italic>true</italic>
-          <bold>true</bold>
-          <underline>true</underline>
-         </font>
+       <spacer name="verticalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Orientation::Vertical</enum>
         </property>
-        <property name="styleSheet">
-         <string notr="true">color: white;</string>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
         </property>
-        <property name="text">
-         <string>TSENA MAVO</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignmentFlag::AlignCenter</set>
-        </property>
-       </widget>
+       </spacer>
       </item>
       <item>
        <widget class="QPushButton" name="btnPageVente">
@@ -105,7 +98,11 @@ QPushButton:focus{
          </font>
         </property>
         <property name="text">
-         <string>Vente et facturation</string>
+         <string>  Vente et facturation</string>
+        </property>
+        <property name="icon">
+         <iconset resource="ressource.qrc">
+          <normaloff>:/Downloads/CartoBMW/img/bouton-daccueil (1).png</normaloff>:/Downloads/CartoBMW/img/bouton-daccueil (1).png</iconset>
         </property>
        </widget>
       </item>
@@ -119,7 +116,11 @@ QPushButton:focus{
          </font>
         </property>
         <property name="text">
-         <string>Produits et stock</string>
+         <string> Produits et stock</string>
+        </property>
+        <property name="icon">
+         <iconset resource="ressource.qrc">
+          <normaloff>:/Downloads/CartoBMW/img/traits.png</normaloff>:/Downloads/CartoBMW/img/traits.png</iconset>
         </property>
        </widget>
       </item>
@@ -133,7 +134,11 @@ QPushButton:focus{
          </font>
         </property>
         <property name="text">
-         <string>Bon de livraison</string>
+         <string> Bon de livraison</string>
+        </property>
+        <property name="icon">
+         <iconset resource="ressource.qrc">
+          <normaloff>:/Downloads/CartoBMW/img/livraison-rapide.png</normaloff>:/Downloads/CartoBMW/img/livraison-rapide.png</iconset>
         </property>
        </widget>
       </item>
@@ -147,7 +152,11 @@ QPushButton:focus{
          </font>
         </property>
         <property name="text">
-         <string>Tiers</string>
+         <string> Tiers</string>
+        </property>
+        <property name="icon">
+         <iconset resource="ressource.qrc">
+          <normaloff>:/Downloads/CartoBMW/img/manager-avec-tie.png</normaloff>:/Downloads/CartoBMW/img/manager-avec-tie.png</iconset>
         </property>
        </widget>
       </item>
@@ -234,7 +243,7 @@ QPushButton:hover{
          </font>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="page_vente">
          <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -364,7 +373,13 @@ QPushButton:hover{
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
-              <widget class="QTreeWidget" name="treeVente"/>
+              <widget class="QTreeWidget" name="treeVente">
+               <column>
+                <property name="text">
+                 <string notr="true">1</string>
+                </property>
+               </column>
+              </widget>
              </item>
              <item>
               <widget class="QFrame" name="frame_2">
@@ -411,6 +426,9 @@ QPushButton:hover{
                   <property name="cursor">
                    <cursorShape>PointingHandCursor</cursorShape>
                   </property>
+                  <property name="toolTip">
+                   <string>Supprimer la vente</string>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">QPushButton{
 	image: url(:/Downloads/CartoBMW/img/supprimer.png);
@@ -438,6 +456,20 @@ QPushButton:hover{
 QPushButton:hover{
 	image: url(:/Downloads/CartoBMW/img/imprimante-papier.png);
 }</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnMettreDansHistorique">
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">image: url(:/Downloads/CartoBMW/img/euro (1).png);
+border: none;</string>
                   </property>
                   <property name="text">
                    <string/>
@@ -518,6 +550,33 @@ QPushButton:hover{
               </widget>
              </item>
              <item>
+              <widget class="QPushButton" name="btnHistorique">
+               <property name="font">
+                <font>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton{
+	border: 1px solid white;
+	border-radius: 7px;
+	background-color: #872341;
+	color:white;
+	padding: 7px;
+}
+QPushButton:hover{
+	background-color: #BE3144;
+}</string>
+               </property>
+               <property name="text">
+                <string>Historique</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer_3">
                <property name="orientation">
                 <enum>Qt::Orientation::Horizontal</enum>
@@ -540,7 +599,7 @@ QPushButton:hover{
                 </font>
                </property>
                <property name="text">
-                <string>Chiffre d'affaire :</string>
+                <string>Chiffre d'affaire du mois :</string>
                </property>
               </widget>
              </item>
@@ -971,7 +1030,7 @@ QLineEdit:focus{
              <item>
               <widget class="QLabel" name="label_9">
                <property name="text">
-                <string>Au:</string>
+                <string>Au :</string>
                </property>
               </widget>
              </item>
@@ -1045,7 +1104,13 @@ QPushButton:hover{
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
-              <widget class="QTreeWidget" name="treeBl"/>
+              <widget class="QTreeWidget" name="treeBl">
+               <column>
+                <property name="text">
+                 <string notr="true">1</string>
+                </property>
+               </column>
+              </widget>
              </item>
              <item>
               <widget class="QFrame" name="frame_11">
@@ -1072,6 +1137,9 @@ QPushButton:hover{
                   <property name="cursor">
                    <cursorShape>PointingHandCursor</cursorShape>
                   </property>
+                  <property name="toolTip">
+                   <string>Ajouter</string>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">QPushButton{
 	image: url(:/Downloads/CartoBMW/img/prefere.png);
@@ -1091,6 +1159,9 @@ QPushButton:hover{
                   <property name="cursor">
                    <cursorShape>PointingHandCursor</cursorShape>
                   </property>
+                  <property name="toolTip">
+                   <string>Valider la livraison</string>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">QPushButton{
 	image: url(:/Downloads/CartoBMW/img/mode-de-paiement.png);
@@ -1107,6 +1178,9 @@ QPushButton:hover{
                 </item>
                 <item>
                  <widget class="QPushButton" name="btnReporterDateBl">
+                  <property name="toolTip">
+                   <string>Reporter la livraison</string>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">QPushButton{
 	image: url(:/Downloads/CartoBMW/img/crayon.png);
@@ -1125,6 +1199,9 @@ QPushButton:hover{
                  <widget class="QPushButton" name="btnSupprimerBonDeLivraison">
                   <property name="cursor">
                    <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="toolTip">
+                   <string>Supprimer le bon de livraison</string>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">QPushButton{
@@ -1187,6 +1264,14 @@ QPushButton:hover{
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AnimatedHidableFrame</class>
+   <extends>QFrame</extends>
+   <header>animatedhidableframe.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="ressource.qrc"/>
  </resources>
