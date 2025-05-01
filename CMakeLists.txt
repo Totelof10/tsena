@@ -41,6 +41,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         tiers.h tiers.cpp tiers.ui
         animatedhidableframe.h animatedhidableframe.cpp
         historique.h historique.cpp historique.ui
+        retour.h retour.cpp retour.ui
+        retourdialog.h retourdialog.cpp
 
 
 

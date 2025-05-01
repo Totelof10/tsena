@@ -13,4 +13,6 @@
 #include "EWIEGA46WW/moc_mainwindow.cpp"
 #include "EWIEGA46WW/moc_mouvementdestock.cpp"
 #include "EWIEGA46WW/moc_operation.cpp"
+#include "EWIEGA46WW/moc_retour.cpp"
+#include "EWIEGA46WW/moc_retourdialog.cpp"
 #include "EWIEGA46WW/moc_tiers.cpp"

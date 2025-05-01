@@ -402,6 +402,18 @@
 			null
 		],
 		[
+			"C:/Users/rtoha/Documents/tsena/retour.h",
+			"MU",
+			"EWIEGA46WW/moc_retour.cpp",
+			null
+		],
+		[
+			"C:/Users/rtoha/Documents/tsena/retourdialog.h",
+			"MU",
+			"EWIEGA46WW/moc_retourdialog.cpp",
+			null
+		],
+		[
 			"C:/Users/rtoha/Documents/tsena/tiers.h",
 			"MU",
 			"EWIEGA46WW/moc_tiers.cpp",
@@ -501,6 +513,8 @@
 		[ "C:/Users/rtoha/Documents/tsena/mainwindow.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/mouvementdestock.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/operation.cpp", "MU", null ],
+		[ "C:/Users/rtoha/Documents/tsena/retour.cpp", "MU", null ],
+		[ "C:/Users/rtoha/Documents/tsena/retourdialog.cpp", "MU", null ],
 		[ "C:/Users/rtoha/Documents/tsena/tiers.cpp", "MU", null ]
 	],
 	"UIC_OPTIONS" : [],

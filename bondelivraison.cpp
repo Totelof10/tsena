@@ -20,6 +20,7 @@ BonDeLivraison::BonDeLivraison(QWidget *parent)
             this, &BonDeLivraison::mettreAJourTotalBl);
     connect(ui->comboProduit, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &BonDeLivraison::remettreAZeroBl);
+    connect(ui->comboBoxPrix, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &BonDeLivraison::mettreAJourTotalBl);
     connect(ui->btnValider, &QPushButton::clicked, this, &BonDeLivraison::ajouterNouvelleBl);    
     // Connecter le signal pour filtrer les éléments existants
     connect(ui->comboClient->lineEdit(), &QLineEdit::textEdited, this, [=](const QString &text) {
@@ -297,7 +298,7 @@ void BonDeLivraison::ajouterNouvelleBl() {
                              "</style>"
                              "</head>"
                              "<body>"
-                             "<p>RAHENINTSOA ALASORA</p>"
+                             "<p>Yaourt Sanda ALASORA</p>"
                              "<p><strong>Nif : </strong></p>"
                              "<p><strong>STAT : </strong></p>"
                              "<p><strong>Adresse : </strong>ALASORA Commune en Face de Sopromer</p>"
@@ -364,7 +365,7 @@ void BonDeLivraison::ajouterNouvelleBl() {
             queryInsertion.addBindValue(quantite);
             queryInsertion.addBindValue(date);
             // Date de la vente
-            QString statut = "Non Payé";
+            QString statut = "Non livré/Non payé";
             queryInsertion.addBindValue(statut);
             queryInsertion.addBindValue(prixUnitaire);
             queryInsertion.addBindValue(prixTotal);

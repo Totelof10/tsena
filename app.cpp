@@ -13,6 +13,8 @@
 #include "operation.h"
 #include "tiers.h"
 #include "historique.h"
+#include "retourdialog.h"
+
 
 #include <QDialog>
 #include <QVBoxLayout>
@@ -85,7 +87,8 @@ App::App(int userId, const QString& userStatus, MainWindow* mainWindow, QWidget 
     connect(ui->lineEditRechercheBl, &QLineEdit::textChanged, this, &App::rechercheBl);
     connect(ui->btnReinitialiserBl, &QPushButton::clicked, this, &App::reinitialiserBl);
     //connect(ui->btnSupprimerBonDeLivraison, &QPushButton::clicked, this, &App::supprimerBonDeLivraison);
-    connect(ui->btnModifierBl, &QPushButton::clicked, this, &App::livrePaye);
+    //conditionner le bouton btnModifierBl pour les fonctions livrePaye et livreNonPaye
+    connect(ui->btnModifierBl, &QPushButton::clicked, this, &App::gererPaiement);
     connect(ui->btnOperation, &QPushButton::clicked, this, &App::tableDesOperations);
     connect(ui->btnTiers, &QPushButton::clicked, this, &App::affichageTiers);
     connect(ui->btnReporterDateBl, &QPushButton::clicked, this, &App::reporterDateBl);
@@ -347,7 +350,201 @@ void App::afficherBonDeLivraison() {
     ui->treeBl->collapseAll();
 }
 void App::supprimerBonDeLivraison() {
-    // Récupérer l'élément sélectionné
+    QList<QTreeWidgetItem*> selectedItems = ui->treeBl->selectedItems();
+    if (selectedItems.isEmpty()) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner un bon de livraison à supprimer.");
+        return;
+    }
+
+    QTreeWidgetItem* selectedItem = selectedItems.first();
+
+    if (!selectedItem->parent()) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner un détail de bon de livraison à supprimer.");
+        return;
+    }
+
+    QString itemText = selectedItem->text(0);
+    if (!itemText.startsWith("➡ BL N°")) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner un détail de bon de livraison valide.");
+        return;
+    }
+
+    QString idLivraisonStr = itemText.mid(QString("➡ BL N°").length());
+    int idLivraison = idLivraisonStr.toInt();
+
+    QSqlDatabase db = DatabaseManager::getDatabase();
+    QSqlQuery query(db);
+
+    // Récupération du statut du bon de livraison
+    query.prepare("SELECT statut FROM bon_de_livraison WHERE id_livraison = :id");
+    query.bindValue(":id", idLivraison);
+    if (!query.exec() || !query.next()) {
+        CustomMessageBox().showError("Erreur", "Impossible de récupérer le statut du bon.");
+        return;
+    }
+
+    QString statut = query.value("statut").toString();
+
+    if (statut == "Non livré/Non payé") {
+        // Suppression classique
+        if (confirmerSuppression()) {
+            if (supprimerBonDeLivraisonDansBD(idLivraison)) {
+                supprimerItemDuTree(selectedItem);
+                CustomMessageBox().showInformation("Succès", "Le bon de livraison a été supprimé avec succès.");
+            }
+        }
+    } else if (statut == "Livré/Non payé") {
+        // Demander si c'est un retour
+        CustomMessageBox retourBox;
+        retourBox.setWindowTitle("Retour de livraison");
+        retourBox.setText("Ce bon est déjà livré. Est-ce un retour ?");
+        retourBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        retourBox.setDefaultButton(QMessageBox::No);
+        int retourResponse = retourBox.exec();
+
+        if (retourResponse == QMessageBox::Yes) {
+            // Réajouter les quantités dans la base (selon ta structure de données)
+            int retourTotal = 0;
+            int totalLivree = 0;
+
+            if (traiterRetourAvecQuantites(idLivraison, retourTotal, totalLivree)) {
+                if (retourTotal == totalLivree) {
+                    // Retour complet → suppression du BL
+                    if (supprimerBonDeLivraisonDansBD(idLivraison)) {
+                        supprimerItemDuTree(selectedItem);
+                        CustomMessageBox().showInformation("Succès", "Retour complet traité et bon de livraison supprimé.");
+                    }
+                } else if (retourTotal < totalLivree) {
+                    // Retour partiel → stock mis à jour, mais BL conservé
+                    CustomMessageBox().showInformation("Information", "Retour partiel traité. Le bon de livraison a été conservé.");
+                } else {
+                    CustomMessageBox().showError("Erreur", "Quantité de retour invalide.");
+                }
+            }
+             else {
+                CustomMessageBox().showError("Erreur", "Erreur lors du traitement du retour.");
+            }
+        } else {
+            CustomMessageBox().showInformation("Information", "Suppression annulée.");
+        }
+    } else {
+        CustomMessageBox().showError("Erreur", "Statut non reconnu ou opération non autorisée.");
+    }
+}
+
+// Fonction utilitaire : confirmer la suppression
+bool App::confirmerSuppression() {
+    CustomMessageBox msgBox;
+    msgBox.setWindowTitle("Confirmation");
+    msgBox.setText("Êtes-vous sûr de vouloir supprimer ce bon de livraison ?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    return msgBox.exec() == QMessageBox::Yes;
+}
+
+// Fonction utilitaire : suppression dans la base
+bool App::supprimerBonDeLivraisonDansBD(int idLivraison) {
+    QSqlDatabase db = DatabaseManager::getDatabase();
+    QSqlQuery query(db);
+    query.prepare("DELETE FROM bon_de_livraison WHERE id_livraison = :id");
+    query.bindValue(":id", idLivraison);
+    if (!query.exec()) {
+        qDebug() << "Erreur suppression:" << query.lastError();
+        CustomMessageBox().showError("Erreur", "Échec de la suppression dans la base de données.");
+        return false;
+    }
+    return true;
+}
+
+// Fonction utilitaire : supprimer l'élément dans le TreeView
+void App::supprimerItemDuTree(QTreeWidgetItem* item) {
+    QTreeWidgetItem* parent = item->parent();
+    if (parent) {
+        parent->removeChild(item);
+    }
+}
+
+// Fonction utilitaire : traiter le retour (réajouter stock)
+bool App::traiterRetourAvecQuantites(int idLivraison, int& retourTotal, int& totalLivree) {
+    retourTotal = 0;
+    totalLivree = 0;
+
+    QSqlDatabase db = DatabaseManager::getDatabase();
+
+    QSqlQuery query(db);
+    query.prepare("SELECT produit_id, p.nom, quantite FROM bon_de_livraison b "
+                  "INNER JOIN produits p ON id_produit = produit_id "
+                  "WHERE id_livraison = :id");
+    query.bindValue(":id", idLivraison);
+
+    if (!query.exec()) {
+        qDebug() << "Erreur récupération détails retour:" << query.lastError();
+        return false;
+    }
+
+    QList<QPair<int, int>> idEtQteLivree;
+    QList<QPair<QString, int>> produitsAffichables;
+
+    while (query.next()) {
+        int id = query.value("produit_id").toInt();
+        QString nom = query.value("p.nom").toString();
+        int qte = query.value("quantite").toInt();
+
+        produitsAffichables.append({nom, qte});
+        idEtQteLivree.append({id, qte});
+        totalLivree += qte;
+    }
+
+    RetourDialog dialog(produitsAffichables);
+    if (dialog.exec() != QDialog::Accepted)
+        return false;
+
+    QList<int> quantitesRetournees = dialog.getQuantitesRetournees();
+
+    QSqlQuery updateStockQuery(db);
+    QSqlQuery updateLivraisonQuery(db);
+
+    for (int i = 0; i < idEtQteLivree.size(); ++i) {
+        int idProd = idEtQteLivree[i].first;
+        int qteRetour = quantitesRetournees[i];
+        int qteLivree = idEtQteLivree[i].second;
+
+        if (qteRetour > 0) {
+            retourTotal += qteRetour;
+
+            // 1. Mise à jour du stock
+            updateStockQuery.prepare("UPDATE stock SET quantite = quantite + :qte WHERE produit_id = :id");
+            updateStockQuery.bindValue(":qte", qteRetour);
+            updateStockQuery.bindValue(":id", idProd);
+
+            if (!updateStockQuery.exec()) {
+                qDebug() << "Erreur mise à jour retour:" << updateStockQuery.lastError();
+                return false;
+            }
+
+            // 2. Mise à jour de la quantité dans bon_de_livraison
+            int nouvelleQuantite = qteLivree - qteRetour;
+            updateLivraisonQuery.prepare("UPDATE bon_de_livraison SET quantite = :qte "
+                                         "WHERE id_livraison = :id AND produit_id = :prod");
+            updateLivraisonQuery.bindValue(":qte", nouvelleQuantite);
+            updateLivraisonQuery.bindValue(":id", idLivraison);
+            updateLivraisonQuery.bindValue(":prod", idProd);
+
+            if (!updateLivraisonQuery.exec()) {
+                qDebug() << "Erreur mise à jour livraison:" << updateLivraisonQuery.lastError();
+                return false;
+            }
+        }
+    }
+
+
+    return true;
+}
+
+
+
+void App::imprimerVente(){
+    /* Récupérer l'élément sélectionné
     QList<QTreeWidgetItem*> selectedItems = ui->treeBl->selectedItems();
     if (selectedItems.isEmpty()) {
         CustomMessageBox().showError("Erreur", "Veuillez sélectionner un bon de livraison à supprimer.");
@@ -369,50 +566,153 @@ void App::supprimerBonDeLivraison() {
     }
 
     QString idLivraisonStr = itemText.mid(QString("➡ BL N°").length());
-    int idLivraison = idLivraisonStr.toInt();
+    int idLivraison = idLivraisonStr.toInt();*/
 
-    // Message de confirmation
+}
+
+void App::livrePaye() {
+    QList<QTreeWidgetItem*> selectedItems = ui->treeBl->selectedItems();
+    if (selectedItems.isEmpty()) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner au moins un bon de livraison ou un groupe à modifier.");
+        return;
+    }
+
+    QSet<QTreeWidgetItem*> itemsToProcess;
+    for (QTreeWidgetItem* item : selectedItems) {
+        if (item->parent()) {
+            itemsToProcess.insert(item);
+        } else {
+            for (int i = 0; i < item->childCount(); ++i) {
+                itemsToProcess.insert(item->child(i));
+            }
+        }
+    }
+
+    if (itemsToProcess.isEmpty()) {
+        CustomMessageBox().showError("Erreur", "Veuillez sélectionner au moins un bon de livraison à marquer comme payé.");
+        return;
+    }
+
     CustomMessageBox msgBox;
     msgBox.setWindowTitle("Confirmation");
-    msgBox.setText("Êtes-vous sûr de vouloir supprimer ce bon de livraison ?");
+    msgBox.setText(itemsToProcess.size() > 1 ?
+                       "Souhaitez-vous valider ces " + QString::number(itemsToProcess.size()) + " bons de livraison comme 'Livré/Paye' ?" :
+                       "Souhaitez-vous valider ce bon de livraison comme 'Livré/Paye' ?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
     int ret = msgBox.exec();
 
-    if (ret == QMessageBox::Yes) {
-        // Supprimer de la base de données
-        QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
-        QSqlQuery query(sqlitedb);
-        query.prepare("DELETE FROM bon_de_livraison WHERE id_livraison = :id");
-        query.bindValue(":id", idLivraison);
+    if (ret != QMessageBox::Yes) {
+        return;
+    }
 
-        if (!query.exec()) {
-            qDebug() << "Erreur lors de la suppression de la base de données :" << query.lastError();
-            CustomMessageBox().showError("Erreur", "Échec de la suppression de la base de données.");
-            return;
+    QSqlDatabase sqlitedb = DatabaseManager::getDatabase();
+    if (!sqlitedb.transaction()) {
+        qDebug() << "Erreur lors du début de la transaction :" << sqlitedb.lastError();
+        CustomMessageBox().showError("Erreur", "Impossible de démarrer la transaction.");
+        return;
+    }
+
+    bool erreur = false;
+    for (QTreeWidgetItem* blItem : itemsToProcess) {
+        QString itemText = blItem->text(0);
+        if (!itemText.startsWith("➡ BL N°")) {
+            continue;
         }
 
-        // Supprimer l'élément du treeView
-        QTreeWidgetItem* parent = selectedItem->parent();
-        if (parent) {
-            parent->removeChild(selectedItem);
-            // Si le parent n'a plus d'enfants, vous pouvez choisir de le supprimer aussi (optionnel)
-            // if (parent->childCount() == 0) {
-            //     QTreeWidgetItem* grandParent = parent->parent();
-            //     if (grandParent) {
-            //         grandParent->removeChild(parent);
-            //     } else {
-            //         ui->treeBl->takeTopLevelItem(ui->treeBl->indexOfTopLevelItem(parent));
-            //     }
-            // }
+        QString idLivraisonStr = itemText.mid(QString("➡ BL N°").length());
+        int idLivraison = idLivraisonStr.toInt();
+
+        QString nomProduit = blItem->text(3);
+        int quantite = blItem->text(4).toInt();
+        QString statutActuel = blItem->text(2);
+        QString prixTotalStr = blItem->text(5);
+        prixTotalStr.chop(QString(" MGA").length());
+        double prixTotal = prixTotalStr.toDouble();
+        QString prixVenteStr = blItem->text(6);
+        prixVenteStr.chop(QString(" MGA").length());
+        double prixVente = prixVenteStr.toDouble();
+
+        if (statutActuel == "Livré/Paye") {
+            continue;
         }
 
-        // Afficher un message de succès
-        CustomMessageBox().showInformation("Succès", "Le bon de livraison a été supprimé avec succès.");
+        QTreeWidgetItem* parentItem = blItem->parent();
+        if (!parentItem) continue;
+
+        QString dateLivraison = parentItem->text(1);
+        QString nomClient = parentItem->text(0);
+
+        QSqlQuery queryProduitId(sqlitedb);
+        queryProduitId.prepare("SELECT produit_id, p.prix_base FROM bon_de_livraison "
+                               "INNER JOIN produits p ON id_produit = produit_id "
+                               "WHERE id_livraison = :id");
+        queryProduitId.bindValue(":id", idLivraison);
+        if (!queryProduitId.exec() || !queryProduitId.next()) {
+            erreur = true;
+            qDebug() << "Erreur produit ID BL N°" << idLivraison;
+            continue;
+        }
+
+        int idProduit = queryProduitId.value(0).toInt();
+        double prix_base = queryProduitId.value(1).toDouble();
+
+        QSqlQuery queryStatut(sqlitedb);
+        queryStatut.prepare("SELECT statut FROM bon_de_livraison WHERE id_livraison = :id");
+        queryStatut.bindValue(":id", idLivraison);
+        if (!queryStatut.exec() || !queryStatut.next()) {
+            erreur = true;
+            qDebug() << "Erreur statut BL N°" << idLivraison;
+            continue;
+        }
+
+        if (queryStatut.value(0).toString() == "Livré/Payé") {
+            continue;
+        }
+
+        QSqlQuery queryUpdateBl(sqlitedb);
+        queryUpdateBl.prepare("UPDATE bon_de_livraison SET statut = 'Livré/Payé' WHERE id_livraison = :id");
+        queryUpdateBl.bindValue(":id", idLivraison);
+        if (!queryUpdateBl.exec()) {
+            erreur = true;
+            qDebug() << "Erreur mise à jour BL N°" << idLivraison;
+            continue;
+        }
+
+        QSqlQuery queryInsertion(sqlitedb);
+        queryInsertion.prepare("INSERT INTO ligne_vente (client_id, produit_id, quantite, date_vente, prix_total, num_bon_livraison, prix_vente, benefice) "
+                               "SELECT client_id, produit_id, :quantite, :date, :prix_total, id_livraison, :prix_vente, :benefice FROM bon_de_livraison WHERE id_livraison = :id");
+        queryInsertion.bindValue(":id", idLivraison);
+        queryInsertion.bindValue(":quantite", quantite);
+        queryInsertion.bindValue(":date", dateLivraison);
+        queryInsertion.bindValue(":prix_total", prixTotal);
+        queryInsertion.bindValue(":prix_vente", prixVente);
+        queryInsertion.bindValue(":benefice", (prixVente - prix_base) * quantite);
+        if (!queryInsertion.exec()) {
+            erreur = true;
+            qDebug() << "Erreur insertion vente BL N°" << idLivraison;
+            continue;
+        }
+    }
+
+    if (erreur) {
+        sqlitedb.rollback();
+        CustomMessageBox().showError("Erreur", "Certaines transactions ont échoué. Veuillez vérifier.");
+    } else {
+        if (!sqlitedb.commit()) {
+            qDebug() << "Erreur validation transaction :" << sqlitedb.lastError().text();
+            CustomMessageBox().showError("Erreur", "Impossible d'enregistrer les modifications.");
+        } else {
+            afficherBonDeLivraison();
+            afficherVente();
+            chiffreDaffaire();
+            CustomMessageBox().showInformation("Succès", "Tous les bons de livraison ont été marqués comme 'Livré/Paye'.");
+        }
     }
 }
 
-void App::livrePaye() {
+
+void App::livreNonPaye() {
     QList<QTreeWidgetItem*> selectedItems = ui->treeBl->selectedItems();
     if (selectedItems.isEmpty()) {
         CustomMessageBox().showError("Erreur", "Veuillez sélectionner au moins un bon de livraison ou un groupe à modifier.");
@@ -439,8 +739,8 @@ void App::livrePaye() {
     CustomMessageBox msgBox;
     msgBox.setWindowTitle("Confirmation");
     msgBox.setText(itemsToProcess.size() > 1 ?
-                       "Souhaitez-vous valider ces " + QString::number(itemsToProcess.size()) + " bons de livraison comme 'Payés' ?" :
-                       "Souhaitez-vous valider ce bon de livraison comme 'Payé' ?");
+                       "Souhaitez-vous valider ces " + QString::number(itemsToProcess.size()) + " bons de livraison comme 'Livré/Non payé' ?" :
+                       "Souhaitez-vous valider ce bon de livraison comme 'Livré/Non payé' ?");
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
     int ret = msgBox.exec();
@@ -475,7 +775,7 @@ void App::livrePaye() {
         prixVenteStr.chop(QString(" MGA").length());
         double prixVente = prixVenteStr.toDouble();
 
-        if (statutActuel == "Payé") {
+        if (statutActuel == "Livré/Payé") {
             continue; // Ignore les lignes déjà payées
         }
 
@@ -508,13 +808,13 @@ void App::livrePaye() {
             CustomMessageBox().showError("Erreur", "Impossible de vérifier le statut du BL N°" + QString::number(idLivraison));
             return;
         }
-        if (queryStatut.value(0).toString() == "Payé") {
+        if (queryStatut.value(0).toString() == "Livré/Payé") {
             continue; // Ignore si déjà payé
         }
 
         // Mise à jour du statut du bon de livraison
         QSqlQuery queryUpdateBl(sqlitedb);
-        queryUpdateBl.prepare("UPDATE bon_de_livraison SET statut = 'Payé' WHERE id_livraison = :id");
+        queryUpdateBl.prepare("UPDATE bon_de_livraison SET statut = 'Livré/Non payé' WHERE id_livraison = :id");
         queryUpdateBl.bindValue(":id", idLivraison);
         if (!queryUpdateBl.exec()) {
             sqlitedb.rollback();
@@ -566,7 +866,7 @@ void App::livrePaye() {
         }
 
         // Enregistrement de la vente
-        QSqlQuery queryInsertion(sqlitedb);
+        /*QSqlQuery queryInsertion(sqlitedb);
         queryInsertion.prepare("INSERT INTO ligne_vente (client_id, produit_id, quantite, date_vente, prix_total, num_bon_livraison, prix_vente, benefice) "
                                "SELECT client_id, produit_id, :quantite, :date, :prix_total, id_livraison, :prix_vente, :benefice FROM bon_de_livraison WHERE id_livraison = :id");
         queryInsertion.bindValue(":id", idLivraison);
@@ -579,7 +879,7 @@ void App::livrePaye() {
             sqlitedb.rollback();
             CustomMessageBox().showError("Erreur", "Échec de l'enregistrement de la vente pour le BL N°" + QString::number(idLivraison));
             return;
-        }
+        }*/
 
         // Enregistrement de l'opération
         QSqlQuery queryOperation(sqlitedb);
@@ -595,7 +895,7 @@ void App::livrePaye() {
         queryOperation.exec();
 
         // Mise à jour de l'interface
-        blItem->setText(3, "Payé");
+        blItem->setText(3, "Livré/Non payé");
     }
 
     if (!sqlitedb.commit()) {
@@ -605,17 +905,54 @@ void App::livrePaye() {
     }
 
     CustomMessageBox().showInformation("Succès", "Les bons de livraison sélectionnés ont été marqués comme payés.");
-    afficherVente();
-    chiffreDaffaire();
     afficherBonDeLivraison();
 }
 
+void App::gererPaiement() {
+    // Options de statut
+    QStringList options;
+    options << "Livré/Non payé" << "Livré/Payé";
 
+    // Afficher la boîte de dialogue pour choisir le statut
+    bool ok;
+    QString choix = QInputDialog::getItem(this, "Modifier le statut",
+                                          "Choisissez le statut :",
+                                          options, 0, false, &ok);
+
+    // Vérifier si l'utilisateur a annulé
+    if (!ok) {
+        return;
+    }
+
+    // Appeler la fonction appropriée selon le choix
+    if (choix == "Livré/Non payé") {
+        livreNonPaye();
+    } else if (choix == "Livré/Payé") {
+        livrePaye();
+    }
+}
+
+/*void App::gererRetour(){
+}*/
+
+void App::retour(){
+    QList<QTreeWidgetItem*> selectedItems = ui->treeBl->selectedItems();
+    if(selectedItems.isEmpty()){
+        CustomMessageBox::warning(this, "Retour", "Veuillez séléctionner le bon de livraison à faire retour");
+        return;
+    }
+
+    QTreeWidgetItem* selectedItem = selectedItems.first();
+    if(!selectedItem->parent()){
+        CustomMessageBox::warning(this, "Retour", "Veuillez séléctionner le bon de livraison à faire retour");
+        return;
+    }
+}
 
 void App::reporterDateBl() {
     QList<QTreeWidgetItem*> selectedItems = ui->treeBl->selectedItems();
     if (selectedItems.isEmpty()) {
-        CustomMessageBox::warning(this, "Modification", "Veuillez sélectionner un bon de livraison à modifier.");
+        CustomMessageBox::warning(this, "Modification", "Veuillez séléctionner un bon de livraison à modifier.");
         return;
     }
 
@@ -759,8 +1096,6 @@ void App::afficherVente() {
 
     ui->treeVente->collapseAll(); // Ne pas afficher les détails au départ
 }
-
-
 
 void App::afficherProduit(){
     CustomMessageBox msgBox;
@@ -1007,16 +1342,25 @@ void App::chiffreDaffaire(){
 
     if (query.next()) {  // Vérifie si la requête a renvoyé une ligne
         QString somme = query.value(0).toString();  // Récupère la somme
-        ui->labelCA->setText(somme + " MGA");  // Affiche la somme avec "Ar"
+        ui->labelCA->setText(" " + somme + " MGA");  // Affiche la somme avec "Ar"
     } else {
         // Cas où il n'y a pas de résultats (s'il n'y a pas de montants ou de lignes correspondantes)
         msgBox.showError("Information", "Aucun montant trouvé.");
         ui->labelCA->setText("0 MGA");
     }
-}
-
-void App::imprimerVente(){
-
+    QSqlQuery queryPot(sqlitedb);
+    queryPot.prepare("SELECT SUM(quantite) FROM ligne_vente");
+    if(!queryPot.exec()){
+        qDebug()<<"Erreur lors de la récupération des données"<<queryPot.lastError();
+        return;
+    }
+    if(queryPot.next()){
+        QString somme = queryPot.value(0).toString();
+        ui->label_pot->setText(" " + somme + " Pots");
+    }else{
+        msgBox.showError("Erreur", "Pas de pots vendu");
+        ui->label_pot->setText("0 Pot");
+    }
 }
 
 void App::rechercheBl() {
@@ -1178,9 +1522,25 @@ void App::recherche() {
     }
     if (queryCA.next()) {
         QString somme = queryCA.value(0).toString();
-        ui->labelCA->setText(somme + " MGA");
+        ui->labelCA->setText(" " + somme + " MGA");
     } else {
         ui->labelCA->setText("0.0 MGA"); // Si aucune vente filtrée
+    }
+    QSqlQuery queryPot(sqlitedb);
+    queryPot.prepare("SELECT SUM(quantite) FROM ligne_vente l "
+                     "INNER JOIN produits p ON id_produit = produit_id "
+                     "INNER JOIN clients c ON id_client = client_id "
+                     "WHERE p.nom LIKE :recherche OR p.categorie LIKE :recherche OR c.nom LIKE :recherche OR date_vente LIKE :recherche");
+    queryPot.bindValue(":recherche", "%" + recherche + "%");
+    if (!queryPot.exec()) {
+        qDebug() << "Erreur lors du calcul des pots" << queryPot.lastError();
+        return;
+    }
+    if (queryPot.next()) {
+        QString somme = queryPot.value(0).toString();
+        ui->label_pot->setText(" "+ somme + " pots");
+    } else {
+        ui->label_pot->setText("0 pot"); // Si aucune vente filtrée
     }
 }
 
@@ -1272,9 +1632,26 @@ void App::filtrageDate() {
     }
     if (queryCA.next()) {
         QString somme = queryCA.value(0).toString();
-        ui->labelCA->setText(somme + " MGA");
+        ui->labelCA->setText(" " + somme + " MGA");
     } else {
         ui->labelCA->setText("0.0 MGA"); // Si aucune vente filtrée par date
+    }
+    QSqlQuery queryPot(sqlitedb);
+    queryPot.prepare("SELECT SUM(quantite) FROM ligne_vente "
+                    "WHERE (substr(date_vente, 7, 4) || '-' || substr(date_vente, 4, 2) || '-' || substr(date_vente, 1, 2)) "
+                    "BETWEEN (substr(:dateDebut, 7, 4) || '-' || substr(:dateDebut, 4, 2) || '-' || substr(:dateDebut, 1, 2)) "
+                    "AND (substr(:dateFin, 7, 4) || '-' || substr(:dateFin, 4, 2) || '-' || substr(:dateFin, 1, 2))");
+    queryPot.bindValue(":dateDebut", dateDebut);
+    queryPot.bindValue(":dateFin", dateFin);
+    if (!queryPot.exec()) {
+        qDebug() << "Erreur lors du calcul des pots" << queryPot.lastError();
+        return;
+    }
+    if (queryPot.next()) {
+        QString somme = queryPot.value(0).toString();
+        ui->label_pot->setText(" " + somme + " pots");
+    } else {
+        ui->label_pot->setText("0 pot"); // Si aucune vente filtrée
     }
 }
 
@@ -1361,6 +1738,8 @@ void App::filtrageDateBonDeLivraison() {
 
     ui->treeBl->expandAll(); // Afficher les détails par défaut après le filtrage
 }
+
+
 
 void App::reinitialiserAffichage(){
     QDate dateActuelle = QDate::currentDate();
@@ -1455,9 +1834,17 @@ void App::mettreDansHistorique(){
             qDebug()<<"Erreur lors de la suppression des charges"<<deleteCharge.lastError();
             return;
         }
+        QSqlQuery deleteBl(sqlitedb);
+        //supprimer les bl avec statut "Payé"
+        deleteBl.prepare("DELETE FROM bon_de_livraison WHERE statut = 'Livré/Payé'");
+        if(!deleteBl.exec()){
+            qDebug()<<"Erreur lors de la suppression des BL"<<deleteBl.lastError();
+            return;
+        }
         CustomMessageBox msgBox;
         msgBox.showInformation("Succes", "Ajout des historiques réussi");
         afficherVente();
+        afficherBonDeLivraison();
     }
 
 

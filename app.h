@@ -65,12 +65,20 @@ private slots:
     void filtrageDateBonDeLivraison();
     void rechercheBl();
     void reinitialiserBl();
+    void livreNonPaye();
     void livrePaye();
     void tableDesOperations();
     void affichageTiers();
     void reporterDateBl();
     void afficherHistorique();
     void mettreDansHistorique();
+    void gererPaiement();
+    void retour();
+    bool traiterRetourAvecQuantites(int idLivraison, int& retourTotal, int& totalLivree);
+    void supprimerItemDuTree(QTreeWidgetItem *item);
+    bool supprimerBonDeLivraisonDansBD(int idLivraison);
+    bool confirmerSuppression();
+    //void gererRetour();
 
 signals:
     void deconnexion();

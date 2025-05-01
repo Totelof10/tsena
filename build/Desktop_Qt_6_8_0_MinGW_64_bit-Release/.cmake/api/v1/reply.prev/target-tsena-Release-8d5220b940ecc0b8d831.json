@@ -78,13 +78,13 @@
 			{
 				"command" : 4,
 				"file" : 1,
-				"line" : 88,
+				"line" : 90,
 				"parent" : 0
 			},
 			{
 				"command" : 5,
 				"file" : 1,
-				"line" : 71,
+				"line" : 73,
 				"parent" : 0
 			},
 			{
@@ -292,7 +292,7 @@
 			{
 				"command" : 11,
 				"file" : 1,
-				"line" : 52,
+				"line" : 54,
 				"parent" : 0
 			}
 		]
@@ -440,18 +440,20 @@
 				42,
 				45,
 				48,
-				62
+				50,
+				53,
+				70
 			]
 		}
 	],
 	"dependencies" : 
 	[
 		{
-			"backtrace" : 0,
-			"id" : "tsena_autogen::@6890427a1f51a3e7e1df"
+			"id" : "tsena_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
 		},
 		{
-			"id" : "tsena_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
+			"backtrace" : 0,
+			"id" : "tsena_autogen::@6890427a1f51a3e7e1df"
 		}
 	],
 	"id" : "tsena::@6890427a1f51a3e7e1df",
@@ -598,7 +600,9 @@
 				42,
 				45,
 				48,
-				62
+				50,
+				53,
+				70
 			]
 		},
 		{
@@ -621,17 +625,21 @@
 				44,
 				47,
 				49,
-				50,
-				51,
 				52,
-				53,
-				54,
 				55,
 				56,
 				57,
 				58,
 				59,
-				60
+				60,
+				61,
+				62,
+				63,
+				64,
+				65,
+				66,
+				67,
+				68
 			]
 		},
 		{
@@ -651,7 +659,9 @@
 				40,
 				43,
 				46,
-				61
+				51,
+				54,
+				69
 			]
 		},
 		{
@@ -668,8 +678,8 @@
 			"name" : "CMake Rules",
 			"sourceIndexes" : 
 			[
-				63,
-				64
+				71,
+				72
 			]
 		}
 	],
@@ -939,6 +949,38 @@
 			"sourceGroupIndex" : 0
 		},
 		{
+			"backtrace" : 4,
+			"path" : "historique.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 4,
+			"compileGroupIndex" : 0,
+			"path" : "historique.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 4,
+			"path" : "historique.ui",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 4,
+			"path" : "retour.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 4,
+			"compileGroupIndex" : 0,
+			"path" : "retour.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 4,
+			"path" : "retour.ui",
+			"sourceGroupIndex" : 2
+		},
+		{
 			"backtrace" : 0,
 			"isGenerated" : true,
 			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_mainwindow.h",
@@ -1008,6 +1050,18 @@
 			"backtrace" : 0,
 			"isGenerated" : true,
 			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_tiers.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_historique.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build/Desktop_Qt_6_8_0_MinGW_64_bit-Release/tsena_autogen/include/ui_retour.h",
 			"sourceGroupIndex" : 1
 		},
 		{

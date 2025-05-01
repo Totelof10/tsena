@@ -231,7 +231,8 @@ void AjoutVente::remettreAZero(int index)
     ui->lineEditTotal->setText("0.00");
 }
 
-void AjoutVente::mettreAJourTotal() {
+void AjoutVente::mettreAJourTotal()
+{
     int quantite = ui->spinBoxQuantite->value();
     int idProduit = ui->comboProduit->currentData().toInt();
 
@@ -298,7 +299,7 @@ void AjoutVente::ajouterNouvelleVente() {
                              "</style>"
                              "</head>"
                              "<body>"
-                             "<p>RAHENINTSOA ALASORA</p>"
+                             "<p>Yaourt Sanda ALASORA</p>"
                              "<p><strong>Nif : </strong></p>"
                              "<p><strong>STAT : </strong></p>"
                              "<p><strong>Adresse : </strong>ALASORA Commune en Face de Sopromer</p>"
